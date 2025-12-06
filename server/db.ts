@@ -1,11 +1,25 @@
-import { eq } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { 
+  InsertUser, 
+  users, 
+  consultations,
+  InsertConsultation,
+  messages,
+  InsertMessage,
+  documents,
+  InsertDocument,
+  contractReviews,
+  InsertContractReview,
+  reports,
+  InsertReport,
+  legalKnowledge,
+  InsertLegalKnowledge
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -89,4 +103,162 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Consultation queries
+export async function createConsultation(data: InsertConsultation) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(consultations).values(data);
+  return result[0].insertId;
+}
+
+export async function getConsultationById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(consultations).where(eq(consultations.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUserConsultations(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(consultations).where(eq(consultations.userId, userId)).orderBy(desc(consultations.updatedAt));
+}
+
+export async function updateConsultationStatus(id: number, status: "active" | "completed" | "archived") {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(consultations).set({ status, updatedAt: new Date() }).where(eq(consultations.id, id));
+}
+
+// Message queries
+export async function createMessage(data: InsertMessage) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(messages).values(data);
+  return result[0].insertId;
+}
+
+export async function getConsultationMessages(consultationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(messages).where(eq(messages.consultationId, consultationId)).orderBy(messages.createdAt);
+}
+
+// Document queries
+export async function createDocument(data: InsertDocument) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(documents).values(data);
+  return result[0].insertId;
+}
+
+export async function getDocumentById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(documents).where(eq(documents.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getConsultationDocuments(consultationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(documents).where(eq(documents.consultationId, consultationId)).orderBy(desc(documents.uploadedAt));
+}
+
+export async function updateDocumentText(id: number, extractedText: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(documents).set({ extractedText }).where(eq(documents.id, id));
+}
+
+// Contract review queries
+export async function createContractReview(data: InsertContractReview) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(contractReviews).values(data);
+  return result[0].insertId;
+}
+
+export async function getContractReviewByDocumentId(documentId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(contractReviews).where(eq(contractReviews.documentId, documentId)).orderBy(desc(contractReviews.createdAt)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getConsultationReviews(consultationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(contractReviews).where(eq(contractReviews.consultationId, consultationId)).orderBy(desc(contractReviews.createdAt));
+}
+
+// Report queries
+export async function createReport(data: InsertReport) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(reports).values(data);
+  return result[0].insertId;
+}
+
+export async function getReportById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(reports).where(eq(reports.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getConsultationReports(consultationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(reports).where(eq(reports.consultationId, consultationId)).orderBy(desc(reports.createdAt));
+}
+
+export async function updateReportPdfUrl(id: number, pdfUrl: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(reports).set({ pdfUrl }).where(eq(reports.id, id));
+}
+
+// Legal knowledge queries
+export async function createLegalKnowledge(data: InsertLegalKnowledge) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(legalKnowledge).values(data);
+  return result[0].insertId;
+}
+
+export async function searchLegalKnowledge(category?: string, keyword?: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  if (category) {
+    return db.select().from(legalKnowledge).where(eq(legalKnowledge.category, category as any));
+  }
+  
+  return db.select().from(legalKnowledge);
+}
+
+export async function getAllLegalKnowledge() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(legalKnowledge);
+}
