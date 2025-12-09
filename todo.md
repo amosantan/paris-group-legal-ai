@@ -81,3 +81,17 @@
 - [x] Add PDF file validation and size limits
 - [x] Test PDF extraction with sample contracts
 - [x] Update documentation with PDF support
+
+
+## Legal Knowledge Base UI
+
+- [x] Add bookmarks table to database schema
+- [x] Create backend API for knowledge base search
+- [x] Create backend API for bookmarking articles
+- [x] Build Knowledge Base page with search interface
+- [x] Add category filtering and sorting
+- [x] Implement bookmark functionality in UI
+- [x] Add Arabic language toggle for articles
+- [x] Create bookmarks management page
+- [x] Test search and bookmark features
+- [x] Update navigation to include Knowledge Base

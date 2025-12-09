@@ -523,6 +523,111 @@ Use formal legal language and cite relevant articles and laws.`;
         return getProviderInfo(input.provider);
       }),
   }),
+
+  // Legal Knowledge Base
+  knowledgeBase: router({
+    search: protectedProcedure
+      .input(z.object({
+        query: z.string().optional(),
+        category: z.enum(["rental_law", "civil_code", "rera_regulation", "escrow_law", "real_estate_law", "procedures", "other", "all"]).default("all"),
+        language: z.enum(["en", "ar"]).default("en"),
+      }))
+      .query(({ input }) => {
+        const { query, category } = input;
+        
+        if (query) {
+          // Search by keyword
+          const results = searchKB(query);
+          
+          // Filter by category if not "all"
+          if (category !== "all") {
+            return results.filter(article => article.category === category);
+          }
+          
+          return results;
+        }
+        
+        // Browse by category
+        if (category !== "all") {
+          return searchKB("").filter(article => article.category === category);
+        }
+        
+        // Return all articles
+        return searchKB("");
+      }),
+
+    getById: protectedProcedure
+      .input(z.object({ articleId: z.string() }))
+      .query(({ input }) => {
+        const allArticles = searchKB("");
+        return allArticles.find(article => 
+          `${article.lawNumber}-${article.articleNumber || 'general'}` === input.articleId
+        );
+      }),
+
+    getCategories: protectedProcedure.query(() => {
+      return [
+        { value: "all", label: "All Categories", count: searchKB("").length },
+        { value: "rental_law", label: "Rental Law", count: searchKB("").filter(a => a.category === "rental_law").length },
+        { value: "civil_code", label: "Civil Code", count: searchKB("").filter(a => a.category === "civil_code").length },
+        { value: "escrow_law", label: "Escrow Law", count: searchKB("").filter(a => a.category === "escrow_law").length },
+        { value: "strata_law", label: "Strata Law", count: searchKB("").filter(a => a.category === "strata_law").length },
+        { value: "procedures", label: "Procedures", count: searchKB("").filter(a => a.category === "procedures").length },
+      ];
+    }),
+  }),
+
+  // Bookmarks
+  bookmarks: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return db.getUserBookmarks(ctx.user.id);
+    }),
+
+    create: protectedProcedure
+      .input(z.object({
+        articleId: z.string(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Check if bookmark already exists
+        const existing = await db.getBookmarkByArticle(ctx.user.id, input.articleId);
+        if (existing) {
+          throw new Error("Article already bookmarked");
+        }
+        
+        const bookmarkId = await db.createBookmark({
+          userId: ctx.user.id,
+          articleId: input.articleId,
+          notes: input.notes || null,
+        });
+        
+        return { bookmarkId };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.deleteBookmark(input.id, ctx.user.id);
+        return { success: true };
+      }),
+
+    updateNotes: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        notes: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.updateBookmarkNotes(input.id, ctx.user.id, input.notes);
+        return { success: true };
+      }),
+
+    checkBookmark: protectedProcedure
+      .input(z.object({ articleId: z.string() }))
+      .query(async ({ ctx, input }) => {
+        const bookmark = await db.getBookmarkByArticle(ctx.user.id, input.articleId);
+        return { isBookmarked: !!bookmark, bookmark };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

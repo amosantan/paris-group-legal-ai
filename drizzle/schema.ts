@@ -129,3 +129,17 @@ export const legalKnowledge = mysqlTable("legalKnowledge", {
 
 export type LegalKnowledge = typeof legalKnowledge.$inferSelect;
 export type InsertLegalKnowledge = typeof legalKnowledge.$inferInsert;
+
+/**
+ * User bookmarks for legal knowledge articles
+ */
+export const bookmarks = mysqlTable("bookmarks", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  articleId: varchar("articleId", { length: 255 }).notNull(), // Reference to knowledge base article
+  notes: text("notes"), // User's personal notes on the article
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Bookmark = typeof bookmarks.$inferSelect;
+export type InsertBookmark = typeof bookmarks.$inferInsert;

@@ -14,7 +14,9 @@ import {
   reports,
   InsertReport,
   legalKnowledge,
-  InsertLegalKnowledge
+  InsertLegalKnowledge,
+  bookmarks,
+  InsertBookmark
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -261,4 +263,44 @@ export async function getAllLegalKnowledge() {
   if (!db) return [];
   
   return db.select().from(legalKnowledge);
+}
+
+// Bookmark queries
+export async function createBookmark(data: InsertBookmark) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(bookmarks).values(data);
+  return result[0].insertId;
+}
+
+export async function getUserBookmarks(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(bookmarks).where(eq(bookmarks.userId, userId)).orderBy(desc(bookmarks.createdAt));
+}
+
+export async function getBookmarkByArticle(userId: number, articleId: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(bookmarks)
+    .where(and(eq(bookmarks.userId, userId), eq(bookmarks.articleId, articleId)))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function deleteBookmark(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(bookmarks).where(and(eq(bookmarks.id, id), eq(bookmarks.userId, userId)));
+}
+
+export async function updateBookmarkNotes(id: number, userId: number, notes: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(bookmarks).set({ notes }).where(and(eq(bookmarks.id, id), eq(bookmarks.userId, userId)));
 }
