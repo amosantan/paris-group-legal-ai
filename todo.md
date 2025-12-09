@@ -52,3 +52,20 @@
 - [x] Admin UI for switching LLM providers
 - [x] Test Gemini API integration
 - [x] Update documentation with provider information
+
+
+## Expanded Legal Knowledge Base
+
+- [x] UAE Federal Law 5/1985 (Civil Code) - comprehensive coverage
+- [ ] UAE Commercial Companies Law
+- [x] UAE Property Law and ownership regulations
+- [x] Dubai Land Department procedures and requirements
+- [x] RERA dispute resolution procedures
+- [x] Escrow account regulations (Law 8/2007)
+- [x] Strata Law 27/2007 details
+- [ ] Mortgage and financing regulations
+- [x] Ejari registration requirements
+- [x] Common legal scenarios and case examples
+- [x] Legal procedure timelines and deadlines
+- [x] Court filing requirements and procedures
+- [x] Practical legal scenarios with real-world examples
