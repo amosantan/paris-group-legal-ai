@@ -12,7 +12,7 @@ export interface LegalArticle {
   titleAr?: string;
   contentEn: string;
   contentAr?: string;
-  category: "rental_law" | "civil_code" | "rera_regulation" | "escrow_law" | "real_estate_law" | "strata_law" | "procedures" | "other";
+  category: "rental_law" | "civil_code" | "rera_regulation" | "escrow_law" | "real_estate_law" | "strata_law" | "procedures" | "mortgage_law" | "property_registration" | "difc_law" | "other";
   keywords: string[];
   practicalExample?: string;
 }
@@ -479,8 +479,417 @@ export const LEGAL_KNOWLEDGE_BASE: LegalArticle[] = [
     category: "rera_regulation",
     keywords: ["rent increase", "RERA calculator", "market rent", "percentage limits", "2-year rule"],
     practicalExample: "Market rent AED 100,000, tenant pays AED 70,000 (30% below). Landlord can increase by max 10% to AED 77,000 after 2 years."
+  },
+
+  // ============================================
+  // DUBAI MORTGAGE LAW 14/2008
+  // ============================================
+  {
+    lawName: "Dubai Mortgage Law",
+    lawNumber: "14/2008",
+    articleNumber: "1",
+    titleEn: "Title and Citation",
+    titleAr: "العنوان والاستشهاد",
+    contentEn: "This Law shall be entitled 'Dubai Law No. 14/2008 on Mortgage in the Emirate of Dubai'. It governs the mortgage of property and property units as security for debt in Dubai.",
+    contentAr: "يُطلق على هذا القانون اسم 'قانون دبي رقم 14 لسنة 2008 بشأن الرهن في إمارة دبي'. ينظم رهن العقارات ووحدات العقارات كضمان للديون في دبي.",
+    category: "mortgage_law",
+    keywords: ["mortgage", "title", "Dubai", "property security", "debt"]
+  },
+  {
+    lawName: "Dubai Mortgage Law",
+    lawNumber: "14/2008",
+    articleNumber: "3",
+    titleEn: "Scope of Application",
+    titleAr: "نطاق التطبيق",
+    contentEn: "The provisions of this Law apply to the Mortgage of Property and Property Units as security for debt. It makes no difference whether the debt is present, future, conditional, or contingent.",
+    contentAr: "تنطبق أحكام هذا القانون على رهن العقارات ووحدات العقارات كضمان للديون. لا فرق إذا كان الدين حاضراً أو مستقبلياً أو مشروطاً أو محتملاً.",
+    category: "mortgage_law",
+    keywords: ["scope", "application", "property mortgage", "security", "debt types"],
+    practicalExample: "A bank can mortgage a property for a current loan or a future credit line. Both are covered under this law."
+  },
+  {
+    lawName: "Dubai Mortgage Law",
+    lawNumber: "14/2008",
+    articleNumber: "4",
+    titleEn: "Eligible Mortgagees",
+    titleAr: "المرتهنون المؤهلون",
+    contentEn: "The mortgagee must be a bank, company, or financial institution duly licensed and registered with the UAE Central Bank to provide property financing in the UAE. The mortgagor must be the owner of the mortgaged property and in a position to dispose of the same.",
+    contentAr: "يجب أن يكون المرتهن بنكاً أو شركة أو مؤسسة مالية مرخصة ومسجلة لدى البنك المركزي الإماراتي لتقديم التمويل العقاري في الإمارات. يجب أن يكون الراهن مالك العقار المرهون وفي وضع يسمح له بالتصرف فيه.",
+    category: "mortgage_law",
+    keywords: ["mortgagee", "lender", "bank", "Central Bank", "licensed", "mortgagor", "owner"],
+    practicalExample: "Only UAE Central Bank-licensed banks like Emirates NBD, ADCB, or Mashreq can act as mortgagees. Individual lenders cannot create valid mortgages."
+  },
+  {
+    lawName: "Dubai Mortgage Law",
+    lawNumber: "14/2008",
+    titleEn: "Registration Requirement",
+    titleAr: "متطلبات التسجيل",
+    contentEn: "Only mortgages registered with the Dubai Land Department on the real estate register or the interim register will be considered valid. The ranking of the mortgage is determined by the time of registration, with a serial number allocated on registration.",
+    contentAr: "تعتبر الرهونات المسجلة لدى دائرة الأراضي والأملاك في دبي في سجل العقارات أو السجل المؤقت صالحة فقط. يتم تحديد ترتيب الرهن حسب وقت التسجيل، مع تخصيص رقم تسلسلي عند التسجيل.",
+    category: "mortgage_law",
+    keywords: ["registration", "Dubai Land Department", "DLD", "validity", "ranking", "serial number"],
+    practicalExample: "Bank A registers mortgage on January 1st, Bank B on January 15th. Bank A has first priority if property is sold. Unregistered mortgages have no legal effect."
+  },
+  {
+    lawName: "Dubai Mortgage Law",
+    lawNumber: "14/2008",
+    titleEn: "Interim Register Transfer",
+    titleAr: "نقل السجل المؤقت",
+    contentEn: "If a mortgage is registered on the interim register, at the time of transfer of title to the real estate register, all mortgages and other interests noted on the interim register will automatically be transferred to and registered on the real estate register.",
+    contentAr: "إذا تم تسجيل الرهن في السجل المؤقت، فعند نقل الملكية إلى سجل العقارات، سيتم نقل جميع الرهونات والمصالح الأخرى المسجلة في السجل المؤقت تلقائياً وتسجيلها في سجل العقارات.",
+    category: "mortgage_law",
+    keywords: ["interim register", "transfer", "real estate register", "automatic", "off-plan"],
+    practicalExample: "For off-plan properties, mortgage registered on interim register automatically transfers to main register when building completes and title deed is issued."
+  },
+  {
+    lawName: "Dubai Mortgage Law",
+    lawNumber: "14/2008",
+    titleEn: "Prohibited Self-Help Clauses",
+    titleAr: "بنود المساعدة الذاتية المحظورة",
+    contentEn: "Any clause in a mortgage contract stipulating that when the borrower fails to pay the mortgage debt within the specified period, the lender shall have title to the mortgaged property or can sell the mortgaged property without taking the enforcement steps required under law, shall be considered as void.",
+    contentAr: "أي بند في عقد الرهن ينص على أنه عندما يفشل المقترض في سدا د الدين المرهون خلال الفترة المحددة، يحق للمقرض الحصول على ملكية العقار المرهون أو بيع العقار المرهون دون اتخاذ خطوات التنفيذ المطلوبة بموجب القانون، يعتبر باطلاً.",
+    category: "mortgage_law",
+    keywords: ["prohibited clauses", "self-help", "void", "automatic transfer", "illegal"],
+    practicalExample: "A bank cannot include a clause saying 'if you don't pay, we automatically own the property'. Such clauses are void. Banks must follow legal enforcement procedures."
+  },
+  {
+    lawName: "Dubai Mortgage Law",
+    lawNumber: "14/2008",
+    titleEn: "Enforcement Procedure - 30 Day Notice",
+    titleAr: "إجراءات التنفيذ - إشعار 30 يوماً",
+    contentEn: "In the event of default in payment of the debt when due, the lender must provide the borrower 30 days written notice through the Notary Public before commencing execution proceedings. This notice is mandatory before any court action.",
+    contentAr: "في حالة التخلف عن سداد الدين عند استحقاقه، يجب على المقرض تقديم إشعار كتابي للمقترض لمدة 30 يوماً من خلال كاتب العدل قبل البدء في إجراءات التنفيذ. هذا الإشعار إلزامي قبل أي إجراء قضائي.",
+    category: "mortgage_law",
+    keywords: ["enforcement", "default", "30 days notice", "Notary Public", "mandatory"],
+    practicalExample: "If borrower misses 3 monthly payments, bank must send 30-day notice via Notary Public. If borrower pays within 30 days, enforcement stops. If not, bank can proceed to court."
+  },
+  {
+    lawName: "Dubai Mortgage Law",
+    lawNumber: "14/2008",
+    titleEn: "Court-Ordered Attachment and Sale",
+    titleAr: "الحجز والبيع بأمر من المحكمة",
+    contentEn: "If within the 30 day period the borrower fails to pay the sums due, the execution judge shall, upon request of the lender, order an attachment against the mortgaged property so that it can be sold by public auction in accordance with the applicable procedures of the Dubai Land Department.",
+    contentAr: "إذا فشل المقترض في سداد المبالغ المستحقة خلال فترة 30 يوماً، يأمر قاضي التنفيذ، بناءً على طلب المقرض، بالحجز على العقار المرهون بحيث يمكن بيعه بالمزاد العلني وفقاً للإجراءات المعمول بها في دائرة الأراضي والأملاك في دبي.",
+    category: "mortgage_law",
+    keywords: ["court order", "attachment", "public auction", "execution judge", "sale"],
+    practicalExample: "After 30-day notice expires without payment, bank files with execution judge. Judge orders attachment. Property sold at public auction through DLD. Proceeds pay bank debt, remainder goes to owner."
+  },
+  {
+    lawName: "Dubai Mortgage Law",
+    lawNumber: "14/2008",
+    titleEn: "Multiple Mortgages - Priority Ranking",
+    titleAr: "الرهونات المتعددة - ترتيب الأولوية",
+    contentEn: "When multiple mortgages exist on the same property, priority is determined by registration time. First registered mortgage has first claim on sale proceeds. Second and subsequent mortgages are paid from remaining proceeds in order of registration.",
+    contentAr: "عندما توجد رهونات متعددة على نفس العقار، يتم تحديد الأولوية حسب وقت التسجيل. الرهن المسجل أولاً له الأولوية الأولى على عائدات البيع. يتم دفع الرهونات الثانية واللاحقة من العائدات المتبقية حسب ترتيب التسجيل.",
+    category: "mortgage_law",
+    keywords: ["multiple mortgages", "priority", "ranking", "first charge", "second charge"],
+    practicalExample: "Property worth AED 2M. First mortgage AED 1.5M (Bank A), second mortgage AED 800K (Bank B). If sold for AED 2M: Bank A gets AED 1.5M, Bank B gets AED 500K, owner gets nothing."
+  },
+  {
+    lawName: "Dubai Mortgage Law",
+    lawNumber: "14/2008",
+    titleEn: "Mortgage Discharge",
+    titleAr: "إبراء الرهن",
+    contentEn: "Upon full repayment of the mortgage debt, the lender must provide a discharge certificate. The borrower must register the discharge with Dubai Land Department to remove the mortgage from the property title. Registration of discharge is essential to clear the title.",
+    contentAr: "عند السداد الكامل للدين المرهون، يجب على المقرض تقديم شهادة إبراء. يجب على المقترض تسجيل الإبراء لدى دائرة الأراضي والأملاك في دبي لإزالة الرهن من سند الملكية. تسجيل الإبراء ضروري لتنظيف السند.",
+    category: "mortgage_law",
+    keywords: ["discharge", "repayment", "clear title", "registration", "certificate"],
+    practicalExample: "After paying final mortgage installment, bank issues discharge letter. Owner must take letter to DLD and pay discharge fee (typically AED 2,000-3,000) to remove mortgage from title deed."
+  },
+
+  // ============================================
+  // DUBAI PROPERTY REGISTRATION LAW 7/2006
+  // ============================================
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "1",
+    titleEn: "Title and Scope",
+    titleAr: "العنوان والنطاق",
+    contentEn: "This Law shall be entitled 'Law No. 7 of 2006 Concerning Real Property Registration in the Emirate of Dubai'. It applies to all real estate within Dubai and provides the framework for property ownership, registration, and governance.",
+    contentAr: "يُطلق على هذا القانون اسم 'القانون رقم 7 لسنة 2006 بشأن تسجيل العقارات في إمارة دبي'. ينطبق على جميع العقارات في دبي ويوفر الإطار لملكية العقارات وتسجيلها وإدارتها.",
+    category: "property_registration",
+    keywords: ["property registration", "title", "Dubai", "real estate", "scope"]
+  },
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "3",
+    titleEn: "Ownership Rights - UAE and GCC Nationals",
+    titleAr: "حقوق الملكية - مواطنو الإمارات ودول مجلس التعاون",
+    contentEn: "UAE nationals, GCC nationals, and companies wholly owned by them can own property anywhere in Dubai without restrictions. This includes freehold ownership of land and buildings.",
+    contentAr: "يمكن لمواطني الإمارات ومواطني دول مجلس التعاون والشركات المملوكة لهم بالكامل امتلاك العقارات في أي مكان في دبي دون قيود. يشمل ذلك الملكية الحرة للأراضي والمباني.",
+    category: "property_registration",
+    keywords: ["ownership", "UAE nationals", "GCC", "freehold", "unrestricted"],
+    practicalExample: "An Emirati citizen can buy any property in Dubai - villa in Jumeirah, apartment in Deira, or land in Al Barsha. No restrictions apply."
+  },
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "4",
+    titleEn: "Ownership Rights - Foreign Nationals",
+    titleAr: "حقوق الملكية - الأجانب",
+    contentEn: "Non-UAE nationals (expats and foreign investors) can own property only in designated areas specified by the Ruler of Dubai. They may be granted freehold ownership without time restrictions, or usufruct/leasehold rights for up to 99 years.",
+    contentAr: "يمكن لغير مواطني الإمارات (الوافدين والمستثمرين الأجانب) امتلاك العقارات فقط في المناطق المحددة التي يحددها حاكم دبي. قد يُمنحون ملكية حرة دون قيود زمنية، أو حقوق انتفاع/إيجار لمدة تصل إلى 99 عاماً.",
+    category: "property_registration",
+    keywords: ["foreign ownership", "expats", "designated areas", "freehold", "usufruct", "99 years"],
+    practicalExample: "A British investor can buy freehold property in Downtown Dubai, Dubai Marina, or Palm Jumeirah (designated areas), but cannot buy in Deira or Bur Dubai (non-designated areas)."
+  },
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "5",
+    titleEn: "Dubai Land Department Authority",
+    titleAr: "سلطة دائرة الأراضي والأملاك",
+    contentEn: "The Dubai Land Department (DLD) is the sole authority responsible for real estate registration and enforcement of property laws. DLD maintains all original documents and court rulings related to property registration. Only authorized judicial authorities, experts, and concerned parties may access these documents.",
+    contentAr: "دائرة الأراضي والأملاك في دبي هي السلطة الوحيدة المسؤولة عن تسجيل العقارات وإنفاذ قوانين الملكية. تحتفظ الدائرة بجميع المستندات الأصلية والأحكام القضائية المتعلقة بتسجيل العقارات. يمكن فقط للسلطات القضائية المخولة والخبراء والأطراف المعنية الوصول إلى هذه المستندات.",
+    category: "property_registration",
+    keywords: ["Dubai Land Department", "DLD", "authority", "registration", "documents"],
+    practicalExample: "All property transactions in Dubai must go through DLD. Private property registrations or agreements not registered with DLD have no legal validity."
+  },
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "6",
+    titleEn: "DLD Functions and Responsibilities",
+    titleAr: "وظائف ومسؤوليات دائرة الأراضي والأملاك",
+    contentEn: "DLD key responsibilities include: (1) Managing the Property Register and maintaining ownership records, (2) Overseeing surveying and mapping of land plots and properties, (3) Regulating real estate transactions, contracts and documentation, (4) Establishing rules for valuation, brokerage and auction sales, (5) Setting and collecting registration fees.",
+    contentAr: "المسؤوليات الرئيسية لدائرة الأراضي والأملاك تشمل: (1) إدارة سجل العقارات والحفاظ على سجلات الملكية، (2) الإشراف على مسح ورسم خرائط قطع الأراضي والعقارات، (3) تنظيم المعاملات العقارية والعقود والوثائق، (4) وضع قواعد التقييم والوساطة ومبيعات المزادات، (5) تحديد وجمع رسوم التسجيل.",
+    category: "property_registration",
+    keywords: ["DLD functions", "property register", "surveying", "transactions", "fees"],
+    practicalExample: "When buying property, DLD: verifies ownership, checks for mortgages/liens, calculates transfer fees (4% of value), registers new ownership, and issues title deed."
+  },
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "7-8",
+    titleEn: "Property Register - Legal Validity",
+    titleAr: "سجل العقارات - الصلاحية القانونية",
+    contentEn: "The Property Register serves as an indisputable legal record of property rights. All real estate transactions (creation, transfer or modification of ownership) MUST be recorded. Transactions hold NO legal validity unless registered. The register's data is legally binding unless proven fraudulent. Electronically recorded property documents hold the same evidentiary value as original paper documents.",
+    contentAr: "يعمل سجل العقارات كسجل قانوني لا جدال فيه لحقوق الملكية. يجب تسجيل جميع المعاملات العقارية (إنشاء أو نقل أو تعديل الملكية). المعاملات ليس لها صلاحية قانونية ما لم يتم تسجيلها. بيانات السجل ملزمة قانوناً ما لم يثبت أنها احتيالية. الوثائق العقارية المسجلة إلكترونياً لها نفس القيمة الإثباتية للوثائق الورقية الأصلية.",
+    category: "property_registration",
+    keywords: ["property register", "legal validity", "mandatory registration", "binding", "electronic records"],
+    practicalExample: "If you buy property but don't register with DLD, you have NO legal ownership. Seller can sell to another buyer who registers first. Only registered owner has legal rights."
+  },
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "9-10",
+    titleEn: "Sale and Transfer Requirements",
+    titleAr: "متطلبات البيع والنقل",
+    contentEn: "All transactions related to real estate MUST be registered with DLD. If a party fails to transfer property as per an agreement, they are only liable for financial compensation (not specific performance). The law prioritizes monetary damages over forcing property transfer.",
+    contentAr: "يجب تسجيل جميع المعاملات المتعلقة بالعقارات لدى دائرة الأراضي والأملاك. إذا فشل طرف في نقل العقار وفقاً للاتفاق، فهو مسؤول فقط عن التعويض المالي (وليس الأداء المحدد). يعطي القانون الأولوية للتعويضات النقدية على إجبار نقل الملكية.",
+    category: "property_registration",
+    keywords: ["sale", "transfer", "registration", "compensation", "breach"],
+    practicalExample: "Seller signs sale agreement but refuses to transfer title. Buyer cannot force transfer, but can sue for financial damages equal to property value plus losses."
+  },
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "11",
+    titleEn: "Inheritance of Property",
+    titleAr: "وراثة العقارات",
+    contentEn: "Heirs must register a certificate of inheritance before exercising ownership rights if real estate is part of an inheritance. The certificate must be obtained from the relevant court and registered with DLD before heirs can sell, mortgage, or otherwise deal with the inherited property.",
+    contentAr: "يجب على الورثة تسجيل شهادة الوراثة قبل ممارسة حقوق الملكية إذا كان العقار جزءاً من الميراث. يجب الحصول على الشهادة من المحكمة المختصة وتسجيلها لدى دائرة الأراضي والأملاك قبل أن يتمكن الورثة من بيع العقار أو رهنه أو التعامل معه بأي شكل آخر.",
+    category: "property_registration",
+    keywords: ["inheritance", "heirs", "certificate", "court", "registration"],
+    practicalExample: "Father dies leaving villa to 3 children. Children must get inheritance certificate from Sharia Court, register with DLD, then can sell villa. Cannot sell without certificate."
+  },
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "12",
+    titleEn: "Unregistered Land Regularization",
+    titleAr: "تسوية الأراضي غير المسجلة",
+    contentEn: "Individuals possessing unregistered land can apply to regularize their ownership through DLD. This provision allows for the formalization of historical land holdings that predate the modern registration system.",
+    contentAr: "يمكن للأفراد الذين يمتلكون أراضي غير مسجلة التقدم بطلب لتسوية ملكيتهم من خلال دائرة الأراضي والأملاك. يسمح هذا الحكم بإضفاء الطابع الرسمي على الحيازات الأرضية التاريخية التي تسبق نظام التسجيل الحديث.",
+    category: "property_registration",
+    keywords: ["unregistered land", "regularization", "historical ownership", "formalization"],
+    practicalExample: "Family has occupied land since 1970s with old documents. Can apply to DLD to regularize ownership and get official title deed."
+  },
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "15",
+    titleEn: "Property Maps and Surveying",
+    titleAr: "خرائط العقارات والمساحة",
+    contentEn: "Property registration is based on three key maps: (1) Topographic master map showing the overall area, (2) Real Property Unit map showing specific plots, (3) Real Property Area map marking multiple property units in a region. Each property unit must have a separate map detailing its location, boundaries and constructions.",
+    contentAr: "يعتمد تسجيل العقارات على ثلاث خرائط رئيسية: (1) الخريطة الطبوغرافية الرئيسية التي تظهر المنطقة الإجمالية، (2) خريطة وحدة العقار التي تظهر القطع المحددة، (3) خريطة منطقة العقار التي تحدد وحدات عقارية متعددة في منطقة. يجب أن يكون لكل وحدة عقارية خريطة منفصلة توضح موقعها وحدودها ومبانيها.",
+    category: "property_registration",
+    keywords: ["maps", "surveying", "boundaries", "topographic", "plot map"],
+    practicalExample: "Before registering villa purchase, DLD verifies property boundaries on official maps. Ensures no encroachment on neighboring plots and building matches approved plans."
+  },
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "16-21",
+    titleEn: "Property Division and Merging",
+    titleAr: "تقسيم ودمج العقارات",
+    contentEn: "When property is divided, existing easement rights (such as access rights) remain unless they create additional burdens. If two properties merge, any mortgage or collateral rights extend to the entire merged property unless the mortgagee consents to modify the terms. All divisions and mergers must be approved by DLD.",
+    contentAr: "عند تقسيم العقار، تبقى حقوق الارتفاق الحالية (مثل حقوق الوصول) ما لم تخلق أعباء إضافية. إذا اندمج عقاران، فإن أي حقوق رهن أو ضمانات تمتد إلى العقار المدمج بالكامل ما لم يوافق المرتهن على تعديل الشروط. يجب الموافقة على جميع التقسيمات والاندماجات من قبل دائرة الأراضي والأملاك.",
+    category: "property_registration",
+    keywords: ["division", "merging", "easement", "mortgage extension", "DLD approval"],
+    practicalExample: "Owner has large plot with AED 5M mortgage. Wants to divide into 2 plots. Bank's mortgage automatically extends to both plots unless bank agrees to split mortgage."
+  },
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "22-24",
+    titleEn: "Title Deeds Issuance",
+    titleAr: "إصدار سندات الملكية",
+    contentEn: "Once property ownership is registered, DLD issues title deeds that serve as absolute proof of ownership. Multi-storey buildings are considered one unit in the register but have separate records for individual apartments or floor owners. Title deeds include any restrictions, conditions or obligations tied to the property.",
+    contentAr: "بمجرد تسجيل ملكية العقار، تصدر دائرة الأراضي والأملاك سندات ملكية تعمل كدليل مطلق على الملكية. تعتبر المباني متعددة الطوابق وحدة واحدة في السجل ولكن لها سجلات منفصلة لأصحاب الشقق أو الطوابق الفردية. تتضمن سندات الملكية أي قيود أو شروط أو التزامات مرتبطة بالعقار.",
+    category: "property_registration",
+    keywords: ["title deed", "proof of ownership", "multi-storey", "restrictions", "conditions"],
+    practicalExample: "Title deed for apartment shows: owner name, building name, plot number, area (sqm), any mortgages, and restrictions (e.g., 'no commercial use')."
+  },
+  {
+    lawName: "Dubai Property Registration Law",
+    lawNumber: "7/2006",
+    articleNumber: "26",
+    titleEn: "Invalid Agreements",
+    titleAr: "الاتفاقيات الباطلة",
+    contentEn: "Any agreement that violates the provisions of this law is considered null and void. Contracts intended to bypass the law are also unenforceable. Courts, the Public Prosecution or DLD can declare such agreements invalid.",
+    contentAr: "أي اتفاق ينتهك أحكام هذا القانون يعتبر باطلاً ولاغياً. العقود التي تهدف إلى تجاوز القانون غير قابلة للتنفيذ أيضاً. يمكن للمحاكم أو النيابة العامة أو دائرة الأراضي والأملاك إعلان هذه الاتفاقيات باطلة.",
+    category: "property_registration",
+    keywords: ["invalid", "void", "unenforceable", "illegal agreements", "bypass"],
+    practicalExample: "Seller and buyer sign agreement to avoid DLD registration fees by not registering sale. Agreement is void. Buyer has no legal ownership and cannot enforce it in court."
+  },
+
+  // ============================================
+  // DIFC REAL PROPERTY LAW 10/2018 & LEASING LAW 1/2020
+  // ============================================
+  {
+    lawName: "DIFC Real Property Law",
+    lawNumber: "10/2018",
+    titleEn: "DIFC Independent Jurisdiction",
+    titleAr: "السلطة القضائية المستقلة لمركز دبي المالي العالمي",
+    contentEn: "DIFC is an independent jurisdiction within UAE with laws modeled on English common law system (not UAE Civil Law). English is the default language. Dubai real property laws do NOT apply to DIFC properties. DIFC Courts have exclusive jurisdiction over DIFC property matters.",
+    contentAr: "مركز دبي المالي العالمي هو سلطة قضائية مستقلة داخل الإمارات مع قوانين مصممة على نظام القانون العام الإنجليزي (وليس القانون المدني للإمارات). اللغة الإنجليزية هي اللغة الافتراضية. قوانين العقارات في دبي لا تنطبق على عقارات مركز دبي المالي. محاكم مركز دبي المالي لها ولاية قضائية حصرية على قضايا العقارات في المركز.",
+    category: "difc_law",
+    keywords: ["DIFC", "independent jurisdiction", "English common law", "DIFC Courts", "separate system"],
+    practicalExample: "Property in Gate Village (DIFC) governed by DIFC Law 10/2018 and DIFC Courts. Property in Downtown Dubai (mainland) governed by Dubai Law 7/2006 and Dubai Courts. Cannot mix the two."
+  },
+  {
+    lawName: "DIFC Real Property Law",
+    lawNumber: "10/2018",
+    titleEn: "Property Ownership in DIFC",
+    titleAr: "ملكية العقارات في مركز دبي المالي",
+    contentEn: "Within DIFC, all foreign nationals, foreign companies, and GCC nationals have the right to acquire and own real property. No restrictions based on nationality. Ownership rights include freehold title, leasehold, usufruct, and musataha.",
+    contentAr: "داخل مركز دبي المالي، يحق لجميع الرعايا الأجانب والشركات الأجنبية ومواطني دول مجلس التعاون الحق في اقتناء وامتلاك العقارات. لا توجد قيود بناءً على الجنسية. تشمل حقوق الملكية الملكية الحرة والإيجار وحق الانتفاع والمساطحة.",
+    category: "difc_law",
+    keywords: ["DIFC ownership", "foreign nationals", "no restrictions", "freehold", "international investors"],
+    practicalExample: "A French company can buy freehold office space in DIFC without any nationality restrictions. Same property in mainland Dubai would require designated area."
+  },
+  {
+    lawName: "DIFC Real Property Law",
+    lawNumber: "10/2018",
+    titleEn: "Lease Registration - 6 Month Threshold",
+    titleAr: "تسجيل عقود الإيجار - حد 6 أشهر",
+    contentEn: "Leases with term equal to or greater than 6 months (including renewal options) MUST be registered with Registrar of Real Properties (RORP). Lessor must register within 20 days of lease execution. Penalty of USD $1,000 for failure to register.",
+    contentAr: "يجب تسجيل عقود الإيجار بمدة 6 أشهر أو أكثر (بما في ذلك خيارات التجديد) لدى مسجل العقارات. يجب على المؤجر التسجيل خلال 20 يوماً من تنفيذ عقد الإيجار. غرامة 1000 دولار أمريكي عند الفشل في التسجيل.",
+    category: "difc_law",
+    keywords: ["DIFC lease registration", "6 months", "RORP", "20 days", "penalty"],
+    practicalExample: "Office lease in DIFC for 8 months must be registered within 20 days. Mainland Dubai requires registration for leases ≥12 months."
+  },
+  {
+    lawName: "DIFC Real Property Law",
+    lawNumber: "10/2018",
+    titleEn: "Off-Plan Sales Protection",
+    titleAr: "حماية مبيعات على الخريطة",
+    contentEn: "Off-plan developments require: (1) Registrar approval and recording in Off-Plan Register, (2) Approved Disclosure Statement for buyers, (3) Escrow account with approved agent. Buyers get: Disclosure Statement before SPA, right to terminate if no disclosure, 12-month defect retention, 1-year warranty (non-structural), 10-year warranty (structural).",
+    contentAr: "تتطلب التطويرات على الخريطة: (1) موافقة المسجل والتسجيل في سجل على الخريطة، (2) بيان إفصاح معتمد للمشترين، (3) حساب ضمان مع وكيل معتمد. يحصل المشترون على: بيان إفصاح قبل عقد البيع، حق الإنهاء إذا لم يكن هناك إفصاح، احتجاز عيوب لمدة 12 شهراً، ضمان عام واحد (غير إنشائي)، ضمان 10 سنوات (إنشائي).",
+    category: "difc_law",
+    keywords: ["DIFC off-plan", "buyer protection", "escrow", "warranty", "disclosure"],
+    practicalExample: "Buying off-plan apartment in DIFC: Developer must provide disclosure statement, hold payments in escrow, and provide 10-year structural warranty. Stronger protection than mainland."
+  },
+  {
+    lawName: "DIFC Real Property Law",
+    lawNumber: "10/2018",
+    titleEn: "Master Community Declaration",
+    titleAr: "إعلان المجتمع الرئيسي",
+    contentEn: "Master Community Declaration is formally recognized as statutory covenant, enforceable and binding on all owners. Includes right to collect service charges. Registered as 'Covenant in Gross' on each title.",
+    contentAr: "يتم الاعتراف بإعلان المجتمع الرئيسي رسمياً كعهد قانوني، قابل للتنفيذ وملزم لجميع الملاك. يشمل الحق في تحصيل رسوم الخدمة. يُسجّل كـ 'عهد إجمالي' على كل سند.",
+    category: "difc_law",
+    keywords: ["DIFC community", "service charges", "covenant", "binding", "enforceable"],
+    practicalExample: "DIFC building's Master Community Declaration requires all owners to pay service charges. Enforceable by law, registered on every title deed."
+  },
+
+  // ============================================
+  // DIFC LEASING LAW 1/2020
+  // ============================================
+  {
+    lawName: "DIFC Leasing Law",
+    lawNumber: "1/2020",
+    titleEn: "Application and Scope",
+    titleAr: "التطبيق والنطاق",
+    contentEn: "Applies to all residential, retail, and commercial leases in DIFC. Exceptions: serviced apartments/hotel rooms, and mortgage-related leases. Applies retroactively to existing leases (with limitations on time-based provisions).",
+    contentAr: "ينطبق على جميع عقود الإيجار السكنية والتجزئة والتجارية في مركز دبي المالي. الاستثناءات: الشقق المخدومة/غرف الفنادق، وعقود الإيجار المتعلقة بالرهن. ينطبق بأثر رجعي على عقود الإيجار الحالية (مع قيود على الأحكام المستندة إلى الوقت).",
+    category: "difc_law",
+    keywords: ["DIFC leasing", "application", "residential", "commercial", "retail"],
+    practicalExample: "Office lease in DIFC Gate Avenue governed by DIFC Leasing Law 1/2020, not Dubai Law 26/2007. Different rules apply."
+  },
+  {
+    lawName: "DIFC Leasing Law",
+    lawNumber: "1/2020",
+    articleNumber: "12-16",
+    titleEn: "Statutory Obligations - Lessee and Lessor",
+    titleAr: "الالتزامات القانونية - المستأجر والمؤجر",
+    contentEn: "Lessee must: not use for illegal purpose, use only for permitted use, not cause nuisance, pay rent (quarterly if not specified), pay taxes/fees (except registration fee and owner's amounts). Lessor must: ensure quiet enjoyment, NOT disconnect utilities (police/court action if violated).",
+    contentAr: "يجب على المستأجر: عدم الاستخدام لأغراض غير قانونية، الاستخدام فقط للاستخدام المسموح، عدم التسبب في إزعاج، دفع الإيجار (ربع سنوي إذا لم يُحدد)، دفع الضرائب/الرسوم (باستثناء رسوم التسجيل ومبالغ المالك). يجب على المؤجر: ضمان الاستمتاع الهادئ، عدم قطع الخدمات (إجراء شرطة/محكمة إذا انتهك).",
+    category: "difc_law",
+    keywords: ["DIFC obligations", "lessee duties", "lessor duties", "quiet enjoyment", "utilities"],
+    practicalExample: "DIFC landlord cannot cut electricity to force tenant out. Tenant can report to police. Mainland Dubai has similar prohibition but enforcement differs."
+  },
+  {
+    lawName: "DIFC Leasing Law",
+    lawNumber: "1/2020",
+    titleEn: "Security Deposit - 10% Limit and Escrow",
+    titleAr: "التأمين - حد 10٪ والضمان",
+    contentEn: "Maximum security deposit: 10% of annual rent. Lessor must pay deposit to DIFC Registrar within 30 days. Registrar holds in escrow account. Used only for: non-payment, damage (excluding fair wear), breach damages. Release via signed form or dispute resolution. Unclaimed deposits forfeited to DIFCA after 6 months.",
+    contentAr: "الحد الأقصى للتأمين: 10٪ من الإيجار السنوي. يجب على المؤجر دفع التأمين إلى مسجل مركز دبي المالي خلال 30 يوماً. يحتفظ المسجل في حساب ضمان. يُستخدم فقط لـ: عدم الدفع، الضرر (باستثناء الاستهلاك العادي)، أضرار الخرق. الإفراج عبر نموذج موقّع أو حل النزاع. مصادرة الودائع غير المطالب بها لصالح هيئة مركز دبي المالي بعد 6 أشهر.",
+    category: "difc_law",
+    keywords: ["DIFC security deposit", "10% limit", "Registrar escrow", "protection", "6 months"],
+    practicalExample: "DIFC apartment AED 120K/year. Max deposit AED 12K. Landlord pays to Registrar within 30 days. Registrar holds it. At lease end, parties sign release or file dispute. Stronger protection than mainland."
+  },
+  {
+    lawName: "DIFC Leasing Law",
+    lawNumber: "1/2020",
+    titleEn: "Rent Increase Notice - 90 Days",
+    titleAr: "إشعار زيادة الإيجار - 90 يوماً",
+    contentEn: "Lessor must give lessee 90 days' written notice of any proposed rent increases. No automatic lease renewal in DIFC (unlike mainland Dubai). Parties must negotiate new lease or extension.",
+    contentAr: "يجب على المؤجر إعطاء المستأجر إشعاراً كتابياً لمدة 90 يوماً بأي زيادات مقترحة في الإيجار. لا يوجد تجديد تلقائي لعقد الإيجار في مركز دبي المالي (على عكس دبي الرئيسية). يجب على الأطراف التفاوض على عقد جديد أو تمديد.",
+    category: "difc_law",
+    keywords: ["DIFC rent increase", "90 days notice", "no automatic renewal", "negotiation"],
+    practicalExample: "DIFC lease expires Dec 31. Landlord wants to increase rent. Must notify tenant by Oct 2 (90 days). Tenant staying past Dec 31 doesn't create automatic renewal - must sign new lease."
+  },
+  {
+    lawName: "DIFC Leasing Law",
+    lawNumber: "1/2020",
+    articleNumber: "34-38",
+    titleEn: "Maintenance Responsibilities",
+    titleAr: "مسؤوليات الصيانة",
+    contentEn: "Lessee: take reasonable care, keep reasonably clean, notify lessor of damage ASAP. NOT liable for fair wear and tear or lessor's failure. Lessor: maintain premises in good repair during term. Can serve repair notice if lessee breaches. If lessee doesn't comply, lessor can repair and recover costs.",
+    contentAr: "المستأجر: العناية المعقولة، الحفاظ على النظافة، إخطار المؤجر بالضرر فوراً. غير مسؤول عن الاستهلاك العادي أو فشل المؤجر. المؤجر: صيانة العقار بحالة جيدة خلال المدة. يمكن تقديم إشعار إصلاح إذا خرق المستأجر. إذا لم يمتثل المستأجر، يمكن للمؤجر الإصلاح واسترداد التكاليف.",
+    category: "difc_law",
+    keywords: ["DIFC maintenance", "lessee care", "lessor repair", "fair wear", "repair notice"],
+    practicalExample: "DIFC apartment AC breaks. Landlord must repair (lessor obligation). Tenant damages wall. Landlord serves repair notice. If tenant doesn't fix in 14 days, landlord can repair and charge tenant."
+  },
+  {
+    lawName: "DIFC Leasing Law",
+    lawNumber: "1/2020",
+    titleEn: "Condition Reports",
+    titleAr: "تقارير الحالة",
+    contentEn: "Lessor may prepare condition report before handover (if security deposit required). Lessee must sign/return or provide disagreement within 20 days. If no response, report is evidence of condition. Disagreements resolved by independent expert. Unsigned reports: court draws inferences.",
+    contentAr: "يمكن للمؤجر إعداد تقرير حالة قبل التسليم (إذا كان التأمين مطلوباً). يجب على المستأجر التوقيع/الإرجاع أو تقديم الاعتراض خلال 20 يوماً. إذا لم يكن هناك رد، فإن التقرير هو دليل على الحالة. يتم حل الخلافات من قبل خبير مستقل. التقارير غير الموقّعة: تستخلص المحكمة الاستنتاجات.",
+    category: "difc_law",
+    keywords: ["DIFC condition report", "20 days", "evidence", "independent expert", "handover"],
+    practicalExample: "DIFC landlord provides condition report showing perfect apartment. Tenant doesn't respond within 20 days. At lease end, tenant claims damage was pre-existing. Report is evidence against tenant."
   }
 ];
+
+
+
 
 /**
  * Get legal knowledge by category
