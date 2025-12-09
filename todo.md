@@ -422,3 +422,12 @@
 - [x] Update system prompts with new law coverage
 - [ ] Test AI responses with mortgage and property law queries
 - [ ] Verify confidence scores improve with expanded knowledge base
+
+
+## Home Page Update - Highlight Expanded Legal Coverage
+- [x] Update home page hero section to mention expanded coverage
+- [x] Add highlights for mortgage law coverage
+- [x] Add highlights for property registration coverage
+- [x] Add highlights for DIFC regulations coverage
+- [x] Update services section with new capabilities
+- [x] Test updated home page

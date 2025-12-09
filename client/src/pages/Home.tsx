@@ -37,8 +37,8 @@ export default function Home() {
               Expert Legal Consultation for Dubai Real Estate
             </h2>
             <p className="text-xl text-muted-foreground">
-              AI-powered legal assistant specializing in rental disputes and real estate transactions, 
-              backed by comprehensive UAE/Dubai law knowledge
+              AI-powered legal assistant specializing in rental disputes, real estate transactions, property mortgages, and DIFC regulations, 
+              backed by comprehensive UAE/Dubai law knowledge including 33 newly added articles
             </p>
             {isAuthenticated ? (
               <div className="flex gap-4 justify-center">
@@ -66,15 +66,15 @@ export default function Home() {
                   <MessageSquare className="h-12 w-12 text-primary mb-4" />
                   <CardTitle>Legal Consultation</CardTitle>
                   <CardDescription>
-                    Get expert guidance on rental disputes, eviction processes, maintenance issues, and security deposits
+                    Get expert guidance on rental disputes, mortgage enforcement, property ownership, and DIFC regulations
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     <li>• Tenant-landlord disputes</li>
-                    <li>• Lease renewals and terminations</li>
-                    <li>• Maintenance obligations</li>
-                    <li>• Security deposit recovery</li>
+                    <li>• Mortgage enforcement procedures</li>
+                    <li>• Property ownership restrictions</li>
+                    <li>• DIFC vs mainland Dubai laws</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -102,15 +102,15 @@ export default function Home() {
                   <Scale className="h-12 w-12 text-primary mb-4" />
                   <CardTitle>Real Estate Transactions</CardTitle>
                   <CardDescription>
-                    Guidance on property transfers, RERA compliance, escrow procedures, and Oqood registration
+                    Guidance on property transfers, mortgages, DLD registration, and DIFC real estate transactions
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li>• Property ownership transfer</li>
-                    <li>• RERA regulations compliance</li>
-                    <li>• Escrow account procedures</li>
-                    <li>• Dubai Land Department processes</li>
+                    <li>• Property ownership & transfer</li>
+                    <li>• Mortgage registration & discharge</li>
+                    <li>• DLD registration requirements</li>
+                    <li>• DIFC property transactions</li>
                   </ul>
                 </CardContent>
               </Card>
@@ -127,11 +127,13 @@ export default function Home() {
                   <CardTitle>UAE/Dubai Laws</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
-                  <p>• Dubai Rental Law 26/2007 and amendments (33/2008)</p>
+                  <p>• Dubai Rental Law 26/2007 & 33/2008</p>
+                  <p>• Dubai Mortgage Law 14/2008 (NEW)</p>
+                  <p>• Dubai Property Registration Law 7/2006 (NEW)</p>
+                  <p>• DIFC Real Property Law 10/2018 (NEW)</p>
+                  <p>• DIFC Leasing Law 1/2020 (NEW)</p>
                   <p>• UAE Civil Code (Federal Law 5/1985)</p>
-                  <p>• RERA regulations and guidelines</p>
-                  <p>• Strata Law 27/2007</p>
-                  <p>• Escrow and Oqood procedures</p>
+                  <p>• RERA regulations & Strata Law 27/2007</p>
                 </CardContent>
               </Card>
 
@@ -140,11 +142,12 @@ export default function Home() {
                   <CardTitle>Key Features</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
+                  <p>• AI confidence scoring with visual indicators</p>
+                  <p>• Automatic lawyer review for low confidence</p>
+                  <p>• Citation verification for all legal claims</p>
                   <p>• Bilingual support (English & Arabic)</p>
                   <p>• Exact article and law citations</p>
-                  <p>• Formal legal tone and terminology</p>
                   <p>• Professional report generation</p>
-                  <p>• 70% informational, 30% advisory</p>
                 </CardContent>
               </Card>
             </div>
