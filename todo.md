@@ -110,3 +110,15 @@
 - [x] Implement search query naming and management
 - [x] Test advanced search and saved queries
 - [x] Update documentation with advanced search features
+
+
+## System Prompt Enhancement
+
+- [x] Review current system prompts in routers.ts
+- [x] Enhance prompts with formal legal tone requirements
+- [x] Add explicit 70% informational / 30% advisory instruction
+- [x] Include UAE law citation requirements
+- [x] Add bilingual response instructions (English/Arabic)
+- [x] Include disclaimer requirements
+- [x] Test AI responses with sample legal queries
+- [x] Verify prompt consistency across both LLM providers
