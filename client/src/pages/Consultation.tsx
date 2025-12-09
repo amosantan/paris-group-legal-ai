@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
-import { FileText, Loader2, Send, Upload } from "lucide-react";
+import { FileText, Loader2, Send, Upload, Download } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "wouter";
 import { toast } from "sonner";
@@ -25,6 +25,17 @@ export default function Consultation() {
   const { data: consultation } = trpc.consultations.getById.useQuery({ id: consultationId });
   const { data: messages, isLoading: messagesLoading } = trpc.messages.list.useQuery({ consultationId });
   const { data: documents } = trpc.documents.list.useQuery({ consultationId });
+
+  const exportPDFMutation = trpc.reports.exportConsultationPDF.useMutation({
+    onSuccess: (data) => {
+      toast.success("PDF report generated successfully");
+      // Open PDF in new tab
+      window.open(data.url, "_blank");
+    },
+    onError: (error) => {
+      toast.error(`Failed to generate PDF: ${error.message}`);
+    },
+  });
 
   const sendMutation = trpc.messages.send.useMutation({
     onSuccess: () => {
@@ -127,6 +138,19 @@ export default function Consultation() {
             </p>
           </div>
           <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => exportPDFMutation.mutate({ consultationId })}
+              disabled={exportPDFMutation.isPending}
+            >
+              {exportPDFMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 mr-2" />
+              )}
+              Export PDF
+            </Button>
             <Select
               value={consultation.status}
               onValueChange={(v) => updateStatusMutation.mutate({ id: consultationId, status: v as any })}

@@ -12,6 +12,9 @@ import Consultation from "./pages/Consultation";
 import ContractReview from "./pages/ContractReview";
 import Reports from "./pages/Reports";
 import LLMSettings from "./pages/LLMSettings";
+import LawyerReviewDashboard from "./pages/LawyerReviewDashboard";
+import LegalDocumentGenerator from "./pages/LegalDocumentGenerator";
+import AuditLogViewer from "./pages/AuditLogViewer";
 
 function Router() {
   return (
@@ -24,6 +27,9 @@ function Router() {
       <Route path={"/contract-review/:documentId"} component={ContractReview} />
       <Route path={"/reports/:consultationId"} component={Reports} />
       <Route path={"/llm-settings"} component={LLMSettings} />
+        <Route path="/lawyer-review" component={LawyerReviewDashboard} />
+        <Route path="/document-generator" component={LegalDocumentGenerator} />
+      <Route path={"/audit-logs"} component={AuditLogViewer} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

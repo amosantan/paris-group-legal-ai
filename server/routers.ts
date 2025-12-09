@@ -12,10 +12,18 @@ import { getSystemPrompt } from "./enhancedLegalPrompts";
 import { extractTextFromPDF, cleanExtractedText, validatePDFSize, extractContractInfo } from "./pdfExtractor";
 import { calculateConfidenceScore } from "./confidenceScoring";
 import { verifyAllCitations, calculateGroundingScore } from "./citationVerification";
+import { lawyerReviewRouter, auditLogRouter } from "./routers_lawyerReview";
+import { logAIInteraction } from "./db_lawyerReviews";
+import { generateConsultationPDF, generateContractReviewPDF } from "./pdfGenerator";
+import { generateDemandLetterPDF, generateEvictionNoticePDF, generateNOCPDF, DemandLetterData, EvictionNoticeData, NOCData } from "./legalDocumentTemplates";
 import { nanoid } from "nanoid";
 
 export const appRouter = router({
   system: systemRouter,
+  lawyerReview: lawyerReviewRouter,
+  auditLog: auditLogRouter,
+
+
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -51,6 +59,20 @@ export const appRouter = router({
             ? "مرحباً بك في مستشار باريس جروب القانوني. أنا متخصص في قانون الإيجار في دبي والمعاملات العقارية. كيف يمكنني مساعدتك اليوم؟"
             : "Welcome to Paris Group Legal Consultant. I specialize in Dubai rental law and real estate transactions. How may I assist you today?",
         });
+
+        // Log consultation creation
+        await logAIInteraction(
+          ctx.user.id,
+          ctx.user.name,
+          "consultation_created",
+          "consultation",
+          consultationId,
+          {
+            title: input.title,
+            category: input.category,
+            language: input.language,
+          }
+        );
 
         return { consultationId };
       }),
@@ -153,6 +175,20 @@ export const appRouter = router({
           role: "assistant",
           content: assistantMessage,
         });
+
+        // Log the AI interaction
+        await logAIInteraction(
+          ctx.user.id,
+          ctx.user.name,
+          "message_sent",
+          "message",
+          messageId,
+          {
+            consultationId: input.consultationId,
+            confidenceScore: confidenceScore.overall,
+            requiresReview: confidenceScore.requiresLawyerReview,
+          }
+        );
 
         // Get current LLM provider info
         const currentProvider = getCurrentProvider();
@@ -420,6 +456,192 @@ Provide detailed analysis in JSON format with the following fields:
   }),
 
   reports: router({
+    exportConsultationPDF: protectedProcedure
+      .input(z.object({ consultationId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const consultation = await db.getConsultationById(input.consultationId);
+        if (!consultation) {
+          throw new Error("Consultation not found");
+        }
+
+        const messages = await db.getConsultationMessages(input.consultationId);
+
+        const pdfBuffer = await generateConsultationPDF({
+          consultationId: consultation.id,
+          title: consultation.title,
+          category: consultation.category,
+          createdAt: new Date(consultation.createdAt),
+          messages: messages.map((msg) => ({
+            role: msg.role,
+            content: msg.content,
+            timestamp: new Date(msg.createdAt),
+            aiMetadata: msg.aiMetadata ? {
+              confidenceScore: msg.aiMetadata.confidenceScore,
+              confidenceLevel: msg.aiMetadata.confidenceLevel,
+              citationCount: msg.aiMetadata.citationCount,
+              verifiedCitations: msg.aiMetadata.verifiedCitations,
+            } : undefined,
+          })),
+        });
+
+        // Upload PDF to S3
+        const filename = `consultation-${input.consultationId}-${Date.now()}.pdf`;
+        const { url } = await storagePut(filename, pdfBuffer, "application/pdf");
+
+        // Log the export
+        await logAIInteraction(
+          ctx.user.id,
+          ctx.user.name,
+          "consultation_exported",
+          "consultation",
+          input.consultationId,
+          { format: "pdf", filename }
+        );
+
+        return { url, filename };
+      }),
+
+    exportContractReviewPDF: protectedProcedure
+      .input(z.object({ documentId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const document = await db.getDocumentById(input.documentId);
+        if (!document) {
+          throw new Error("Document not found");
+        }
+
+        // Get the AI analysis from the document (placeholder until contract review feature is fully implemented)
+        const pdfBuffer = await generateContractReviewPDF({
+          documentId: document.id,
+          filename: document.filename,
+          contractType: document.documentType || "Unknown",
+          uploadedAt: new Date(document.uploadedAt),
+          analysis: "Contract analysis will be available after AI review is completed.",
+          riskAssessment: "Risk assessment will be generated during contract review.",
+          recommendations: "Recommendations will be provided based on contract analysis.",
+        });
+
+        // Upload PDF to S3
+        const filename = `contract-review-${input.documentId}-${Date.now()}.pdf`;
+        const { url } = await storagePut(filename, pdfBuffer, "application/pdf");
+
+        // Log the export
+        await logAIInteraction(
+          ctx.user.id,
+          ctx.user.name,
+          "contract_review_exported",
+          "document",
+          input.documentId,
+          { format: "pdf", filename }
+        );
+
+        return { url, filename };
+      }),
+
+    generateDemandLetter: protectedProcedure
+      .input(z.object({
+        senderName: z.string(),
+        senderNameAr: z.string(),
+        senderAddress: z.string(),
+        senderAddressAr: z.string(),
+        recipientName: z.string(),
+        recipientNameAr: z.string(),
+        recipientAddress: z.string(),
+        recipientAddressAr: z.string(),
+        propertyAddress: z.string(),
+        propertyAddressAr: z.string(),
+        amountOwed: z.number(),
+        dueDate: z.string(),
+        details: z.string(),
+        detailsAr: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const pdfBuffer = await generateDemandLetterPDF(input as DemandLetterData);
+        const filename = `demand-letter-${Date.now()}.pdf`;
+        const { url } = await storagePut(filename, pdfBuffer, "application/pdf");
+
+        await logAIInteraction(
+          ctx.user.id,
+          ctx.user.name,
+          "demand_letter_generated",
+          "document",
+          0,
+          { filename }
+        );
+
+        return { url, filename };
+      }),
+
+    generateEvictionNotice: protectedProcedure
+      .input(z.object({
+        landlordName: z.string(),
+        landlordNameAr: z.string(),
+        landlordAddress: z.string(),
+        landlordAddressAr: z.string(),
+        tenantName: z.string(),
+        tenantNameAr: z.string(),
+        tenantAddress: z.string(),
+        tenantAddressAr: z.string(),
+        propertyAddress: z.string(),
+        propertyAddressAr: z.string(),
+        evictionReason: z.string(),
+        evictionReasonAr: z.string(),
+        noticeDate: z.string(),
+        vacateDate: z.string(),
+        legalBasis: z.string(),
+        legalBasisAr: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const pdfBuffer = await generateEvictionNoticePDF(input as EvictionNoticeData);
+        const filename = `eviction-notice-${Date.now()}.pdf`;
+        const { url } = await storagePut(filename, pdfBuffer, "application/pdf");
+
+        await logAIInteraction(
+          ctx.user.id,
+          ctx.user.name,
+          "eviction_notice_generated",
+          "document",
+          0,
+          { filename }
+        );
+
+        return { url, filename };
+      }),
+
+    generateNOC: protectedProcedure
+      .input(z.object({
+        issuerName: z.string(),
+        issuerNameAr: z.string(),
+        issuerTitle: z.string(),
+        issuerTitleAr: z.string(),
+        issuerCompany: z.string(),
+        issuerCompanyAr: z.string(),
+        recipientName: z.string(),
+        recipientNameAr: z.string(),
+        propertyAddress: z.string(),
+        propertyAddressAr: z.string(),
+        purpose: z.string(),
+        purposeAr: z.string(),
+        conditions: z.string(),
+        conditionsAr: z.string(),
+        issueDate: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const pdfBuffer = await generateNOCPDF(input as NOCData);
+        const filename = `noc-${Date.now()}.pdf`;
+        const { url } = await storagePut(filename, pdfBuffer, "application/pdf");
+
+        await logAIInteraction(
+          ctx.user.id,
+          ctx.user.name,
+          "noc_generated",
+          "document",
+          0,
+          { filename }
+        );
+
+        return { url, filename };
+      }),
+
     generate: protectedProcedure
       .input(z.object({
         consultationId: z.number(),
