@@ -431,6 +431,54 @@ export const LEGAL_KNOWLEDGE_BASE: LegalArticle[] = [
     category: "procedures",
     keywords: ["rent increase", "RERA calculator", "unfair", "challenge"],
     practicalExample: "Current rent: AED 80,000. Landlord wants AED 95,000 (18.75% increase). RERA calculator shows max 5% allowed. Tenant files RDC case with calculator printout. Tribunal limits increase to AED 84,000."
+  },
+  
+  // OFF-PLAN PROPERTY LAWS
+  {
+    lawName: "Law Amending Interim Real Property Register Law",
+    lawNumber: "19/2017",
+    articleNumber: "11(a)(4)(A)",
+    titleEn: "Developer Remedies - Over 80% Completion",
+    titleAr: "خيارات المطور - أكثر من 80٪ إنجاز",
+    contentEn: "Where completion exceeds 80%, Developer may: (1) maintain agreement and claim balance; (2) request DLD auction; or (3) terminate, retain up to 40% of unit value, refund excess within 1 year or 60 days from resale.",
+    contentAr: "عندما يتجاوز الإنجاز 80٪، يجوز للمطور: (1) الحفاظ على الاتفاقية والمطالبة بالرصيد؛ (2) طلب مزاد دائرة الأراضي؛ أو (3) الإنهاء، والاحتفاظ بما يصل إلى 40٪ من قيمة الوحدة، ورد الفائض خلال سنة أو 60 يوماً من إعادة البيع.",
+    category: "real_estate_law",
+    keywords: ["off-plan", "80% completion", "developer rights", "40% retention"],
+    practicalExample: "Apartment 85% complete, buyer defaults. Developer can cancel and keep 40% of price as compensation."
+  },
+  {
+    lawName: "Law Amending Interim Real Property Register Law",
+    lawNumber: "19/2017",
+    articleNumber: "11(a)(4)(B-C)",
+    titleEn: "Developer Remedies - Under 80% Completion",
+    titleAr: "خيارات المطور - أقل من 80٪ إنجاز",
+    contentEn: "60-80% completion: Developer may terminate, retain up to 40%, refund excess within 1 year or 60 days from resale. Under 60% (work commenced): terminate, retain up to 25%, same refund timeline. Work not commenced (beyond developer control): terminate, retain up to 30%, refund within 60 days.",
+    contentAr: "60-80٪ إنجاز: يجوز للمطور الإنهاء، والاحتفاظ بما يصل إلى 40٪، ورد الفائض خلال سنة أو 60 يوماً. أقل من 60٪ (بدأ العمل): الإنهاء، والاحتفاظ بما يصل إلى 25٪، نفس المهلة. لم يبدأ العمل (خارج سيطرة المطور): الإنهاء، والاحتفاظ بما يصل إلى 30٪، الرد خلال 60 يوماً.",
+    category: "real_estate_law",
+    keywords: ["off-plan", "under 80%", "25% retention", "30% retention"],
+    practicalExample: "Villa 40% complete, buyer stops paying. Developer cancels, keeps 25% of price, refunds rest within 1 year."
+  },
+  {
+    lawName: "RERA Regulations",
+    lawNumber: "RERA/RDC",
+    titleEn: "RDC Filing Fees and Process",
+    titleAr: "رسوم وعملية تقديم مركز تسوية المنازعات",
+    contentEn: "RDC charges 3.5% of annual rent (min AED 500, max AED 20,000). Process: (1) File case with fees, (2) Mediation attempt (1-2 sessions), (3) Hearing if mediation fails, (4) Judgment within 2-4 weeks, (5) Appeal within 15 days, (6) Execution by Dubai Police.",
+    contentAr: "يفرض مركز تسوية المنازعات 3.5٪ من الإيجار السنوي (حد أدنى 500 درهم، حد أقصى 20,000 درهم). العملية: (1) تقديم القضية مع الرسوم، (2) محاولة الوساطة (1-2 جلسة), (3) جلسة استماع إذا فشلت الوساطة، (4) حكم خلال 2-4 أسابيع، (5) استئناف خلال 15 يوماً، (6) تنفيذ من قبل شرطة دبي.",
+    category: "procedures",
+    keywords: ["RDC", "fees", "3.5%", "process", "mediation", "hearing"],
+    practicalExample: "Rent AED 80,000, RDC fee is AED 2,800. File case, attend mediation, if no agreement, hearing scheduled within 3 weeks."
+  },
+  {
+    lawName: "RERA Regulations",
+    lawNumber: "RERA/Calculator",
+    titleEn: "RERA Rent Increase Calculator Limits",
+    titleAr: "حدود حاسبة زيادة الإيجار من ريرا",
+    contentEn: "Rent increase based on market gap: Up to 10% below market = no increase; 11-20% below = max 5% increase; 21-30% below = max 10% increase; 31-40% below = max 15% increase; Over 40% below = max 20% increase. No increase before 2 years from tenancy start or last increase.",
+    contentAr: "زيادة الإيجار بناءً على فجوة السوق: حتى 10٪ أقل من السوق = لا زيادة؛ 11-20٪ أقل = زيادة بحد أقصى 5٪؛ 21-30٪ أقل = زيادة بحد أقصى 10٪؛ 31-40٪ أقل = زيادة بحد أقصى 15٪؛ أكثر من 40٪ أقل = زيادة بحد أقصى 20٪. لا زيادة قبل عامين من بداية الإيجار أو آخر زيادة.",
+    category: "rera_regulation",
+    keywords: ["rent increase", "RERA calculator", "market rent", "percentage limits", "2-year rule"],
+    practicalExample: "Market rent AED 100,000, tenant pays AED 70,000 (30% below). Landlord can increase by max 10% to AED 77,000 after 2 years."
   }
 ];
 
