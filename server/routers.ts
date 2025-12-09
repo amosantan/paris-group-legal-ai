@@ -8,6 +8,7 @@ import { invokeLLM } from "./_core/llm";
 import { invokeUnifiedLLM, getCurrentProvider, getAvailableProviders, getProviderInfo, LLMProvider } from "./_core/unifiedLLM";
 import { storagePut } from "./storage";
 import { buildLegalContext, searchLegalKnowledge as searchKB } from "./legalKnowledgeBase";
+import { extractTextFromPDF, cleanExtractedText, validatePDFSize, extractContractInfo } from "./pdfExtractor";
 import { nanoid } from "nanoid";
 
 export const appRouter = router({
@@ -195,11 +196,39 @@ Provide accurate, professional advice and always cite relevant articles and laws
       .mutation(async ({ ctx, input }) => {
         // Decode base64 and upload to S3
         const buffer = Buffer.from(input.fileData, 'base64');
-        const fileKey = `legal-documents/${ctx.user.id}/${input.consultationId}/${nanoid()}-${input.filename}`;
         
+        // Extract text from PDF if applicable
+        let extractedText: string | null = null;
+        let pdfMetadata: any = null;
+        
+        if (input.mimeType === 'application/pdf') {
+          try {
+            // Validate PDF size (max 10MB)
+            validatePDFSize(buffer, 10);
+            
+            // Extract text from PDF
+            const pdfResult = await extractTextFromPDF(buffer);
+            extractedText = cleanExtractedText(pdfResult.text);
+            
+            // Extract contract info
+            const contractInfo = extractContractInfo(extractedText);
+            pdfMetadata = {
+              numPages: pdfResult.numPages,
+              contractInfo,
+              info: pdfResult.info,
+            };
+            
+            console.log(`[PDF Upload] Extracted ${extractedText.length} characters from ${input.filename}`);
+          } catch (error) {
+            console.error('[PDF Upload] Text extraction failed:', error);
+            // Continue with upload even if extraction fails
+          }
+        }
+        
+        const fileKey = `legal-documents/${ctx.user.id}/${input.consultationId}/${nanoid()}-${input.filename}`;
         const { url } = await storagePut(fileKey, buffer, input.mimeType);
 
-        // Save document record
+        // Save document record with extracted text
         const documentId = await db.createDocument({
           consultationId: input.consultationId,
           userId: ctx.user.id,
@@ -209,9 +238,15 @@ Provide accurate, professional advice and always cite relevant articles and laws
           mimeType: input.mimeType,
           fileSize: buffer.length,
           documentType: input.documentType,
+          extractedText,
         });
 
-        return { documentId, url };
+        return { 
+          documentId, 
+          url,
+          extractedText: extractedText ? extractedText.substring(0, 500) + '...' : null, // Return preview
+          pdfMetadata 
+        };
       }),
 
     list: protectedProcedure

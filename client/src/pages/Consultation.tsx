@@ -36,9 +36,20 @@ export default function Consultation() {
   });
 
   const uploadMutation = trpc.documents.upload.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       utils.documents.list.invalidate({ consultationId });
-      toast.success("Document uploaded successfully");
+      
+      if (data.extractedText) {
+        toast.success("PDF uploaded and text extracted successfully!");
+      } else {
+        toast.success("Document uploaded successfully");
+      }
+      
+      // Show PDF metadata if available
+      if (data.pdfMetadata) {
+        const { numPages, contractInfo } = data.pdfMetadata;
+        console.log(`PDF Info: ${numPages} pages, Language: ${contractInfo.language}`);
+      }
     },
     onError: (error) => {
       toast.error("Failed to upload document: " + error.message);

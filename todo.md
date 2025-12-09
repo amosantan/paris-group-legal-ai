@@ -69,3 +69,15 @@
 - [x] Legal procedure timelines and deadlines
 - [x] Court filing requirements and procedures
 - [x] Practical legal scenarios with real-world examples
+
+
+## PDF Text Extraction Feature
+
+- [x] Install pdf-parse library
+- [x] Create PDF text extraction utility
+- [x] Update document upload to support PDF files
+- [x] Add PDF text extraction to contract review flow
+- [x] Update frontend to handle PDF uploads
+- [x] Add PDF file validation and size limits
+- [x] Test PDF extraction with sample contracts
+- [x] Update documentation with PDF support
