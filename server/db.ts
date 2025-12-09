@@ -16,7 +16,9 @@ import {
   legalKnowledge,
   InsertLegalKnowledge,
   bookmarks,
-  InsertBookmark
+  InsertBookmark,
+  savedSearches,
+  InsertSavedSearch
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -303,4 +305,55 @@ export async function updateBookmarkNotes(id: number, userId: number, notes: str
   if (!db) throw new Error("Database not available");
   
   await db.update(bookmarks).set({ notes }).where(and(eq(bookmarks.id, id), eq(bookmarks.userId, userId)));
+}
+
+// Saved Searches queries
+export async function createSavedSearch(data: InsertSavedSearch) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(savedSearches).values(data);
+  return result[0].insertId;
+}
+
+export async function getUserSavedSearches(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(savedSearches).where(eq(savedSearches.userId, userId)).orderBy(desc(savedSearches.lastUsed));
+}
+
+export async function getSavedSearchById(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(savedSearches)
+    .where(and(eq(savedSearches.id, id), eq(savedSearches.userId, userId)))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function deleteSavedSearch(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(savedSearches).where(and(eq(savedSearches.id, id), eq(savedSearches.userId, userId)));
+}
+
+export async function updateSavedSearchLastUsed(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(savedSearches)
+    .set({ lastUsed: new Date() })
+    .where(and(eq(savedSearches.id, id), eq(savedSearches.userId, userId)));
+}
+
+export async function updateSavedSearchName(id: number, userId: number, name: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(savedSearches)
+    .set({ name })
+    .where(and(eq(savedSearches.id, id), eq(savedSearches.userId, userId)));
 }

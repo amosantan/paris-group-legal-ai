@@ -5,31 +5,44 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
-import { Bookmark, BookmarkCheck, Book, Search, Filter } from "lucide-react";
+import { Bookmark, BookmarkCheck, Book, Search, Filter, Save, Clock, Trash2, Edit2, Check, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export default function KnowledgeBase() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(["all"]);
   const [selectedLanguage, setSelectedLanguage] = useState<"en" | "ar">("en");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [bookmarkNotes, setBookmarkNotes] = useState("");
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [saveSearchName, setSaveSearchName] = useState("");
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [editingSearchId, setEditingSearchId] = useState<number | null>(null);
+  const [editingSearchName, setEditingSearchName] = useState("");
 
   const utils = trpc.useUtils();
   
   const { data: searchResults, isLoading: searchLoading } = trpc.knowledgeBase.search.useQuery({
-    query: searchQuery,
-    category: selectedCategory as any,
+    query: searchQuery || undefined,
+    categories: selectedCategories.includes("all") ? undefined : selectedCategories,
     language: selectedLanguage,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
   });
 
   const { data: categories } = trpc.knowledgeBase.getCategories.useQuery();
   const { data: bookmarks } = trpc.bookmarks.list.useQuery();
+  const { data: savedSearches } = trpc.savedSearches.list.useQuery();
 
   const bookmarkMutation = trpc.bookmarks.create.useMutation({
     onSuccess: () => {
@@ -49,6 +62,39 @@ export default function KnowledgeBase() {
     },
   });
 
+  const saveSearchMutation = trpc.savedSearches.create.useMutation({
+    onSuccess: () => {
+      utils.savedSearches.list.invalidate();
+      toast.success("Search saved successfully");
+      setSaveSearchName("");
+      setShowSaveDialog(false);
+    },
+    onError: (error) => {
+      toast.error("Failed to save search: " + error.message);
+    },
+  });
+
+  const deleteSavedSearchMutation = trpc.savedSearches.delete.useMutation({
+    onSuccess: () => {
+      utils.savedSearches.list.invalidate();
+      toast.success("Saved search deleted");
+    },
+  });
+
+  const renameSavedSearchMutation = trpc.savedSearches.rename.useMutation({
+    onSuccess: () => {
+      utils.savedSearches.list.invalidate();
+      toast.success("Search renamed");
+      setEditingSearchId(null);
+    },
+  });
+
+  const updateLastUsedMutation = trpc.savedSearches.updateLastUsed.useMutation({
+    onSuccess: () => {
+      utils.savedSearches.list.invalidate();
+    },
+  });
+
   const handleBookmark = (articleId: string) => {
     bookmarkMutation.mutate({
       articleId,
@@ -58,6 +104,66 @@ export default function KnowledgeBase() {
 
   const handleRemoveBookmark = (bookmarkId: number) => {
     removeBookmarkMutation.mutate({ id: bookmarkId });
+  };
+
+  const handleSaveSearch = () => {
+    if (!saveSearchName.trim()) {
+      toast.error("Please enter a name for this search");
+      return;
+    }
+
+    saveSearchMutation.mutate({
+      name: saveSearchName,
+      query: searchQuery || undefined,
+      categories: selectedCategories.includes("all") ? undefined : selectedCategories,
+      dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
+      language: selectedLanguage,
+    });
+  };
+
+  const handleLoadSavedSearch = (search: any) => {
+    setSearchQuery(search.query || "");
+    setSelectedCategories(search.categories && search.categories.length > 0 ? search.categories : ["all"]);
+    setDateFrom(search.dateFrom || "");
+    setDateTo(search.dateTo || "");
+    setSelectedLanguage(search.language || "en");
+    
+    // Update last used timestamp
+    updateLastUsedMutation.mutate({ id: search.id });
+    
+    toast.success(`Loaded search: ${search.name}`);
+  };
+
+  const handleDeleteSavedSearch = (id: number) => {
+    deleteSavedSearchMutation.mutate({ id });
+  };
+
+  const handleRenameSearch = (id: number) => {
+    if (!editingSearchName.trim()) {
+      toast.error("Search name cannot be empty");
+      return;
+    }
+    renameSavedSearchMutation.mutate({ id, name: editingSearchName });
+  };
+
+  const handleCategoryToggle = (category: string) => {
+    if (category === "all") {
+      setSelectedCategories(["all"]);
+    } else {
+      const newCategories = selectedCategories.includes(category)
+        ? selectedCategories.filter(c => c !== category)
+        : [...selectedCategories.filter(c => c !== "all"), category];
+      
+      setSelectedCategories(newCategories.length === 0 ? ["all"] : newCategories);
+    }
+  };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedCategories(["all"]);
+    setDateFrom("");
+    setDateTo("");
   };
 
   const isArticleBookmarked = (articleId: string) => {
@@ -94,14 +200,90 @@ export default function KnowledgeBase() {
     return labels[category] || category;
   };
 
+  const hasActiveFilters = searchQuery || !selectedCategories.includes("all") || dateFrom || dateTo;
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Legal Knowledge Base</h1>
-          <p className="text-muted-foreground mt-2">
-            Browse and search UAE/Dubai laws and regulations
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Legal Knowledge Base</h1>
+            <p className="text-muted-foreground mt-2">
+              Browse and search UAE/Dubai laws and regulations
+            </p>
+          </div>
+          {savedSearches && savedSearches.length > 0 && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline">
+                  <Clock className="h-4 w-4 mr-2" />
+                  Saved Searches ({savedSearches.length})
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="end">
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">Quick Access</h4>
+                  <Separator />
+                  {savedSearches.map((search) => (
+                    <div key={search.id} className="flex items-center justify-between gap-2 p-2 hover:bg-accent rounded-lg">
+                      {editingSearchId === search.id ? (
+                        <div className="flex items-center gap-2 flex-1">
+                          <Input
+                            value={editingSearchName}
+                            onChange={(e) => setEditingSearchName(e.target.value)}
+                            className="h-8"
+                            autoFocus
+                          />
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleRenameSearch(search.id)}
+                          >
+                            <Check className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setEditingSearchId(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleLoadSavedSearch(search)}
+                            className="flex-1 text-left text-sm hover:underline"
+                          >
+                            {search.name}
+                          </button>
+                          <div className="flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setEditingSearchId(search.id);
+                                setEditingSearchName(search.name);
+                              }}
+                            >
+                              <Edit2 className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleDeleteSavedSearch(search.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
 
         <Tabs defaultValue="search" className="space-y-4">
@@ -119,10 +301,61 @@ export default function KnowledgeBase() {
           <TabsContent value="search" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Search Legal Articles</CardTitle>
-                <CardDescription>
-                  Find specific laws, articles, and regulations
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Search Legal Articles</CardTitle>
+                    <CardDescription>
+                      Find specific laws, articles, and regulations
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    {hasActiveFilters && (
+                      <>
+                        <Button variant="outline" size="sm" onClick={clearFilters}>
+                          Clear Filters
+                        </Button>
+                        <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Save className="h-4 w-4 mr-2" />
+                              Save Search
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Save Search Query</DialogTitle>
+                              <DialogDescription>
+                                Give this search a name for quick access later
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              <Input
+                                placeholder="e.g., Rental disputes 2007-2010"
+                                value={saveSearchName}
+                                onChange={(e) => setSaveSearchName(e.target.value)}
+                              />
+                              <Button
+                                onClick={handleSaveSearch}
+                                disabled={saveSearchMutation.isPending}
+                                className="w-full"
+                              >
+                                Save Search
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                    >
+                      <Filter className="h-4 w-4 mr-2" />
+                      {showAdvancedFilters ? "Hide" : "Show"} Advanced Filters
+                    </Button>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex gap-4">
@@ -134,18 +367,6 @@ export default function KnowledgeBase() {
                       className="w-full"
                     />
                   </div>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <SelectTrigger className="w-[200px]">
-                      <SelectValue placeholder="Category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories?.map((cat) => (
-                        <SelectItem key={cat.value} value={cat.value}>
-                          {cat.label} ({cat.count})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <Select value={selectedLanguage} onValueChange={(val) => setSelectedLanguage(val as "en" | "ar")}>
                     <SelectTrigger className="w-[150px]">
                       <SelectValue />
@@ -156,6 +377,94 @@ export default function KnowledgeBase() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {showAdvancedFilters && (
+                  <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+                    <div>
+                      <Label className="text-sm font-semibold mb-3 block">Categories</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="cat-all"
+                            checked={selectedCategories.includes("all")}
+                            onCheckedChange={() => handleCategoryToggle("all")}
+                          />
+                          <label htmlFor="cat-all" className="text-sm cursor-pointer">
+                            All Categories
+                          </label>
+                        </div>
+                        {categories?.filter(c => c.value !== "all").map((cat) => (
+                          <div key={cat.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`cat-${cat.value}`}
+                              checked={selectedCategories.includes(cat.value)}
+                              onCheckedChange={() => handleCategoryToggle(cat.value)}
+                              disabled={selectedCategories.includes("all")}
+                            />
+                            <label htmlFor={`cat-${cat.value}`} className="text-sm cursor-pointer">
+                              {cat.label} ({cat.count})
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    <div>
+                      <Label className="text-sm font-semibold mb-3 block">Date Range (Law Enactment Year)</Label>
+                      <div className="flex gap-4 items-center">
+                        <div className="flex-1">
+                          <Label htmlFor="date-from" className="text-xs text-muted-foreground">From Year</Label>
+                          <Input
+                            id="date-from"
+                            type="number"
+                            placeholder="e.g., 2000"
+                            value={dateFrom}
+                            onChange={(e) => setDateFrom(e.target.value)}
+                            min="1900"
+                            max="2100"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <Label htmlFor="date-to" className="text-xs text-muted-foreground">To Year</Label>
+                          <Input
+                            id="date-to"
+                            type="number"
+                            placeholder="e.g., 2024"
+                            value={dateTo}
+                            onChange={(e) => setDateTo(e.target.value)}
+                            min="1900"
+                            max="2100"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {hasActiveFilters && (
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="secondary">
+                      {searchResults?.length || 0} results
+                    </Badge>
+                    {searchQuery && (
+                      <Badge variant="outline">
+                        Query: "{searchQuery}"
+                      </Badge>
+                    )}
+                    {!selectedCategories.includes("all") && (
+                      <Badge variant="outline">
+                        Categories: {selectedCategories.map(c => getCategoryLabel(c)).join(", ")}
+                      </Badge>
+                    )}
+                    {(dateFrom || dateTo) && (
+                      <Badge variant="outline">
+                        Years: {dateFrom || "any"} - {dateTo || "any"}
+                      </Badge>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -270,7 +579,7 @@ export default function KnowledgeBase() {
                     <Book className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <h3 className="text-lg font-semibold mb-2">No articles found</h3>
                     <p className="text-muted-foreground">
-                      {searchQuery ? "Try different search terms or filters" : "Start searching to find legal articles"}
+                      {hasActiveFilters ? "Try different search terms or filters" : "Start searching to find legal articles"}
                     </p>
                   </CardContent>
                 </Card>

@@ -122,8 +122,10 @@ describe("Bookmarks", () => {
     const ctx = createAuthContext();
     const caller = appRouter.createCaller(ctx);
 
+    const articleId = `26-2007-art1-${Date.now()}-${Math.random()}`;
+
     const result = await caller.bookmarks.create({
-      articleId: "26-2007-art1",
+      articleId,
       notes: "Important article about rental law",
     });
 
@@ -145,15 +147,17 @@ describe("Bookmarks", () => {
     const ctx = createAuthContext();
     const caller = appRouter.createCaller(ctx);
 
+    const articleId = `test-article-${Date.now()}-${Math.random()}`;
+
     // First create a bookmark
     await caller.bookmarks.create({
-      articleId: "test-article-123",
+      articleId,
       notes: "Test bookmark",
     });
 
     // Then check if it exists
     const result = await caller.bookmarks.checkBookmark({
-      articleId: "test-article-123",
+      articleId,
     });
 
     expect(result).toBeDefined();
@@ -165,7 +169,7 @@ describe("Bookmarks", () => {
     const ctx = createAuthContext();
     const caller = appRouter.createCaller(ctx);
 
-    const articleId = "duplicate-test-article";
+    const articleId = `duplicate-test-${Date.now()}-${Math.random()}`;
 
     // Create first bookmark
     await caller.bookmarks.create({
@@ -186,9 +190,11 @@ describe("Bookmarks", () => {
     const ctx = createAuthContext();
     const caller = appRouter.createCaller(ctx);
 
+    const articleId = `delete-test-${Date.now()}-${Math.random()}`;
+
     // Create a bookmark
     const { bookmarkId } = await caller.bookmarks.create({
-      articleId: "delete-test-article",
+      articleId,
       notes: "To be deleted",
     });
 
@@ -199,7 +205,7 @@ describe("Bookmarks", () => {
 
     // Verify it's deleted
     const check = await caller.bookmarks.checkBookmark({
-      articleId: "delete-test-article",
+      articleId,
     });
     expect(check.isBookmarked).toBe(false);
   });
@@ -208,9 +214,11 @@ describe("Bookmarks", () => {
     const ctx = createAuthContext();
     const caller = appRouter.createCaller(ctx);
 
+    const articleId = `update-test-${Date.now()}-${Math.random()}`;
+
     // Create a bookmark
     const { bookmarkId } = await caller.bookmarks.create({
-      articleId: "update-test-article",
+      articleId,
       notes: "Original notes",
     });
 
@@ -224,7 +232,7 @@ describe("Bookmarks", () => {
 
     // Verify update
     const check = await caller.bookmarks.checkBookmark({
-      articleId: "update-test-article",
+      articleId,
     });
     expect(check.bookmark?.notes).toBe("Updated notes");
   });

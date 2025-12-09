@@ -143,3 +143,22 @@ export const bookmarks = mysqlTable("bookmarks", {
 
 export type Bookmark = typeof bookmarks.$inferSelect;
 export type InsertBookmark = typeof bookmarks.$inferInsert;
+
+/**
+ * Saved search queries for quick access
+ */
+export const savedSearches = mysqlTable("savedSearches", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(), // User-defined name for the search
+  query: varchar("query", { length: 500 }), // Search keywords
+  categories: text("categories"), // JSON array of selected categories
+  dateFrom: varchar("dateFrom", { length: 50 }), // Date range start (law enactment date)
+  dateTo: varchar("dateTo", { length: 50 }), // Date range end
+  language: mysqlEnum("language", ["en", "ar"]).default("en").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  lastUsed: timestamp("lastUsed").defaultNow().notNull(),
+});
+
+export type SavedSearch = typeof savedSearches.$inferSelect;
+export type InsertSavedSearch = typeof savedSearches.$inferInsert;

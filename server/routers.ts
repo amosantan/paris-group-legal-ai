@@ -529,31 +529,48 @@ Use formal legal language and cite relevant articles and laws.`;
     search: protectedProcedure
       .input(z.object({
         query: z.string().optional(),
-        category: z.enum(["rental_law", "civil_code", "rera_regulation", "escrow_law", "real_estate_law", "procedures", "other", "all"]).default("all"),
+        categories: z.array(z.string()).optional(), // Multi-category selection
+        category: z.enum(["rental_law", "civil_code", "rera_regulation", "escrow_law", "real_estate_law", "procedures", "other", "all"]).optional(), // Legacy single category
         language: z.enum(["en", "ar"]).default("en"),
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
       }))
       .query(({ input }) => {
-        const { query, category } = input;
+        const { query, categories, category, dateFrom, dateTo } = input;
         
-        if (query) {
-          // Search by keyword
-          const results = searchKB(query);
-          
-          // Filter by category if not "all"
-          if (category !== "all") {
-            return results.filter(article => article.category === category);
-          }
-          
-          return results;
+        let results = query ? searchKB(query) : searchKB("");
+        
+        // Multi-category filter (new advanced filter)
+        if (categories && categories.length > 0 && !categories.includes("all")) {
+          results = results.filter(article => categories.includes(article.category));
+        }
+        // Legacy single category filter (for backward compatibility)
+        else if (category && category !== "all") {
+          results = results.filter(article => article.category === category);
         }
         
-        // Browse by category
-        if (category !== "all") {
-          return searchKB("").filter(article => article.category === category);
+        // Date range filter (filter by law enactment year)
+        if (dateFrom || dateTo) {
+          results = results.filter(article => {
+            // Extract year from law number (e.g., "26/2007" -> 2007)
+            const yearMatch = article.lawNumber.match(/(\d{4})/);
+            if (!yearMatch) return true; // Include if no year found
+            
+            const lawYear = parseInt(yearMatch[1]);
+            
+            if (dateFrom && dateTo) {
+              return lawYear >= parseInt(dateFrom) && lawYear <= parseInt(dateTo);
+            } else if (dateFrom) {
+              return lawYear >= parseInt(dateFrom);
+            } else if (dateTo) {
+              return lawYear <= parseInt(dateTo);
+            }
+            
+            return true;
+          });
         }
         
-        // Return all articles
-        return searchKB("");
+        return results;
       }),
 
     getById: protectedProcedure
@@ -626,6 +643,73 @@ Use formal legal language and cite relevant articles and laws.`;
       .query(async ({ ctx, input }) => {
         const bookmark = await db.getBookmarkByArticle(ctx.user.id, input.articleId);
         return { isBookmarked: !!bookmark, bookmark };
+      }),
+  }),
+
+  // Saved Searches
+  savedSearches: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return db.getUserSavedSearches(ctx.user.id);
+    }),
+
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1).max(255),
+        query: z.string().optional(),
+        categories: z.array(z.string()).optional(),
+        dateFrom: z.string().optional(),
+        dateTo: z.string().optional(),
+        language: z.enum(["en", "ar"]).default("en"),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const searchId = await db.createSavedSearch({
+          userId: ctx.user.id,
+          name: input.name,
+          query: input.query || null,
+          categories: input.categories ? JSON.stringify(input.categories) : null,
+          dateFrom: input.dateFrom || null,
+          dateTo: input.dateTo || null,
+          language: input.language,
+        });
+        
+        return { searchId };
+      }),
+
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const search = await db.getSavedSearchById(input.id, ctx.user.id);
+        if (!search) return null;
+        
+        // Parse categories JSON
+        return {
+          ...search,
+          categories: search.categories ? JSON.parse(search.categories) : [],
+        };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.deleteSavedSearch(input.id, ctx.user.id);
+        return { success: true };
+      }),
+
+    updateLastUsed: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.updateSavedSearchLastUsed(input.id, ctx.user.id);
+        return { success: true };
+      }),
+
+    rename: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).max(255),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        await db.updateSavedSearchName(input.id, ctx.user.id, input.name);
+        return { success: true };
       }),
   }),
 });

@@ -95,3 +95,18 @@
 - [x] Create bookmarks management page
 - [x] Test search and bookmark features
 - [x] Update navigation to include Knowledge Base
+
+
+## Advanced Search Features
+
+- [x] Add saved searches table to database schema
+- [x] Add date range fields to legal knowledge articles
+- [x] Create backend API for saving search queries
+- [x] Create backend API for loading saved searches
+- [x] Implement multi-category selection in search
+- [x] Add date range filter to search
+- [x] Build saved searches UI component
+- [x] Add quick access to saved searches
+- [x] Implement search query naming and management
+- [x] Test advanced search and saved queries
+- [x] Update documentation with advanced search features
