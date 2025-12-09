@@ -10,6 +10,8 @@ import { storagePut } from "./storage";
 import { buildLegalContext, searchLegalKnowledge as searchKB } from "./legalKnowledgeBase";
 import { getSystemPrompt } from "./enhancedLegalPrompts";
 import { extractTextFromPDF, cleanExtractedText, validatePDFSize, extractContractInfo } from "./pdfExtractor";
+import { calculateConfidenceScore } from "./confidenceScoring";
+import { verifyAllCitations, calculateGroundingScore } from "./citationVerification";
 import { nanoid } from "nanoid";
 
 export const appRouter = router({
@@ -135,14 +137,63 @@ export const appRouter = router({
           ? response.choices[0]?.message?.content 
           : "I apologize, but I couldn't generate a response.");
 
+        // Search for relevant legal articles based on user query
+        const relevantArticles = searchKB(input.content);
+        
+        // Calculate confidence score
+        const confidenceScore = calculateConfidenceScore(input.content, relevantArticles);
+        
+        // Verify citations in the response
+        const citationVerification = verifyAllCitations(assistantMessage);
+        const groundingScore = calculateGroundingScore(assistantMessage, relevantArticles);
+
         // Save assistant message
-        await db.createMessage({
+        const messageId = await db.createMessage({
           consultationId: input.consultationId,
           role: "assistant",
           content: assistantMessage,
         });
 
-        return { message: assistantMessage };
+        // Get current LLM provider info
+        const currentProvider = getCurrentProvider();
+        const providerInfo = getProviderInfo(currentProvider);
+        
+        // Store AI response metadata
+        await db.createAiResponseMetadata({
+          messageId,
+          consultationId: input.consultationId,
+          llmProvider: currentProvider,
+          llmModel: providerInfo.name,
+          confidenceScore: confidenceScore.overall,
+          confidenceLevel: confidenceScore.level,
+          citationCount: citationVerification.citationCount,
+          verifiedCitations: citationVerification.verifiedCount,
+          groundingScore: groundingScore,
+          knowledgeBaseCoverage: confidenceScore.factors.knowledgeBaseCoverage,
+          legalClarityScore: confidenceScore.factors.legalClarityScore,
+          queryComplexityScore: confidenceScore.factors.queryComplexityScore,
+          requiresLawyerReview: confidenceScore.requiresLawyerReview ? 1 : 0,
+          usedArticles: JSON.stringify(relevantArticles.map(a => `${a.lawName} - ${a.articleNumber || 'General'}`)),
+          warnings: JSON.stringify([
+            ...confidenceScore.recommendations,
+            ...citationVerification.warnings
+          ]),
+        });
+
+        return { 
+          message: assistantMessage,
+          confidence: {
+            score: confidenceScore.overall,
+            level: confidenceScore.level,
+            requiresReview: confidenceScore.requiresLawyerReview,
+            recommendations: confidenceScore.recommendations,
+          },
+          citations: {
+            total: citationVerification.citationCount,
+            verified: citationVerification.verifiedCount,
+            unverified: citationVerification.citationCount - citationVerification.verifiedCount,
+          }
+        };
       }),
   }),
 

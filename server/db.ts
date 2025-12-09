@@ -18,7 +18,9 @@ import {
   bookmarks,
   InsertBookmark,
   savedSearches,
-  InsertSavedSearch
+  InsertSavedSearch,
+  aiResponseMetadata,
+  InsertAiResponseMetadata
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -356,4 +358,29 @@ export async function updateSavedSearchName(id: number, userId: number, name: st
   await db.update(savedSearches)
     .set({ name })
     .where(and(eq(savedSearches.id, id), eq(savedSearches.userId, userId)));
+}
+
+
+// AI Response Metadata functions
+export async function createAiResponseMetadata(data: InsertAiResponseMetadata) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(aiResponseMetadata).values(data);
+  return result[0].insertId;
+}
+
+export async function getAiResponseMetadata(messageId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(aiResponseMetadata).where(eq(aiResponseMetadata.messageId, messageId)).limit(1);
+  return result[0] || null;
+}
+
+export async function getConsultationMetadata(consultationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(aiResponseMetadata).where(eq(aiResponseMetadata.consultationId, consultationId));
 }

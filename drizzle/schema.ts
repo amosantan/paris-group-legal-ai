@@ -162,3 +162,71 @@ export const savedSearches = mysqlTable("savedSearches", {
 
 export type SavedSearch = typeof savedSearches.$inferSelect;
 export type InsertSavedSearch = typeof savedSearches.$inferInsert;
+
+
+/**
+ * Lawyer reviews - tracks human lawyer review of AI-generated advice
+ */
+export const lawyerReviews = mysqlTable("lawyerReviews", {
+  id: int("id").autoincrement().primaryKey(),
+  consultationId: int("consultationId"),
+  contractReviewId: int("contractReviewId"),
+  reportId: int("reportId"),
+  reviewerId: int("reviewerId").notNull(), // User ID of the lawyer
+  reviewerName: varchar("reviewerName", { length: 255 }).notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected", "needs_revision"]).default("pending").notNull(),
+  reviewNotes: text("reviewNotes"),
+  originalContent: text("originalContent").notNull(), // Original AI response
+  revisedContent: text("revisedContent"), // Lawyer's revisions (if any)
+  confidenceScore: int("confidenceScore"), // AI confidence at time of generation
+  reviewedAt: timestamp("reviewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type LawyerReview = typeof lawyerReviews.$inferSelect;
+export type InsertLawyerReview = typeof lawyerReviews.$inferInsert;
+
+/**
+ * Audit trail - comprehensive logging of all AI interactions
+ */
+export const auditLogs = mysqlTable("auditLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  userName: varchar("userName", { length: 255 }),
+  action: varchar("action", { length: 100 }).notNull(), // e.g., "consultation_created", "message_sent", "review_approved"
+  entityType: varchar("entityType", { length: 50 }).notNull(), // e.g., "consultation", "message", "review"
+  entityId: int("entityId").notNull(),
+  details: text("details"), // JSON with additional context
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: varchar("userAgent", { length: 512 }),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = typeof auditLogs.$inferInsert;
+
+/**
+ * AI response metadata - stores confidence scores and verification results
+ */
+export const aiResponseMetadata = mysqlTable("aiResponseMetadata", {
+  id: int("id").autoincrement().primaryKey(),
+  messageId: int("messageId"), // Links to messages table
+  consultationId: int("consultationId"),
+  llmProvider: varchar("llmProvider", { length: 50 }).notNull(), // "manus" or "gemini"
+  llmModel: varchar("llmModel", { length: 100 }),
+  confidenceScore: int("confidenceScore").notNull(), // 0-100
+  confidenceLevel: mysqlEnum("confidenceLevel", ["very_high", "high", "medium", "low", "very_low"]).notNull(),
+  citationCount: int("citationCount").notNull(),
+  verifiedCitations: int("verifiedCitations").notNull(),
+  groundingScore: int("groundingScore").notNull(), // 0-100
+  knowledgeBaseCoverage: int("knowledgeBaseCoverage").notNull(),
+  legalClarityScore: int("legalClarityScore").notNull(),
+  queryComplexityScore: int("queryComplexityScore").notNull(),
+  requiresLawyerReview: int("requiresLawyerReview").notNull().default(0), // boolean as int
+  usedArticles: text("usedArticles"), // JSON array of article IDs used
+  warnings: text("warnings"), // JSON array of warnings
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AiResponseMetadata = typeof aiResponseMetadata.$inferSelect;
+export type InsertAiResponseMetadata = typeof aiResponseMetadata.$inferInsert;
