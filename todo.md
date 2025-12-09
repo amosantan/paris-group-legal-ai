@@ -41,3 +41,14 @@
 - [x] Escrow and Oqood procedures
 - [x] Article number citation system
 - [x] Legal terminology database (English/Arabic)
+
+
+## Hybrid LLM System
+
+- [x] Gemini API integration module
+- [x] Unified LLM interface with provider abstraction
+- [x] Configuration system for provider selection
+- [x] Environment variable for Gemini API key
+- [x] Admin UI for switching LLM providers
+- [x] Test Gemini API integration
+- [x] Update documentation with provider information

@@ -10,6 +10,7 @@ import NewConsultation from "./pages/NewConsultation";
 import Consultation from "./pages/Consultation";
 import ContractReview from "./pages/ContractReview";
 import Reports from "./pages/Reports";
+import LLMSettings from "./pages/LLMSettings";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path={"/consultation/:id"} component={Consultation} />
       <Route path={"/contract-review/:documentId"} component={ContractReview} />
       <Route path={"/reports/:consultationId"} component={Reports} />
+      <Route path={"/llm-settings"} component={LLMSettings} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

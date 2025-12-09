@@ -5,6 +5,7 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { invokeLLM } from "./_core/llm";
+import { invokeUnifiedLLM, getCurrentProvider, getAvailableProviders, getProviderInfo, LLMProvider } from "./_core/unifiedLLM";
 import { storagePut } from "./storage";
 import { buildLegalContext, searchLegalKnowledge as searchKB } from "./legalKnowledgeBase";
 import { nanoid } from "nanoid";
@@ -163,7 +164,7 @@ Provide accurate, professional advice and always cite relevant articles and laws
         ];
 
         // Get AI response
-        const response = await invokeLLM({
+        const response = await invokeUnifiedLLM({
           messages: llmMessages,
         });
 
@@ -243,6 +244,9 @@ Provide accurate, professional advice and always cite relevant articles and laws
         // Get legal context
         const legalContext = buildLegalContext();
 
+        // System prompt for contract analysis
+        const systemPrompt = "You are an expert legal analyst specializing in UAE/Dubai law, particularly rental disputes and real estate transactions. Provide precise, formal legal analysis with exact article citations.";
+
         // Build analysis prompt
         const analysisPrompt = input.language === "ar"
           ? `قم بإجراء مراجعة قانونية شاملة للعقد التالي بناءً على قانون دبي/الإمارات.
@@ -293,9 +297,9 @@ Provide detailed analysis in JSON format with the following fields:
 - legalReferences (array of legal citations)`;
 
         // Get AI analysis
-        const response = await invokeLLM({
+        const response = await invokeUnifiedLLM({
           messages: [
-            { role: "system", content: "You are an expert legal analyst specializing in Dubai/UAE contract law." },
+            { role: "system", content: systemPrompt },
             { role: "user", content: analysisPrompt },
           ],
           response_format: {
@@ -382,6 +386,9 @@ Provide detailed analysis in JSON format with the following fields:
         const documents = await db.getConsultationDocuments(input.consultationId);
         const reviews = await db.getConsultationReviews(input.consultationId);
 
+        // System prompt for report generation
+        const systemPrompt = "You are an expert legal consultant specializing in UAE/Dubai law. Generate formal, professional legal reports with precise citations and formal legal language.";
+
         // Build report content using LLM
         const reportPrompt = input.language === "ar"
           ? `قم بإنشاء تقرير قانوني رسمي بناءً على البيانات التالية.
@@ -419,9 +426,9 @@ Generate a formal, professional legal report in Markdown format including:
 
 Use formal legal language and cite relevant articles and laws.`;
 
-        const response = await invokeLLM({
+        const response = await invokeUnifiedLLM({
           messages: [
-            { role: "system", content: "You are an expert legal report writer for Paris Group Dubai." },
+            { role: "system", content: systemPrompt },
             { role: "user", content: reportPrompt },
           ],
         });
@@ -461,6 +468,24 @@ Use formal legal language and cite relevant articles and laws.`;
       .input(z.object({ query: z.string() }))
       .query(async ({ input }) => {
         return searchKB(input.query);
+      }),
+  }),
+
+  // LLM Provider Management
+  llmProvider: router({
+    getCurrent: protectedProcedure.query(() => {
+      return {
+        provider: getCurrentProvider(),
+        info: getProviderInfo(),
+      };
+    }),
+    getAvailable: protectedProcedure.query(() => {
+      return getAvailableProviders();
+    }),
+    getInfo: protectedProcedure
+      .input(z.object({ provider: z.enum(["manus", "gemini"]) }))
+      .query(({ input }) => {
+        return getProviderInfo(input.provider);
       }),
   }),
 });
