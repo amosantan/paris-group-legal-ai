@@ -153,7 +153,20 @@ export async function getConsultationMessages(consultationId: number) {
   const db = await getDb();
   if (!db) return [];
   
-  return db.select().from(messages).where(eq(messages.consultationId, consultationId)).orderBy(messages.createdAt);
+  const results = await db
+    .select({
+      message: messages,
+      metadata: aiResponseMetadata,
+    })
+    .from(messages)
+    .leftJoin(aiResponseMetadata, eq(messages.id, aiResponseMetadata.messageId))
+    .where(eq(messages.consultationId, consultationId))
+    .orderBy(messages.createdAt);
+  
+  return results.map(r => ({
+    ...r.message,
+    aiMetadata: r.metadata || undefined,
+  }));
 }
 
 // Document queries

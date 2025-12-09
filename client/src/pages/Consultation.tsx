@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Streamdown } from "streamdown";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConfidenceIndicator } from "@/components/ConfidenceIndicator";
 
 export default function Consultation() {
   const { id } = useParams<{ id: string }>();
@@ -172,19 +173,34 @@ export default function Consultation() {
                           key={msg.id}
                           className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                         >
-                          <div
-                            className={`max-w-[80%] rounded-lg p-4 ${
-                              msg.role === "user"
-                                ? "bg-primary text-primary-foreground"
-                                : msg.role === "system"
-                                ? "bg-muted text-muted-foreground italic"
-                                : "bg-accent text-accent-foreground"
-                            }`}
-                          >
-                            {msg.role === "assistant" ? (
-                              <Streamdown>{msg.content}</Streamdown>
-                            ) : (
-                              <p className="whitespace-pre-wrap">{msg.content}</p>
+                          <div className={`max-w-[80%] space-y-2`}>
+                            <div
+                              className={`rounded-lg p-4 ${
+                                msg.role === "user"
+                                  ? "bg-primary text-primary-foreground"
+                                  : msg.role === "system"
+                                  ? "bg-muted text-muted-foreground italic"
+                                  : "bg-accent text-accent-foreground"
+                              }`}
+                            >
+                              {msg.role === "assistant" ? (
+                                <Streamdown>{msg.content}</Streamdown>
+                              ) : (
+                                <p className="whitespace-pre-wrap">{msg.content}</p>
+                              )}
+                            </div>
+                            {msg.role === "assistant" && msg.aiMetadata && (
+                              <ConfidenceIndicator
+                                score={msg.aiMetadata.confidenceScore}
+                                level={msg.aiMetadata.confidenceLevel}
+                                requiresReview={msg.aiMetadata.requiresLawyerReview === 1}
+                                citationStats={{
+                                  total: msg.aiMetadata.citationCount,
+                                  verified: msg.aiMetadata.verifiedCitations,
+                                  unverified: msg.aiMetadata.citationCount - msg.aiMetadata.verifiedCitations,
+                                }}
+                                compact={false}
+                              />
                             )}
                           </div>
                         </div>

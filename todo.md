@@ -208,9 +208,9 @@
 ## PRIORITY IMPLEMENTATION - Confidence Scoring
 - [x] Integrate confidence scoring into messages.send procedure
 - [x] Store confidence metadata in aiResponseMetadata table
-- [ ] Display confidence scores in chat UI
+- [x] Display confidence scores in chat UI
 - [x] Add automatic lawyer review triggers for low confidence
-- [ ] Test confidence scoring with various query types
+- [x] Test confidence scoring with various query types
 
 ## Phase 1: Critical Safety Features (HIGHEST PRIORITY)
 
@@ -225,8 +225,8 @@
 - [x] Create confidence scoring module (confidenceScoring.ts)
 - [x] Integrate into all AI response procedures
 - [x] Store scores in aiResponseMetadata table
-- [ ] Display confidence levels in UI
-- [ ] Add confidence-based warnings
+- [x] Display confidence levels in UI
+- [x] Add confidence-based warnings
 
 ### Lawyer Review Workflow
 - [x] Create lawyerReviews database table
