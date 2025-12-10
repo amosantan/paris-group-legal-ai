@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getLoginUrl } from "@/const";
-import { FileText, MessageSquare, Scale, Shield } from "lucide-react";
+import { FileText, MessageSquare, Scale, Shield, Upload, Database } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
@@ -33,12 +33,15 @@ export default function Home() {
       <main className="flex-1">
         <section className="container mx-auto px-4 py-20 text-center">
           <div className="max-w-3xl mx-auto space-y-6">
+            <div className="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-4">
+              Version 6.0 - Expanded Knowledge Base
+            </div>
             <h2 className="text-5xl font-bold tracking-tight">
               Expert Legal Consultation for Dubai Real Estate
             </h2>
             <p className="text-xl text-muted-foreground">
               AI-powered legal assistant specializing in rental disputes, real estate transactions, property mortgages, and DIFC regulations, 
-              backed by comprehensive UAE/Dubai law knowledge including 33 newly added articles
+              backed by <strong>740 comprehensive legal articles</strong> from official UAE government sources including Civil Code, Commercial Law, Labor Law, and Real Estate regulations
             </p>
             {isAuthenticated ? (
               <div className="flex gap-4 justify-center">
@@ -115,6 +118,68 @@ export default function Home() {
                 </CardContent>
               </Card>
             </div>
+
+            <div className="mt-12 max-w-4xl mx-auto">
+              <Card className="border-primary/50 bg-primary/5">
+                <CardHeader>
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <Upload className="h-8 w-8 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-2xl">Expand Legal Knowledge Base</CardTitle>
+                      <CardDescription className="text-base mt-2">
+                        Upload official UAE legal PDFs to continuously improve AI accuracy and coverage
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-semibold mb-3 flex items-center gap-2">
+                        <Database className="h-5 w-5 text-primary" />
+                        Current Knowledge Base
+                      </h4>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li>• <strong>740 legal articles</strong> across all categories</li>
+                        <li>• UAE Civil Code (357 entries)</li>
+                        <li>• Commercial Law (227 entries)</li>
+                        <li>• Real Estate & Rental Law (115 entries)</li>
+                        <li>• Labor Law (40 entries)</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-3">Supported Sources</h4>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li>• Ministry of Justice (moj.gov.ae)</li>
+                        <li>• Dubai Land Department</li>
+                        <li>• Ministry of Economy</li>
+                        <li>• MOHRE Labor Laws</li>
+                        <li>• DIFC Legal Database</li>
+                      </ul>
+                    </div>
+                  </div>
+                  {isAuthenticated ? (
+                    <div className="mt-6">
+                      <Link href="/pdf-upload">
+                        <Button size="lg" className="w-full md:w-auto">
+                          <Upload className="mr-2 h-5 w-5" />
+                          Upload Legal PDFs
+                        </Button>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="mt-6">
+                      <Button size="lg" variant="outline" disabled className="w-full md:w-auto">
+                        <Upload className="mr-2 h-5 w-5" />
+                        Sign in to Upload PDFs
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </section>
 
@@ -127,13 +192,12 @@ export default function Home() {
                   <CardTitle>UAE/Dubai Laws</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
-                  <p>• Dubai Rental Law 26/2007 & 33/2008</p>
-                  <p>• Dubai Mortgage Law 14/2008 (NEW)</p>
-                  <p>• Dubai Property Registration Law 7/2006 (NEW)</p>
-                  <p>• DIFC Real Property Law 10/2018 (NEW)</p>
-                  <p>• DIFC Leasing Law 1/2020 (NEW)</p>
-                  <p>• UAE Civil Code (Federal Law 5/1985)</p>
-                  <p>• RERA regulations & Strata Law 27/2007</p>
+                  <p>• <strong>UAE Civil Code</strong> (Federal Law 5/1985) - 357 articles</p>
+                  <p>• <strong>Commercial Law</strong> (Companies & Transactions) - 227 articles</p>
+                  <p>• <strong>Dubai Real Estate Legislation</strong> - 71 articles</p>
+                  <p>• <strong>Dubai Rental Law</strong> 26/2007 & 33/2008 - 44 articles</p>
+                  <p>• <strong>UAE Labor Law</strong> (Federal Law 8/1980) - 40 articles</p>
+                  <p>• DIFC Laws, RERA regulations & Strata Law</p>
                 </CardContent>
               </Card>
 

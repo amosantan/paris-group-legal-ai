@@ -66,3 +66,11 @@
   * 711 new chunks created from PDFs
   * 740 total knowledge base entries (10x expansion from 81 hardcoded articles)
   * Categories: Civil Code (357), Commercial Law (227), Real Estate (71), Rental (44), Labor (40)
+
+
+## 🎨 Home Page Update - Version 6.0 ✅ COMPLETE
+- [x] Update Home.tsx hero to highlight v6.0 as latest (Version 6.0 badge)
+- [x] Update statistics (740 knowledge base entries)
+- [x] Add prominent "Upload Legal PDFs" feature card on home page
+- [x] PDF Upload already visible in dashboard navigation (admin only)
+- [x] Test home page display and navigation (all features working perfectly)
