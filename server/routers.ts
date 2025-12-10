@@ -22,6 +22,12 @@ import { logAIInteraction } from "./db_lawyerReviews";
 import { generateConsultationPDF, generateContractReviewPDF } from "./pdfGenerator";
 import { generateDemandLetterPDF, generateEvictionNoticePDF, generateNOCPDF, DemandLetterData, EvictionNoticeData, NOCData } from "./legalDocumentTemplates";
 import { nanoid } from "nanoid";
+import { 
+  recordTermsAcceptance, 
+  hasAcceptedTerms, 
+  getTermsAcceptanceHistory,
+  getLatestTermsAcceptance 
+} from "./db_termsAcceptance";
 
 export const appRouter = router({
   system: systemRouter,
@@ -273,6 +279,48 @@ export const appRouter = router({
         const result = await extractTextFromImage(input.imageUrl, input.documentHint);
         
         return result;
+      }),
+  }),
+
+  terms: router({
+    accept: protectedProcedure
+      .input(z.object({
+        ipAddress: z.string().optional(),
+        userAgent: z.string().optional(),
+        termsVersion: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const acceptance = await recordTermsAcceptance({
+          userId: ctx.user.id,
+          ipAddress: input.ipAddress,
+          userAgent: input.userAgent,
+          termsVersion: input.termsVersion || "1.0",
+        });
+        return { success: true, acceptance };
+      }),
+
+    hasAccepted: protectedProcedure
+      .input(z.object({
+        termsVersion: z.string().optional(),
+      }))
+      .query(async ({ ctx, input }) => {
+        const accepted = await hasAcceptedTerms(
+          ctx.user.id,
+          input.termsVersion || "1.0"
+        );
+        return { accepted };
+      }),
+
+    getHistory: protectedProcedure
+      .query(async ({ ctx }) => {
+        const history = await getTermsAcceptanceHistory(ctx.user.id);
+        return { history };
+      }),
+
+    getLatest: protectedProcedure
+      .query(async ({ ctx }) => {
+        const latest = await getLatestTermsAcceptance(ctx.user.id);
+        return { latest };
       }),
   }),
 

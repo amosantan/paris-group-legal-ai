@@ -540,3 +540,123 @@ Before public launch, ensure:
 ---
 
 **Next Steps:** Review this roadmap with Paris Group stakeholders, prioritize based on business needs, and begin Phase 1 implementation.
+
+
+## 🚀 ACTIVE SPRINT - Phases 1-3 Production MVP (150 hours)
+
+### Phase 1.1: Terms of Service & Disclaimer System ✅ COMPLETE
+- [x] Create Terms of Service page (16 sections)
+- [x] Create DisclaimerModal component (3 checkboxes)
+- [x] Add terms_acceptance table to database schema
+- [x] Create db_termsAcceptance.ts functions
+- [x] Add tRPC procedures for terms acceptance (accept, hasAccepted, getHistory, getLatest)
+- [x] Add Terms of Service route to App.tsx
+- [x] Integrate DisclaimerModal into Dashboard (shows on first visit)
+- [ ] Add "View Terms" link in dashboard footer
+- [x] Test terms acceptance workflow
+
+### Phase 1.2: Confidence Warnings & User Acceptance (Component Created)
+- [x] Create ConfidenceWarning component with red banner
+- [ ] Add warning for confidence < 70% in AI responses
+- [ ] Add "⚠️ Consult a Licensed Lawyer" CTA in warnings
+- [ ] Create consultation liability waiver checkbox
+- [ ] Add waiver acceptance tracking to database
+- [ ] Show waiver modal before starting consultation
+- [ ] Add "Request Lawyer Review" button in low-confidence responses
+- [ ] Display lawyer review status badges
+
+### Phase 1.3: Jurisdiction Disclaimers & Document Watermarks
+- [ ] Create DisclaimerBadge component for inline disclaimers
+- [ ] Add jurisdiction disclaimer to every AI response
+- [ ] Update PDF generation with "AI-Generated - Not Legal Advice" watermark
+- [ ] Add liability disclaimer footer to all PDF pages
+- [ ] Add "Consult a Licensed Lawyer" footer to documents
+- [ ] Create emergency kill switch admin control
+- [ ] Add kill switch UI in admin settings
+- [ ] Test all disclaimer placements
+
+### Phase 2.1: Conversation Context Integration
+- [ ] Create ConversationContextSidebar component
+- [ ] Display tracked facts in real-time (names, dates, amounts, properties)
+- [ ] Add "Edit Fact" functionality for user corrections
+- [ ] Show conversation summary at top of consultation
+- [ ] Add "Clear Context" button to reset conversation
+- [ ] Integrate context sidebar into Consultation.tsx
+
+### Phase 2.2: Proactive Suggestions Integration
+- [ ] Create ProactiveSuggestionsPanel component
+- [ ] Display AI suggestions below chat (missing info, related topics, cases, next steps)
+- [ ] Make suggestions clickable (clicking sends as new message)
+- [ ] Add "Dismiss" and "Helpful/Not Helpful" feedback buttons
+- [ ] Track suggestion acceptance rate in analytics
+- [ ] Integrate suggestions panel into Consultation.tsx
+
+### Phase 2.3: Voice Input Integration
+- [ ] Add voice recording button to message input
+- [ ] Implement waveform animation during recording
+- [ ] Show transcription preview before sending
+- [ ] Add language selector (Arabic/English)
+- [ ] Display "Transcribing..." loading state
+- [ ] Add error handling for failed transcriptions
+- [ ] Integrate voice button into Consultation.tsx
+
+### Phase 2.4: Image OCR Integration
+- [ ] Create image upload zone with drag-and-drop
+- [ ] Show image preview with OCR progress indicator
+- [ ] Display extracted text in editable textarea
+- [ ] Add "Use This Text" button to send as message
+- [ ] Support multiple image uploads in sequence
+- [ ] Add image quality validation warnings
+- [ ] Integrate image upload into Consultation.tsx
+
+### Phase 2.5: Automatic Document Drafting Integration
+- [ ] Add "Generate Document" button in consultation header
+- [ ] Create DocumentDraftModal showing pre-filled template
+- [ ] Display confidence scores for each extracted field
+- [ ] Allow editing of extracted data before finalizing
+- [ ] Add "Download PDF" and "Save to Consultation" buttons
+- [ ] Show success message with next steps after generation
+- [ ] Integrate document drafting into Consultation.tsx
+
+### Phase 3.1: Status Indicators
+- [ ] Add consultation status badges (Active, Pending Review, Reviewed, Closed)
+- [ ] Show "⏳ Pending Lawyer Review" badge in consultation UI
+- [ ] Add status filter in consultations list
+- [ ] Display review status in consultation header
+- [ ] Add timeline showing status changes
+- [ ] Update consultation schema with status field
+
+### Phase 3.2: Notification System
+- [ ] Implement email notifications for lawyer review events
+- [ ] Send notification when consultation flagged for review
+- [ ] Send notification when lawyer approves/rejects
+- [ ] Add in-app notification bell icon
+- [ ] Create notifications table in database
+- [ ] Add notification preferences page
+- [ ] Test email delivery
+
+### Phase 3.3: Manual Review Request
+- [ ] Add "Request Lawyer Review" button in consultation
+- [ ] Create review request modal with reason textarea
+- [ ] Add urgency selector (Normal, Urgent, Emergency)
+- [ ] Track review requests in database
+- [ ] Show estimated review time based on queue
+- [ ] Integrate request button into Consultation.tsx
+
+### Phase 3.4: Lawyer Response Integration
+- [ ] Display lawyer's corrections inline with AI response
+- [ ] Add "Lawyer's Note" badge for reviewed messages
+- [ ] Show comparison: AI response vs. Lawyer correction
+- [ ] Add "Mark as Resolved" button after lawyer review
+- [ ] Track user satisfaction with lawyer reviews
+- [ ] Update LawyerReviewDashboard to show corrections
+
+### Phase 3.5: Blocking Mechanism
+- [ ] Add option to block PDF export until lawyer approves
+- [ ] Show "Awaiting Lawyer Approval" message on blocked actions
+- [ ] Add admin setting to enable/disable blocking per consultation type
+- [ ] Create bypass mechanism for urgent cases
+- [ ] Test blocking workflow
+
+**Total Tasks:** 80+ tasks across 3 phases
+**Estimated Completion:** 144 hours remaining

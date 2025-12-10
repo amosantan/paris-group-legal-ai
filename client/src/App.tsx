@@ -6,6 +6,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import TermsOfService from "./pages/TermsOfService";
 import Dashboard from "./pages/Dashboard";
 import NewConsultation from "./pages/NewConsultation";
 import Consultation from "./pages/Consultation";
@@ -19,7 +20,8 @@ import AuditLogViewer from "./pages/AuditLogViewer";
 function Router() {
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
+        <Route path="/" component={Home} />
+        <Route path="/terms-of-service" component={TermsOfService} />
       <Route path={"/knowledge-base"} component={KnowledgeBase} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/new-consultation"} component={NewConsultation} />
