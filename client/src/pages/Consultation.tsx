@@ -12,12 +12,17 @@ import { Streamdown } from "streamdown";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfidenceIndicator } from "@/components/ConfidenceIndicator";
+import { CitationCard } from "@/components/CitationCard";
+import { CitationModal } from "@/components/CitationModal";
+import { splitTextWithCitations, hasCitations } from "@/lib/citationParser";
 
 export default function Consultation() {
   const { id } = useParams<{ id: string }>();
   const consultationId = parseInt(id || "0");
   const [message, setMessage] = useState("");
   const [uploadingFile, setUploadingFile] = useState(false);
+  const [selectedCitation, setSelectedCitation] = useState<any>(null);
+  const [citationModalOpen, setCitationModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -208,7 +213,42 @@ export default function Consultation() {
                               }`}
                             >
                               {msg.role === "assistant" ? (
-                                <Streamdown>{msg.content}</Streamdown>
+                                <>
+                                  {hasCitations(msg.content) ? (
+                                    <div className="space-y-2">
+                                      {splitTextWithCitations(msg.content).map((segment, idx) => (
+                                        <div key={idx}>
+                                          {segment.type === "text" ? (
+                                            <Streamdown>{segment.content}</Streamdown>
+                                          ) : (
+                                            <CitationCard
+                                              articleNumber={segment.citation!.articleNumber}
+                                              lawName={segment.citation!.lawName}
+                                              category={segment.citation!.category}
+                                              preview={segment.citation!.originalText}
+                                              fullText={segment.citation!.originalText}
+                                              onViewFull={() => {
+                                                setSelectedCitation({
+                                                  id: idx,
+                                                  articleNumber: segment.citation!.articleNumber,
+                                                  lawName: segment.citation!.lawName,
+                                                  category: segment.citation!.category,
+                                                  fullText: segment.citation!.originalText,
+                                                });
+                                                setCitationModalOpen(true);
+                                              }}
+                                              onAskAbout={() => {
+                                                setMessage(`Tell me more about ${segment.citation!.lawName} Article ${segment.citation!.articleNumber}`);
+                                              }}
+                                            />
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <Streamdown>{msg.content}</Streamdown>
+                                  )}
+                                </>
                               ) : (
                                 <p className="whitespace-pre-wrap">{msg.content}</p>
                               )}
@@ -323,6 +363,19 @@ export default function Consultation() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Citation Modal */}
+      {selectedCitation && (
+        <CitationModal
+          open={citationModalOpen}
+          onOpenChange={setCitationModalOpen}
+          article={selectedCitation}
+          onAskAbout={(articleId) => {
+            setMessage(`Tell me more about ${selectedCitation.lawName} Article ${selectedCitation.articleNumber}`);
+            setCitationModalOpen(false);
+          }}
+        />
+      )}
     </DashboardLayout>
   );
 }
