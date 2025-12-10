@@ -157,6 +157,9 @@ importers:
       jose:
         specifier: 6.1.0
         version: 6.1.0
+      lru-cache:
+        specifier: ^11.2.4
+        version: 11.2.4
       lucide-react:
         specifier: ^0.453.0
         version: 0.453.0(react@19.2.0)
@@ -273,7 +276,7 @@ importers:
         specifier: ^4.1.14
         version: 4.1.14
       tsx:
-        specifier: ^4.19.1
+        specifier: ^4.20.6
         version: 4.20.6
       tw-animate-css:
         specifier: ^1.4.0
@@ -3472,6 +3475,10 @@ packages:
 
   loupe@3.2.1:
     resolution: {integrity: sha512-CdzqowRJCeLU72bHvWqwRBBlLcMEtIvGrlvef74kMnV2AolS9Y8xUv1I0U/MNAWMhBlKIoyuEgoJ0t/bbwHbLQ==}
+
+  lru-cache@11.2.4:
+    resolution: {integrity: sha512-B5Y16Jr9LB9dHVkh6ZevG+vAbOsNOYCX+sXvFWFu7B3Iz5mijW3zdbMyhsh8ANd2mSWBYdJgnqi+mL7/LrOPYg==}
+    engines: {node: 20 || >=22}
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
@@ -7972,6 +7979,8 @@ snapshots:
       js-tokens: 4.0.0
 
   loupe@3.2.1: {}
+
+  lru-cache@11.2.4: {}
 
   lru-cache@5.1.1:
     dependencies:

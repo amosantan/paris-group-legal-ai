@@ -911,10 +911,24 @@ export function searchLegalKnowledge(query: string): LegalArticle[] {
   );
 }
 
+import { withCache } from './searchCache';
+
 /**
  * Enhanced search that includes both hardcoded articles AND database PDF chunks
+ * NOW WITH CACHING for improved performance
  */
 export async function searchLegalKnowledgeEnhanced(query: string): Promise<LegalArticle[]> {
+  // Use cache wrapper for performance
+  return withCache(
+    { query, language: 'en', category: 'all' },
+    async () => await searchLegalKnowledgeEnhancedUncached(query)
+  );
+}
+
+/**
+ * Internal uncached search function
+ */
+async function searchLegalKnowledgeEnhancedUncached(query: string): Promise<LegalArticle[]> {
   const lowerQuery = query.toLowerCase();
   
   // Search hardcoded knowledge base

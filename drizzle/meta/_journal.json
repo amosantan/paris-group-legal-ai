@@ -43,6 +43,13 @@
       "when": 1765365011536,
       "tag": "0005_fat_proemial_gods",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1765384909341,
+      "tag": "0006_old_angel",
+      "breakpoints": true
     }
   ]
 }

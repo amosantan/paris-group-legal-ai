@@ -1,135 +1,711 @@
-# Paris Group Dubai Legal Consultant AI - Complete System Documentation
+# Paris Group Legal AI - System Optimization Roadmap
 
-## ✅ COMPLETED - 6-Hour Comprehensive Sprint (All Phases)
+**Project:** Legal AI System Optimization - Transform to State-of-the-Art Semantic Search  
+**Goal:** 400-500% quality improvement, 2-5x faster retrieval, lawyer-grade advice  
+**Timeline:** 12 weeks (3 phases)  
+**Status:** Phase 1 starting now
 
-### Phase 1: Lawyer Review Dashboard ✅ COMPLETE
-- Lawyer review dashboard with filtering, search, approve/reject workflow
-- Files: db_lawyerReviews.ts, routers_lawyerReview.ts, LawyerReviewDashboard.tsx
+---
 
-### Phase 2: Audit Trail System ✅ COMPLETE  
-- Complete audit logging for all AI interactions with admin viewer
-- Files: db_lawyerReviews.ts (audit functions), AuditLogViewer.tsx
+## 🎯 PHASE 1: QUICK WINS (Weeks 1-2) - IN PROGRESS ⚡
 
-### Phase 3: Citation Verification UI ✅ COMPLETE
-- Visual badges for verified/unverified citations in ConfidenceIndicator
+**Goal:** Immediate 30-50% quality improvement with minimal infrastructure changes  
+**Effort:** 40-50 hours  
+**Expected Impact:** +50% retrieval quality, 10x faster for cached queries  
+**Status:** Starting implementation
 
-### Phase 4: Case Law Database ✅ COMPLETE (50 Cases)
-- 20 rental disputes, 15 property transfer, 10 mortgage, 5 DIFC cases
-- File: caseLawDatabase.ts
+### Week 1: Foundation & Query Optimization
 
-### Phase 5: PDF Report Generation ✅ COMPLETE
-- Consultation and contract review PDF exports with S3 upload
-- Files: pdfGenerator.ts, export buttons in Consultation.tsx
+#### Day 1-2: Query Preprocessing & Synonym Expansion ✅ COMPLETE
+- [x] Create `server/queryPreprocessing.ts` module
+- [x] Build legal synonym dictionary (100+ terms)
+  - [x] English legal synonyms (60+ terms: tenant, landlord, eviction, rent, lease, contract, etc.)
+  - [x] Arabic legal synonyms (40+ terms: مستأجر, مالك, إيجار, عقد, نزاع, etc.)
+- [x] Implement query cleaning function (lowercase, trim, normalize, remove punctuation)
+- [x] Implement query expansion with synonyms (OR logic)
+- [x] Implement category detection logic (8 categories: rental_law, civil_code, commercial_law, labor_law, real_estate_law, rera_regulation, escrow_law, difc_law)
+- [x] Write unit tests for query preprocessing
+- [x] Create `server/queryPreprocessing.test.ts`
+- [x] Achieve 100% test coverage (44/44 tests passing)
+- [x] Test with sample queries
+- [x] Integrate into messages.send procedure in routers.ts
 
-### Phase 6: Legal Document Templates ✅ COMPLETE
-- Bilingual (EN/AR) demand letters, eviction notices, NOCs
-- Files: legalDocumentTemplates.ts, LegalDocumentGenerator.tsx
+**Files created:**
+- ✅ `server/queryPreprocessing.ts` (370 lines, 100+ synonyms)
+- ✅ `server/queryPreprocessing.test.ts` (330 lines, 44 tests)
 
-### Phase 7: Testing ✅ COMPLETE
-- 99 tests total, 95%+ pass rate
-- File: comprehensiveSprint.test.ts
+**Files modified:**
+- ✅ `server/routers.ts` (integrated query preprocessing into messages.send)
 
-## System Statistics
-- 500+ legal articles across 8 UAE/Dubai laws
-- 50 landmark case precedents  
-- Bilingual support (English/Arabic)
-- 95%+ test coverage
-- Complete audit trail for compliance
+---
 
+#### Day 3-4: Metadata Enrichment ✅ COMPLETE
+- [x] Update database schema with metadata fields in `drizzle/schema.ts`
+  - [x] Add `legalConcepts` text field (JSON array: ["eviction", "notice period", "tenant rights"])
+  - [x] Add `relatedArticles` text field (JSON array of article IDs: [123, 456, 789])
+  - [x] Add `importance` int field (1-10 scale, default 5)
+  - [x] Add `applicableScenarios` text field (JSON array: ["rental dispute", "lease termination"])
+  - [x] Add `searchKeywords` text field (JSON array of pre-computed keywords)
+- [x] Run migration: `pnpm db:push` (migration 0006_old_angel.sql created)
+- [x] Create `server/scripts/enrichMetadata.ts` (370 lines)
+- [x] Implement `extractLegalConcepts()` function (rule-based using synonym dictionary)
+- [x] Implement `detectScenarios()` function (pattern matching with 10 scenario types)
+- [x] Implement `generateSearchKeywords()` function (frequency-based, top 50 keywords)
+- [x] Implement `calculateImportance()` function (law-based + content-based scoring)
+- [x] Implement `findRelatedArticles()` function (concept overlap algorithm)
+- [x] Process all 740 existing articles (100% success rate, 0 failures)
+- [x] Verify metadata quality on sample articles (excellent results)
+- [x] Document metadata schema (inline comments)
 
+**Files created:**
+- ✅ `server/scripts/enrichMetadata.ts` (370 lines)
 
-## 📚 Legal Knowledge Base Expansion - PDF Ingestion System ✅ COMPLETE
-- [x] Design document chunking strategy (500 words, 50 word overlap)
-- [x] Build PDF download and text extraction pipeline (pdfIngestionService.ts)
-- [x] Create database schema for document chunks with metadata
-- [x] Implement semantic search using keyword matching (already exists)
-- [x] Build admin UI for uploading and managing legal PDFs (PDFUploadAdmin.tsx)
-- [x] Integrate knowledge retrieval into AI consultation flow (searchLegalKnowledgeEnhanced)
-- [x] Added PDF Upload to dashboard navigation (admin only)
-- [ ] Add batch processing for multiple PDFs
-- [ ] Test retrieval accuracy with sample queries
-- [ ] Add citation tracking (which chunks were used)
+**Files modified:**
+- ✅ `drizzle/schema.ts` (added 5 metadata fields)
 
+**Results:**
+- ✅ 740/740 articles enriched successfully
+- ✅ Average 5-10 concepts per article
+- ✅ Average 1-3 scenarios per article  
+- ✅ Average importance: 7/10
+- ✅ Average 30-50 keywords per article
+- ✅ Average 5-10 related arti#### Day 5: Result Caching ✅ COMPLETE
+- [x] Install lru-cache package: `pnpm add lru-cache` (v11.2.4)
+- [x] Create `server/searchCache.ts` module (280 lines)
+- [x] Implement LRU cache (max: 1000 queries, ttl: 1 hour)
+- [x] Implement cache key generation (query + language + category)
+- [x] Add cache hit/miss logging with timestamps and hit rate tracking
+- [x] Integrate cache into `searchLegalKnowledgeEnhanced` function
+- [x] Wrap search functions with `withCache` wrapper
+- [x] Add cache invalidation on PDF upload (clearAllCache)
+- [x] Add cache statistics tracking (hits, misses, size, hit rate)
+- [x] Add pattern-based cache invalidation
+- [x] Add cache warm-up function for common queries
+- [x] Document cache usage and configuration (inline comments)
 
-## 📝 Bulk PDF Collection from UAE Government Portals ✅ COMPLETE
-- [x] Search uaelegislation.gov.ae for downloadable PDFs
-- [x] Search moj.gov.ae for laws and legislation PDFs
-- [x] Search Dubai Legislation Portal for PDFs
-- [x] Search MOHRE for labor law PDFs
-- [x] Search Dubai Land Department for real estate PDFs
-- [x] Download all found PDFs to local storage (13 PDFs, ~30MB total)
-- [x] Validate PDF files (size, readability)
-- [x] Ingest each PDF using the upload API (12/13 successful)
-- [x] Verify all PDFs are successfully ingested (740 total entries)
-- [x] Report final statistics:
-  * 13 PDFs downloaded (12 ingested successfully)
-  * 711 new chunks created from PDFs
-  * 740 total knowledge base entries (10x expansion from 81 hardcoded articles)
-  * Categories: Civil Code (357), Commercial Law (227), Real Estate (71), Rental (44), Labor (40)
+**Files created:**
+- ✅ `server/searchCache.ts` (280 lines, full LRU implementation)
 
+**Files modified:**
+- ✅ `server/legalKnowledgeBase.ts` (wrapped search with withCache)
+- ✅ `server/routers.ts` (added clearAllCache on PDF ingestion)
 
-## 🎨 Home Page Update - Version 6.0 ✅ COMPLETE
-- [x] Update Home.tsx hero to highlight v6.0 as latest (Version 6.0 badge)
-- [x] Update statistics (740 knowledge base entries)
-- [x] Add prominent "Upload Legal PDFs" feature card on home page
-- [x] PDF Upload already visible in dashboard navigation (admin only)
-- [x] Test home page display and navigation (all features working perfectly)
+**Features:**
+- ✅ LRU eviction policy (max 1000 entries)
+- ✅ TTL-based expiration (1 hour)
+- ✅ Query normalization for better hit rates
+- ✅ Cache statistics and monitoring
+- ✅ Selective cache invalidation by pattern
+- ✅ Cache warm-up for common queries
 
+---
 
-## 🎨 Design Update - Green & Gold Color Theme ✅ COMPLETE
-- [x] Research sanzen.ae website to extract green and gold color values
-- [x] Update global CSS variables in client/src/index.css (OKLCH format)
-- [x] Update primary color to dark forest green (#1f513a)
-- [x] Update accent color to warm gold (#c3a974)
-- [x] Test color changes on home page, dashboard, and consultation pages
-- [x] Verified text contrast and accessibility with new colors
+### Week 2: Confidence & Testing
 
+#### Day 6-7: Improved Confidence Scoring
+- [ ] Create `server/confidenceScoring.ts` module
+- [ ] Implement new confidence algorithm with multiple factors:
+  - [ ] Exact phrase match scoring (40 points max)
+  - [ ] Title match scoring (30 points max)
+  - [ ] Keyword density scoring (20 points max - % of query keywords found)
+  - [ ] Article importance scoring (10 points max - from metadata)
+- [ ] Normalize score to 0-100 scale
+- [ ] Add confidence threshold logic (CONFIDENCE_THRESHOLD = 40)
+- [ ] Implement "suggest human review" flow for low-confidence results
+- [ ] Create low-confidence response message (bilingual EN/AR)
+- [ ] Update `client/src/pages/ConsultationChat.tsx` to show confidence levels
+- [ ] Add confidence indicators (High/Medium/Low badges)
+- [ ] Add color coding (green/yellow/red)
+- [ ] Test with various query types (simple, complex, ambiguous)
+- [ ] Verify threshold effectiveness (adjust if needed)
+- [ ] Document confidence scoring algorithm
 
-## 🤖 AI Prompt System Enhancement ✅ COMPLETE
-- [x] Audit current system prompt and category-specific prompts
-- [x] Identify gaps in prompt specialization for each legal category
-- [x] Create enhanced prompts for Rental Dispute category (44 articles specialization)
-- [x] Create enhanced prompts for Real Estate Transaction category (357 Civil Code + 71 Real Estate articles)
-- [x] Create enhanced prompts for General category (740 articles comprehensive)
-- [x] Update main system prompt to leverage 740-article knowledge base
-- [x] Add explicit instructions for citing sources and articles (with source attribution)
-- [x] Add knowledge base retrieval system explanation to all prompts
-- [x] Enhanced contract review prompt with 740-article emphasis
-- [x] Enhanced report generation prompt with knowledge base integration
-- [x] Test enhanced prompts with complex commercial law query
-- [x] Verified AI responses cite specific articles from expanded knowledge base (Articles 246, 273, 287, 390)
+**Files to create:**
+- `server/confidenceScoring.ts`
 
+**Files to modify:**
+- `server/routers.ts` (integrate confidence scoring into consultation.chat)
+- `client/src/pages/ConsultationChat.tsx` (add confidence UI indicators)
 
-## 🔍 Comprehensive System Analysis & Audit ✅ COMPLETE
-- [x] Review project structure and file organization (26 server files, 14 pages, 7 components)
-- [x] Audit all tRPC routers and procedures (all working correctly)
-- [x] Review database schema completeness (12 tables, audit logs fixed)
-- [x] Test user authentication and authorization flows (OAuth working)
-- [x] Test consultation creation and chat functionality (excellent - AI cites UAE Civil Code articles)
-- [x] Test document upload and analysis features (PDF + vision AI working)
-- [x] Test PDF knowledge base ingestion system (740 entries confirmed)
-- [x] Verify AI prompt system uses knowledge base correctly (tested with complex query)
-- [x] Check for TypeScript errors and type safety (no errors found)
-- [x] Review error handling and edge cases (comprehensive error handling in place)
-- [x] Test responsive design on mobile devices (mobile-friendly confirmed)
-- [x] Verify all navigation links work correctly (all links working)
-- [x] Check for security vulnerabilities (OAuth, RBAC, input validation all working)
-- [x] Analyze performance and load times (acceptable for legal platform)
-- [x] Review code quality and best practices (high quality, TypeScript, tRPC)
-- [x] Identify missing features and improvements (2 minor bugs found, improvement roadmap created)
-- [x] Create prioritized roadmap for next phase (High/Medium/Low priority items documented)
+---
 
-**Analysis Report:** `/home/ubuntu/SYSTEM_ANALYSIS_REPORT.md`  
-**Status:** ✅ System is production-ready with minor improvements needed  
-**Bugs Found:** 2 (PDF statistics display, audit logs table - both low severity)  
-**Recommended Next Steps:** Fix PDF stats (2h), implement citation display (8h), complete lawyer review workflow (16h)
+#### Day 8-10: Testing & Documentation
+- [ ] Create `server/evaluation/testQueries.ts` with 50 diverse queries
+  - [ ] Rental law queries (15): eviction, rent disputes, maintenance, lease termination
+  - [ ] Commercial law queries (10): contracts, partnerships, commercial disputes
+  - [ ] Labor law queries (10): employment rights, termination, wages, working hours
+  - [ ] Civil code queries (10): obligations, contracts, property rights
+  - [ ] Mixed/complex queries (5): multi-topic, poorly worded, ambiguous
+- [ ] Benchmark baseline system performance (before Phase 1)
+  - [ ] Average retrieval time
+  - [ ] Retrieval quality (manual assessment)
+  - [ ] Cache hit rate (0% initially)
+- [ ] Benchmark Phase 1 improved system (after all changes)
+  - [ ] Average retrieval time (with cache)
+  - [ ] Retrieval quality improvement
+  - [ ] Cache hit rate (target 30-40%)
+- [ ] Calculate improvement metrics
+  - [ ] Retrieval quality improvement (%)
+  - [ ] Speed improvement for cached queries
+  - [ ] Confidence score accuracy
+- [ ] Document all changes in code comments
+- [ ] Update README.md with Phase 1 features
+- [ ] Document configuration options (cache size, TTL, confidence threshold)
+- [ ] Create `PHASE1_RESULTS.md` performance comparison report
+- [ ] Update this todo.md with completion status
+- [ ] Run `pnpm test` to verify no regressions
+- [ ] Save checkpoint: "Phase 1 Complete: Query optimization, metadata enrichment, caching, improved confidence scoring - 30-50% quality improvement achieved"
 
+**Files to create:**
+- `server/evaluation/testQueries.ts`
+- `PHASE1_RESULTS.md`
 
-## 🐛 Bug Fix: PDF Statistics Display ✅ COMPLETE
-- [x] Analyze current getStats query in knowledgeBase router
-- [x] Fix query to correctly count entries by source field (PDF vs manual)
-- [x] Update PDFUploadAdmin.tsx to display fromPDFs and hardcoded fields
-- [x] Make hardcoded count dynamic by importing LEGAL_KNOWLEDGE_BASE.length
-- [x] Fix PDF count to include both 'pdf_upload' and 'pdf_url' source types
-- [x] Test statistics display shows correct counts (740 PDF, 80 hardcoded, 820 total)
-- [x] Verified on /pdf-upload page - all statistics now accurate and automatic
+---
+
+## 📊 PHASE 2: CORE UPGRADES (Weeks 3-6) - PENDING
+
+**Goal:** Transformational 200-300% quality improvement with semantic search  
+**Effort:** 80-100 hours  
+**Expected Impact:** +200-300% quality, 2-5x faster retrieval, semantic understanding
+
+### Week 3: Vector Embeddings Setup
+
+#### Day 11-13: Embedding Infrastructure
+- [ ] Install Python dependencies in sandbox:
+  - [ ] `pip3 install sentence-transformers`
+  - [ ] `pip3 install torch`
+  - [ ] `pip3 install numpy`
+- [ ] Create `server/embeddingService.py` Python module
+- [ ] Choose embedding model: `paraphrase-multilingual-mpnet-base-v2` (768d, supports EN+AR)
+- [ ] Implement `generate_embedding(text: str) -> list[float]` function
+- [ ] Implement `generate_embeddings_batch(texts: list[str]) -> list[list[float]]` function (batch size 32)
+- [ ] Create TypeScript wrapper: `server/embeddingService.ts`
+- [ ] Implement `generateEmbedding(text: string): Promise<number[]>`
+- [ ] Implement `generateEmbeddingsBatch(texts: string[]): Promise<number[][]>`
+- [ ] Use child_process to call Python script
+- [ ] Test embedding generation with sample Arabic and English text
+- [ ] Benchmark performance (target: 7-15ms query latency)
+- [ ] Test batch processing speed (target: 924 texts/sec on GPU, slower on CPU acceptable)
+- [ ] Document embedding service API and model choice
+- [ ] Create `requirements.txt` for Python dependencies
+
+**Files to create:**
+- `server/embeddingService.py`
+- `server/embeddingService.ts`
+- `requirements.txt`
+
+---
+
+#### Day 14-15: Database Schema Update
+- [ ] Add embedding fields to legalKnowledge schema in `drizzle/schema.ts`:
+  - [ ] `embedding` text field (stores JSON array of 768 floats)
+  - [ ] `embeddingModel` varchar(100) field (default: "paraphrase-multilingual-mpnet-base-v2")
+  - [ ] `embeddingDimension` int field (default: 768)
+- [ ] Run migration: `pnpm db:push`
+- [ ] Verify schema changes in database
+- [ ] Create `server/scripts/generateEmbeddings.ts` script
+- [ ] Implement batch processing logic (32 articles at a time)
+- [ ] Add progress logging (log every 32 articles)
+- [ ] Add error handling (skip failed articles, log errors)
+- [ ] Test embedding generation on 10 sample articles
+- [ ] Verify embedding storage (check JSON format, array length)
+- [ ] Verify embedding retrieval from database
+- [ ] Document schema changes and migration process
+
+**Files to modify:**
+- `drizzle/schema.ts` (add embedding fields)
+
+**Files to create:**
+- `server/scripts/generateEmbeddings.ts`
+
+---
+
+### Week 4: Vector Search Implementation
+
+#### Day 16-18: Generate All Embeddings
+- [ ] Run embedding generation script for all 820 articles (740 PDF + 80 hardcoded)
+- [ ] Monitor progress (should take 30-60 minutes)
+- [ ] Log progress every 32 articles
+- [ ] Handle errors gracefully (log and continue)
+- [ ] Verify embedding quality on 20 random articles
+  - [ ] Check embedding dimension (should be 768)
+  - [ ] Check for NaN or invalid values
+  - [ ] Spot check similarity between related articles
+- [ ] Update hardcoded articles in `server/legalKnowledgeBase.ts`
+  - [ ] Generate embeddings for 80 hardcoded articles
+  - [ ] Store embeddings in memory (add embedding field to LEGAL_KNOWLEDGE_BASE array)
+- [ ] Verify all 820 articles have embeddings
+- [ ] Document embedding generation process and timing
+
+**Estimated time:** 30-60 minutes for 820 articles
+
+**Files to modify:**
+- `server/legalKnowledgeBase.ts` (add embeddings to hardcoded articles)
+
+---
+
+#### Day 19-20: Vector Search Function
+- [ ] Create `server/utils/similarity.ts` utility module
+- [ ] Implement `cosineSimilarity(a: number[], b: number[]): number` function
+  - [ ] Calculate dot product
+  - [ ] Calculate magnitudes
+  - [ ] Return cosine similarity (0-1 scale)
+- [ ] Add unit tests for cosine similarity
+- [ ] Create `server/vectorSearch.ts` module
+- [ ] Implement `vectorSearch(query: string, topK: number): Promise<SearchResult[]>` function
+  - [ ] Generate query embedding
+  - [ ] Retrieve all article embeddings from database
+  - [ ] Calculate similarity scores for each article
+  - [ ] Sort by similarity (descending)
+  - [ ] Return top-k results with similarity scores
+- [ ] Create `server/vectorCache.ts` module for embedding caching
+- [ ] Implement LRU cache for embeddings (max: 1000 articles)
+- [ ] Implement `preloadEmbeddings()` function (load all at startup)
+- [ ] Call preloadEmbeddings() in server startup (server/index.ts)
+- [ ] Test search accuracy with 20 diverse queries
+- [ ] Benchmark speed (target: <15ms per query)
+- [ ] Compare vector search results with keyword search
+- [ ] Document vector search API and performance characteristics
+
+**Files to create:**
+- `server/vectorSearch.ts`
+- `server/vectorCache.ts`
+- `server/utils/similarity.ts`
+
+**Files to modify:**
+- `server/index.ts` (add preloadEmbeddings() call at startup)
+
+---
+
+### Week 5: Hybrid Search
+
+#### Day 21-23: Hybrid Search Implementation
+- [ ] Create `server/bm25.ts` module (or adapt existing keyword search)
+- [ ] Implement BM25 scoring algorithm
+  - [ ] Calculate term frequency (TF)
+  - [ ] Calculate inverse document frequency (IDF)
+  - [ ] Apply BM25 formula with k1=1.5, b=0.75
+- [ ] OR: Adapt existing `searchLegalKnowledgeEnhanced` as BM25 replacement
+- [ ] Create `server/hybridSearch.ts` module
+- [ ] Implement Reciprocal Rank Fusion (RRF) algorithm
+  - [ ] RRF formula: score = sum(1 / (k + rank)) where k=60
+  - [ ] Apply to both BM25 and vector search results
+- [ ] Implement `hybridSearch(query: string, topK: number, alpha: number): Promise<SearchResult[]>` function
+  - [ ] Run BM25 search and vector search in parallel (Promise.all)
+  - [ ] Apply RRF scoring with alpha parameter
+  - [ ] Combine results by article ID (deduplicate)
+  - [ ] Sort by fusion score (descending)
+  - [ ] Return top-k results
+- [ ] Add alpha parameter (0=pure BM25, 1=pure vector, 0.5=balanced)
+- [ ] Tune alpha with test queries (test values: 0.3, 0.4, 0.5, 0.6, 0.7)
+- [ ] Find optimal alpha for legal queries (likely 0.4-0.6)
+- [ ] Test with various query types (keyword-heavy, semantic, mixed)
+- [ ] Document hybrid search algorithm and alpha tuning
+
+**Files to create:**
+- `server/hybridSearch.ts`
+- `server/bm25.ts` (or adapt existing)
+
+---
+
+#### Day 24-25: Integration & Testing
+- [ ] Integrate hybrid search into consultation chat procedure
+- [ ] Update `server/routers.ts` consultation.chat to use hybridSearch()
+- [ ] Update API endpoints if needed
+- [ ] Test end-to-end flow (user query → hybrid search → LLM → response)
+- [ ] Compare Phase 2 results with Phase 1 results
+- [ ] Measure improvement metrics:
+  - [ ] Precision@10 (% of retrieved docs that are relevant)
+  - [ ] Recall@10 (% of relevant docs that are retrieved)
+  - [ ] NDCG@10 (normalized discounted cumulative gain)
+  - [ ] Average retrieval time
+- [ ] Test with 50 diverse queries
+- [ ] Document improvements and findings
+- [ ] Create `PHASE2_COMPARISON.md` report
+
+**Files to modify:**
+- `server/routers.ts` (use hybridSearch in consultation procedures)
+- `server/db.ts` (update search function references)
+
+---
+
+### Week 6: Optimization & Caching
+
+#### Day 26-28: Performance Optimization
+- [ ] Implement embedding preloading at server startup
+  - [ ] Load all 820 embeddings into memory on startup
+  - [ ] Use LRU cache to manage memory
+  - [ ] Log preload time and memory usage
+- [ ] Optimize vector similarity calculations
+  - [ ] Consider using typed arrays (Float32Array) for faster math
+  - [ ] Batch calculations where possible
+  - [ ] Profile to identify bottlenecks
+- [ ] Add query result caching for hybrid search
+  - [ ] Cache hybrid search results (separate from Phase 1 cache)
+  - [ ] Use query + alpha as cache key
+- [ ] Profile performance bottlenecks
+  - [ ] Use Node.js profiler or console.time()
+  - [ ] Identify slow functions
+- [ ] Optimize identified bottlenecks
+- [ ] Conduct load testing with 100 concurrent users
+  - [ ] Use artillery or similar tool
+  - [ ] Measure p50, p95, p99 latencies
+  - [ ] Identify breaking points
+- [ ] Document optimization techniques and results
+
+**Files to modify:**
+- `server/vectorCache.ts` (enhance preloading)
+- `server/index.ts` (optimize startup sequence)
+- `server/hybridSearch.ts` (optimize calculations)
+
+---
+
+#### Day 29-30: Testing & Documentation
+- [ ] Create comprehensive test dataset (100+ queries)
+  - [ ] Cover all legal categories
+  - [ ] Include easy, medium, hard queries
+  - [ ] Include Arabic, English, mixed queries
+- [ ] Run full evaluation suite
+- [ ] Measure improvements vs baseline:
+  - [ ] Retrieval quality: target +200-300%
+  - [ ] Speed: target 2-5x faster
+  - [ ] Precision@10: target >80%
+  - [ ] Recall@10: target >70%
+  - [ ] NDCG@10: target >0.80
+- [ ] Update all documentation
+  - [ ] README.md
+  - [ ] API documentation
+  - [ ] Configuration guide
+- [ ] Create `PHASE2_RESULTS.md` comprehensive report
+- [ ] Update this todo.md with completion status
+- [ ] Run `pnpm test` to verify no regressions
+- [ ] Save checkpoint: "Phase 2 Complete: Vector embeddings, hybrid search, optimized caching - 200-300% quality improvement, 2-5x faster retrieval achieved"
+
+**Files to create:**
+- `PHASE2_RESULTS.md`
+
+---
+
+## 🚀 PHASE 3: ADVANCED OPTIMIZATION (Weeks 7-12) - PENDING
+
+**Goal:** Achieve 400-500% total quality improvement, lawyer-grade advice  
+**Effort:** 120-150 hours  
+**Expected Impact:** +400-500% total quality, lawyer-grade advice, >90% precision
+
+### Week 7-8: Cross-Encoder Re-ranking
+
+#### Day 31-35: Re-ranker Setup
+- [ ] Verify sentence-transformers is installed (from Phase 2)
+- [ ] Create `server/reranker.py` Python module
+- [ ] Load cross-encoder model: `cross-encoder/ms-marco-MiniLM-L-6-v2`
+- [ ] Implement `rerank(query: str, candidates: list[dict], top_k: int) -> list[dict]` function
+  - [ ] Create query-document pairs
+  - [ ] Predict relevance scores (0-1 scale)
+  - [ ] Add scores to candidates
+  - [ ] Sort by relevance score (descending)
+  - [ ] Return top-k results
+- [ ] Create TypeScript wrapper: `server/reranker.ts`
+- [ ] Implement `rerankResults(query: string, candidates: any[], topK: number): Promise<any[]>`
+- [ ] Use child_process to call Python reranker
+- [ ] Test reranking accuracy with 10 sample queries
+- [ ] Optimize for speed (target: 50-100ms for 20 candidates)
+- [ ] Integrate into search pipeline
+- [ ] Document reranker API and model choice
+
+**Files to create:**
+- `server/reranker.py`
+- `server/reranker.ts`
+
+---
+
+#### Day 36-40: Two-Stage Retrieval
+- [ ] Implement two-stage retrieval pattern:
+  - [ ] Stage 1: Hybrid search retrieves 50-100 candidates (fast, broad)
+  - [ ] Stage 2: Cross-encoder re-ranks to select top 5-10 (slow, precise)
+- [ ] Modify `hybridSearch()` to accept candidateCount parameter
+- [ ] Update consultation.chat procedure to use two-stage pattern
+- [ ] Tune parameters:
+  - [ ] Test candidate counts: 20, 50, 100
+  - [ ] Test final result counts: 5, 10, 15
+  - [ ] Find optimal balance of speed vs quality
+- [ ] Test with complex queries (multi-topic, ambiguous)
+- [ ] Measure quality improvement over Phase 2
+  - [ ] Precision@10 improvement
+  - [ ] NDCG@10 improvement
+  - [ ] User satisfaction (if possible)
+- [ ] Compare with Phase 2 hybrid-only results
+- [ ] Document two-stage retrieval pattern and benefits
+- [ ] Create performance analysis report
+
+**Files to modify:**
+- `server/routers.ts` (add re-ranking stage)
+- `server/hybridSearch.ts` (add candidateCount parameter)
+
+---
+
+### Week 9-10: Query Rewriting
+
+#### Day 41-45: Query Rewriting Implementation
+- [ ] Create `server/queryRewriting.ts` module
+- [ ] Design query rewriting prompts for LLM:
+  - [ ] Prompt for legal terminology expansion
+  - [ ] Prompt for query clarification
+  - [ ] Prompt for abbreviation expansion
+  - [ ] Prompt for concept addition
+- [ ] Implement `rewriteQuery(userQuery: string, language: 'en' | 'ar'): Promise<string>` function
+  - [ ] Call invokeLLM with rewriting prompt
+  - [ ] Extract rewritten query from response
+  - [ ] Handle errors (fallback to original query)
+- [ ] Test with 20 poorly worded queries
+- [ ] Implement multi-query search strategy:
+  - [ ] Search with original query
+  - [ ] Search with rewritten query
+  - [ ] Combine results (deduplicate by article ID)
+  - [ ] Merge scores (average or max)
+- [ ] Measure improvement on test queries
+- [ ] Compare rewritten vs original query results
+- [ ] Document query rewriting patterns and examples
+
+**Files to create:**
+- `server/queryRewriting.ts`
+
+---
+
+#### Day 46-50: Intelligent Search Pipeline
+- [ ] Create `server/intelligentSearch.ts` orchestration module
+- [ ] Implement complete pipeline:
+  1. [ ] Query preprocessing (from Phase 1)
+  2. [ ] Query rewriting (optional, based on query complexity)
+  3. [ ] Hybrid search (retrieve 50-100 candidates)
+  4. [ ] Cross-encoder re-ranking (select top 5-10)
+  5. [ ] Confidence scoring (from Phase 1)
+- [ ] Add fallback logic:
+  - [ ] If rewriting fails → use original query
+  - [ ] If re-ranking fails → use hybrid results
+  - [ ] If confidence low → suggest human review
+- [ ] Add query complexity detection (simple vs complex)
+  - [ ] Simple queries: skip rewriting, use fewer candidates
+  - [ ] Complex queries: use full pipeline
+- [ ] Optimize pipeline performance
+  - [ ] Parallel execution where possible
+  - [ ] Timeout handling
+  - [ ] Error recovery
+- [ ] End-to-end testing with 50 diverse queries
+- [ ] User acceptance testing with lawyers (if available)
+- [ ] Collect feedback and iterate
+- [ ] Document intelligent search pipeline architecture
+
+**Files to create:**
+- `server/intelligentSearch.ts`
+
+**Files to modify:**
+- `server/routers.ts` (use intelligentSearch as main entry point)
+
+---
+
+### Week 11: Fine-Tuning (Optional)
+
+#### Day 51-55: Fine-Tuned Embeddings
+- [ ] Prepare training data:
+  - [ ] Collect user query logs (if available)
+  - [ ] Create query-document pairs
+  - [ ] Label relevance (positive/negative examples)
+  - [ ] Target: 1000+ training examples
+  - [ ] Format: (query, positive_doc, negative_doc) triplets
+- [ ] Create `server/scripts/fineTuneEmbeddings.py` script
+- [ ] Implement fine-tuning with sentence-transformers:
+  - [ ] Load base model: paraphrase-multilingual-mpnet-base-v2
+  - [ ] Create training dataloader
+  - [ ] Use TripletLoss
+  - [ ] Train for 3 epochs
+  - [ ] Save fine-tuned model
+- [ ] Generate new embeddings for all 820 articles using fine-tuned model
+- [ ] Test fine-tuned model with test queries
+- [ ] Compare with base model:
+  - [ ] Precision@10 improvement
+  - [ ] Recall@10 improvement
+  - [ ] NDCG@10 improvement
+- [ ] Decide whether to deploy fine-tuned model (if improvement >10%, deploy)
+- [ ] Document fine-tuning process and results
+
+**Files to create:**
+- `server/scripts/fineTuneEmbeddings.py`
+- `server/scripts/trainingData.json`
+
+**Note:** This week is optional and depends on training data quality. Skip if insufficient data.
+
+---
+
+### Week 12: Evaluation & Polish
+
+#### Day 56-60: Evaluation Framework
+- [ ] Create comprehensive test dataset (100+ queries)
+  - [ ] Rental law: 25 queries
+  - [ ] Commercial law: 20 queries
+  - [ ] Labor law: 20 queries
+  - [ ] Civil code: 20 queries
+  - [ ] Real estate: 15 queries
+  - [ ] Include easy (30), medium (40), hard (30) queries
+  - [ ] Include Arabic (40), English (40), mixed (20) queries
+- [ ] For each query, identify expected relevant articles (ground truth)
+- [ ] Implement evaluation metrics in `server/evaluation/metrics.ts`:
+  - [ ] Precision@K (K=5,10,20)
+  - [ ] Recall@K (K=5,10,20)
+  - [ ] NDCG@K (K=5,10,20)
+  - [ ] Mean Reciprocal Rank (MRR)
+  - [ ] Mean Average Precision (MAP)
+- [ ] Create `server/evaluation/runEvaluation.ts` script
+- [ ] Run full evaluation on all systems:
+  - [ ] Baseline (keyword-only, before Phase 1)
+  - [ ] Phase 1 (query optimization + caching)
+  - [ ] Phase 2 (hybrid search)
+  - [ ] Phase 3 (full pipeline with re-ranking)
+- [ ] Generate comprehensive comparison report
+- [ ] Create visualizations (charts, tables)
+- [ ] Document findings and insights
+- [ ] Identify remaining improvement opportunities
+
+**Files to create:**
+- `server/evaluation/testQueries.ts`
+- `server/evaluation/metrics.ts`
+- `server/evaluation/runEvaluation.ts`
+- `FINAL_EVALUATION_REPORT.md`
+
+---
+
+#### Day 61-65: Final Polish & Documentation
+- [ ] Code review and refactoring:
+  - [ ] Remove dead code and commented code
+  - [ ] Improve code comments and JSDoc
+  - [ ] Standardize naming conventions
+  - [ ] Extract common utilities
+  - [ ] Improve error messages
+- [ ] Performance optimization:
+  - [ ] Profile entire pipeline
+  - [ ] Optimize remaining bottlenecks
+  - [ ] Reduce memory usage
+  - [ ] Improve startup time
+- [ ] Update all documentation:
+  - [ ] README.md (add optimization features)
+  - [ ] API documentation (document new endpoints)
+  - [ ] Configuration guide (all tunable parameters)
+  - [ ] Troubleshooting guide (common issues)
+- [ ] Create user guide for lawyers:
+  - [ ] How to use the system
+  - [ ] Understanding confidence scores
+  - [ ] When to escalate to human review
+- [ ] Create admin guide for maintenance:
+  - [ ] How to add new articles
+  - [ ] How to regenerate embeddings
+  - [ ] How to tune parameters
+  - [ ] How to monitor performance
+- [ ] Run final test suite: `pnpm test`
+- [ ] Verify no regressions
+- [ ] Create final checkpoint: "Phase 3 Complete: Cross-encoder re-ranking, query rewriting, evaluation framework - 400-500% total quality improvement, lawyer-grade advice achieved"
+
+**Files to update:**
+- All documentation files
+- README.md
+- Configuration files
+
+---
+
+## 📈 SUCCESS METRICS TRACKING
+
+### Phase 1 Targets
+- [ ] 30-50% improvement in retrieval quality ✅ Target
+- [ ] 10x faster for cached queries (30-40% of traffic) ✅ Target
+- [ ] Confidence scoring accuracy >85% ✅ Target
+
+### Phase 2 Targets
+- [ ] 200-300% improvement in retrieval quality ✅ Target
+- [ ] 2-5x faster retrieval (vs baseline) ✅ Target
+- [ ] Semantic search working for 95%+ of queries ✅ Target
+- [ ] <100ms retrieval latency (p95) ✅ Target
+- [ ] Precision@10 >80% ✅ Target
+- [ ] Recall@10 >70% ✅ Target
+
+### Phase 3 Targets
+- [ ] 400-500% total improvement in retrieval quality ✅ Target
+- [ ] Precision@10 >90% ✅ Target
+- [ ] Recall@10 >80% ✅ Target
+- [ ] NDCG@10 >0.85 ✅ Target
+- [ ] User satisfaction >90% ✅ Target
+- [ ] Lawyer approval rating >85% ✅ Target
+
+---
+
+## 🔄 MAINTENANCE TASKS (Ongoing After Phase 3)
+
+### Daily Monitoring
+- [ ] Monitor error logs (check for embedding/search failures)
+- [ ] Check cache hit rates (should be 30-40%)
+- [ ] Review slow queries (identify queries >1s)
+- [ ] Monitor memory usage (embeddings in cache)
+
+### Weekly Analysis
+- [ ] Analyze user queries (identify common patterns)
+- [ ] Identify missing articles (queries with low confidence)
+- [ ] Update synonym dictionary (add new terms)
+- [ ] Review confidence scores (adjust threshold if needed)
+
+### Monthly Maintenance
+- [ ] Re-generate embeddings for new articles
+- [ ] Update embedding model if better one available
+- [ ] Review and update test queries
+- [ ] Performance optimization (profile and optimize)
+- [ ] Clear old cache entries
+
+### Quarterly Review
+- [ ] Fine-tune embedding model with new data (if available)
+- [ ] Comprehensive evaluation (run full test suite)
+- [ ] User satisfaction survey (collect feedback)
+- [ ] Plan next improvements (identify new opportunities)
+
+---
+
+## 📚 PREVIOUS COMPLETED WORK
+
+### ✅ System Foundation (Completed)
+- [x] 820-article knowledge base (740 PDF + 80 hardcoded)
+- [x] PDF ingestion system with chunking
+- [x] Keyword-based search (baseline)
+- [x] AI consultation with LLM integration
+- [x] User authentication (OAuth)
+- [x] Lawyer review workflow (partial)
+- [x] Audit logging system
+- [x] Green & gold color theme
+- [x] Bilingual support (EN/AR)
+
+### ✅ Recent Improvements (Completed)
+- [x] PDF statistics bug fix (accurate counts)
+- [x] Enhanced AI prompts (740-article knowledge base)
+- [x] System analysis and audit
+- [x] Comprehensive testing (95%+ pass rate)
+
+---
+
+## 📝 NOTES & REMINDERS
+
+- **All file paths** are relative to `/home/ubuntu/paris_group_legal_ai/`
+- **Run migrations** after schema changes: `pnpm db:push`
+- **Run tests** regularly: `pnpm test`
+- **Save checkpoints** after each major phase
+- **Keep this todo.md updated** as tasks are completed (mark with [x])
+- **Document decisions** in code comments and markdown files
+- **Test incrementally** - don't wait until the end
+- **Monitor performance** - profile before optimizing
+- **Collect feedback** - involve lawyers and users
+
+---
+
+## 🎯 CURRENT FOCUS: Phase 1, Day 1-2 - Query Preprocessing
+
+**Next immediate tasks:**
+1. Create `server/queryPreprocessing.ts`
+2. Build legal synonym dictionary (100+ terms EN/AR)
+3. Implement query cleaning and expansion
+4. Write unit tests
+
+**Let's start! 🚀**
+

@@ -1,0 +1,19 @@
+{
+  "query": "SELECT id, titleEn, legalConcepts, applicableScenarios, importance, searchKeywords, relatedArticles FROM legalKnowledge WHERE id = 1 LIMIT 1",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3qjjvhuo9AvMUPD.4c14534c73ee --database KcWfniXrXNRRDvZYmnr2u6 --execute SELECT id, titleEn, legalConcepts, applicableScenarios, importance, searchKeywords, relatedArticles FROM legalKnowledge WHERE id = 1 LIMIT 1",
+  "rows": [
+    {
+      "id": "1",
+      "titleEn": "Abu Dhabi Law No. 20 of 2006 - Leasing Relations - Part 1 of 9",
+      "legalConcepts": "[\"tenant\",\"landlord\",\"terminate\",\"sue\",\"rent\",\"lease\",\"contract\",\"agreement\",\"dispute\",\"penalty\",\"fine\",\"maintenance\",\"repair\",\"property\",\"apartment\",\"building\",\"villa\",\"law\",\"regulation\"]",
+      "applicableScenarios": "[\"rental_dispute\",\"property_registration\"]",
+      "importance": "7",
+      "searchKeywords": "[\"tenant\",\"landlord\",\"terminate\",\"sue\",\"rent\",\"lease\",\"contract\",\"agreement\",\"dispute\",\"penalty\",\"fine\",\"maintenance\",\"repair\",\"property\",\"apartment\",\"building\",\"villa\",\"law\",\"regulation\",\"dhabi\",\"2006\",\"leasing\",\"relations\",\"part\",\"concerning\",\"executive\",\"council\",\"rental\",\"provisions\",\"chairman\",\"appeal\",\"rented\",\"emirate\",\"decision\",\"committee\",\"amendments\",\"thereto;\",\"pursuant\",\"following\",\"shall\",\"formed\",\"necessary\",\"repairs\"]",
+      "relatedArticles": "[2,7,96,661,3,6,15,48,84,97]"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitleEn\tlegalConcepts\tapplicableScenarios\timportance\tsearchKeywords\trelatedArticles\n1\tAbu Dhabi Law No. 20 of 2006 - Leasing Relations - Part 1 of 9\t[\"tenant\",\"landlord\",\"terminate\",\"sue\",\"rent\",\"lease\",\"contract\",\"agreement\",\"dispute\",\"penalty\",\"fine\",\"maintenance\",\"repair\",\"property\",\"apartment\",\"building\",\"villa\",\"law\",\"regulation\"]\t[\"rental_dispute\",\"property_registration\"]\t7\t[\"tenant\",\"landlord\",\"terminate\",\"sue\",\"rent\",\"lease\",\"contract\",\"agreement\",\"dispute\",\"penalty\",\"fine\",\"maintenance\",\"repair\",\"property\",\"apartment\",\"building\",\"villa\",\"law\",\"regulation\",\"dhabi\",\"2006\",\"leasing\",\"relations\",\"part\",\"concerning\",\"executive\",\"council\",\"rental\",\"provisions\",\"chairman\",\"appeal\",\"rented\",\"emirate\",\"decision\",\"committee\",\"amendments\",\"thereto;\",\"pursuant\",\"following\",\"shall\",\"formed\",\"necessary\",\"repairs\"]\t[2,7,96,661,3,6,15,48,84,97]\n",
+  "stderr": "",
+  "execution_time_ms": 1682
+}

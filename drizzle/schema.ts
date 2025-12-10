@@ -130,6 +130,12 @@ export const legalKnowledge = mysqlTable("legalKnowledge", {
   chunkIndex: int("chunkIndex"), // For PDF chunks: 0, 1, 2, etc.
   totalChunks: int("totalChunks"), // Total chunks in this document
   pageNumber: int("pageNumber"), // Page number in original PDF
+  // Phase 1 Metadata Enrichment fields
+  legalConcepts: text("legalConcepts"), // JSON array of extracted concepts: ["eviction", "notice period", "tenant rights"]
+  relatedArticles: text("relatedArticles"), // JSON array of related article IDs: [123, 456, 789]
+  importance: int("importance").default(5), // Importance score 1-10 (default: 5)
+  applicableScenarios: text("applicableScenarios"), // JSON array of scenarios: ["rental dispute", "lease termination"]
+  searchKeywords: text("searchKeywords"), // JSON array of pre-computed search keywords for faster retrieval
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

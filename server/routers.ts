@@ -8,6 +8,7 @@ import { invokeLLM } from "./_core/llm";
 import { invokeUnifiedLLM, getCurrentProvider, getAvailableProviders, getProviderInfo, LLMProvider } from "./_core/unifiedLLM";
 import { storagePut } from "./storage";
 import { buildLegalContext, searchLegalKnowledge as searchKB, searchLegalKnowledgeEnhanced } from "./legalKnowledgeBase";
+import { preprocessQuery, getCategoryHints } from "./queryPreprocessing";
 import { getSystemPrompt } from "./enhancedLegalPrompts";
 import { extractTextFromPDF, cleanExtractedText, validatePDFSize, extractContractInfo } from "./pdfExtractor";
 import { calculateConfidenceScore } from "./confidenceScoring";
@@ -18,6 +19,7 @@ import { generateConsultationPDF, generateContractReviewPDF } from "./pdfGenerat
 import { generateDemandLetterPDF, generateEvictionNoticePDF, generateNOCPDF, DemandLetterData, EvictionNoticeData, NOCData } from "./legalDocumentTemplates";
 import { nanoid } from "nanoid";
 import { ingestPDF } from "./pdfIngestionService";
+import { clearAllCache } from "./searchCache";
 
 export const appRouter = router({
   system: systemRouter,
@@ -160,8 +162,18 @@ export const appRouter = router({
           ? response.choices[0]?.message?.content 
           : "I apologize, but I couldn't generate a response.");
 
-        // Search for relevant legal articles based on user query (includes PDF chunks)
-        const relevantArticles = await searchLegalKnowledgeEnhanced(input.content);
+        // Preprocess user query for better search results
+        const preprocessed = preprocessQuery(input.content);
+        
+        // Build enhanced search query with synonyms and category hints
+        const categoryHints = getCategoryHints(preprocessed.category);
+        const enhancedQuery = [preprocessed.cleaned, ...preprocessed.synonyms, ...categoryHints]
+          .filter(Boolean)
+          .slice(0, 20) // Limit to top 20 terms to avoid query bloat
+          .join(' ');
+        
+        // Search for relevant legal articles using enhanced query (includes PDF chunks)
+        const relevantArticles = await searchLegalKnowledgeEnhanced(enhancedQuery);
         
         // Calculate confidence score
         const confidenceScore = calculateConfidenceScore(input.content, relevantArticles);
@@ -849,6 +861,11 @@ Use formal legal language and cite relevant articles and laws.`;
             category: input.category,
           }
         );
+        
+        // Clear search cache after ingesting new PDF
+        clearAllCache();
+        console.log('[PDF Ingestion] Search cache cleared after adding new legal knowledge');
+        
         return result;
       }),
 
