@@ -27,6 +27,10 @@ import {
   ArrowRight,
   Sparkles,
   TrendingUp,
+  LayoutList,
+  ScanText,
+  AlertTriangle,
+  FileWarning,
 } from "lucide-react";
 import { versionHistory, getLatestVersion, getTotalStats } from "@/lib/versionHistory";
 import { VersionTimeline } from "@/components/VersionTimeline";
@@ -53,6 +57,11 @@ const iconMap: Record<string, any> = {
   Gauge,
   CheckCircle,
   Settings,
+  LayoutList,
+  ScanText,
+  AlertTriangle,
+  FileWarning,
+  Sparkles,
 };
 
 export default function HomePage() {

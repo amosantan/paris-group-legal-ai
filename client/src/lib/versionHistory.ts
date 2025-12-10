@@ -26,6 +26,62 @@ export interface Version {
 
 export const versionHistory: Version[] = [
   {
+    version: "5.0",
+    name: "Interactive Experience",
+    date: "2025-01-10",
+    checkpointId: "84195f42",
+    tagline: "Phase 6 AI features now accessible to users",
+    features: [
+      {
+        title: "Conversation Context Sidebar",
+        description: "Real-time display of tracked conversation facts (people, dates, amounts, properties, legal issues) in responsive sidebar",
+        category: "intelligence",
+        icon: "LayoutList",
+      },
+      {
+        title: "Proactive Suggestions Panel",
+        description: "Interactive panel showing AI recommendations (missing info, related topics, case precedents, next steps) with click-to-use",
+        category: "intelligence",
+        icon: "Sparkles",
+      },
+      {
+        title: "Voice Recording UI",
+        description: "Microphone button with MediaRecorder API for hands-free consultations, supports Arabic and English with 16MB validation",
+        category: "automation",
+        icon: "Mic",
+      },
+      {
+        title: "Image OCR Upload",
+        description: "Drag-and-drop zone for document photos with instant text extraction, preview, and auto-populate to message input",
+        category: "automation",
+        icon: "ScanText",
+      },
+      {
+        title: "Terms of Service System",
+        description: "Mandatory disclaimer modal with 3-checkbox acceptance, comprehensive 16-section ToS, and database tracking with version control",
+        category: "quality",
+        icon: "FileText",
+      },
+      {
+        title: "Confidence Warnings",
+        description: "Red warning banners on low-confidence responses (<70%) with 'Request Lawyer Review' CTA and disclaimer badges",
+        category: "quality",
+        icon: "AlertTriangle",
+      },
+      {
+        title: "PDF Watermarks",
+        description: "All generated PDFs include 'AI-Generated - Not Legal Advice' watermark and jurisdiction disclaimers for liability protection",
+        category: "quality",
+        icon: "FileWarning",
+      },
+    ],
+    stats: [
+      { label: "UI Components", value: "7 new" },
+      { label: "Legal Protection", value: "Full" },
+      { label: "Phase 2 Complete", value: "75%" },
+    ],
+  },
+  {
     version: "4.0",
     name: "Intelligent Assistant",
     date: "2025-01-09",
@@ -248,7 +304,7 @@ export function getVersionByCheckpoint(checkpointId: string): Version | undefine
  */
 export function getTotalStats() {
   return {
-    totalVersions: versionHistory.length,
+    totalVersions: versionHistory.length, // Now 5
     totalFeatures: getAllFeatures().length,
     legalArticles: "500+",
     casePrecedents: 50,
