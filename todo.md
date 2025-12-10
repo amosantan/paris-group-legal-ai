@@ -74,3 +74,12 @@
 - [x] Add prominent "Upload Legal PDFs" feature card on home page
 - [x] PDF Upload already visible in dashboard navigation (admin only)
 - [x] Test home page display and navigation (all features working perfectly)
+
+
+## 🎨 Design Update - Green & Gold Color Theme ✅ COMPLETE
+- [x] Research sanzen.ae website to extract green and gold color values
+- [x] Update global CSS variables in client/src/index.css (OKLCH format)
+- [x] Update primary color to dark forest green (#1f513a)
+- [x] Update accent color to warm gold (#c3a974)
+- [x] Test color changes on home page, dashboard, and consultation pages
+- [x] Verified text contrast and accessibility with new colors
