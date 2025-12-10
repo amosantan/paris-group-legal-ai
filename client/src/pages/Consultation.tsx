@@ -18,6 +18,7 @@ import { ConversationContextSidebar } from "@/components/ConversationContextSide
 import { VoiceInputButton } from "@/components/VoiceInputButton";
 import { ProactiveSuggestionsPanel } from "@/components/ProactiveSuggestionsPanel";
 import { ImageOCRUpload } from "@/components/ImageOCRUpload";
+import { DocumentAnalysisDisplay } from "@/components/DocumentAnalysisDisplay";
 
 export default function Consultation() {
   const { id } = useParams<{ id: string }>();
@@ -371,23 +372,9 @@ export default function Consultation() {
               </CardHeader>
               <CardContent>
                 {documents && documents.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     {documents.map((doc) => (
-                      <div
-                        key={doc.id}
-                        className="flex items-center justify-between p-4 border rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <FileText className="h-5 w-5 text-muted-foreground" />
-                          <div>
-                            <p className="font-medium">{doc.filename}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(doc.uploadedAt).toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                        <Badge variant="outline">{doc.documentType}</Badge>
-                      </div>
+                      <DocumentCard key={doc.id} doc={doc} />
                     ))}
                   </div>
                 ) : (
@@ -399,5 +386,59 @@ export default function Consultation() {
         </Tabs>
       </div>
     </DashboardLayout>
+  );
+}
+
+function DocumentCard({ doc }: { doc: any }) {
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  const { data: analysis, isLoading } = trpc.documents.getAnalysis.useQuery(
+    { documentId: doc.id },
+    { enabled: showAnalysis }
+  );
+
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <FileText className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="font-medium">{doc.filename}</p>
+              <p className="text-sm text-muted-foreground">
+                {new Date(doc.uploadedAt).toLocaleString()}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">{doc.documentType}</Badge>
+            {doc.analysisData && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAnalysis(!showAnalysis)}
+              >
+                {showAnalysis ? "Hide Analysis" : "View Analysis"}
+              </Button>
+            )}
+          </div>
+        </div>
+        
+        {showAnalysis && (
+          <div className="mt-4 pt-4 border-t">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : analysis ? (
+              <DocumentAnalysisDisplay analysis={analysis} />
+            ) : (
+              <p className="text-center text-muted-foreground py-4">
+                No analysis available for this document
+              </p>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

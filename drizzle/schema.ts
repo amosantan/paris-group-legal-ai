@@ -63,6 +63,7 @@ export const documents = mysqlTable("documents", {
   fileSize: int("fileSize").notNull(),
   extractedText: text("extractedText"),
   documentType: mysqlEnum("documentType", ["contract", "lease", "agreement", "notice", "other"]).default("other").notNull(),
+  analysisData: text("analysisData"), // JSON string of DocumentAnalysisResult
   uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
 });
 

@@ -535,6 +535,21 @@ export const appRouter = router({
               });
 
               console.log(`[Vision AI] Generated analysis for ${input.filename}`);
+
+              // Extract structured clauses and risks
+              try {
+                const { extractClausesAndRisksFromVision } = await import('./documentAnalysisExtractor');
+                const structuredAnalysis = await extractClausesAndRisksFromVision(url, input.filename, language);
+                
+                // Update document with analysis data
+                await db.updateDocument(documentId, {
+                  analysisData: JSON.stringify(structuredAnalysis)
+                });
+                
+                console.log(`[Vision AI] Extracted ${structuredAnalysis.clauses.length} clauses and ${structuredAnalysis.risks.length} risks`);
+              } catch (error) {
+                console.error('[Vision AI] Structured extraction failed:', error);
+              }
             } else {
               // Use text-based analysis for PDFs with extracted text
               console.log(`[Text Analysis] Analyzing ${input.filename} with extracted text`);
@@ -611,6 +626,21 @@ export const appRouter = router({
               });
 
               console.log(`[Text Analysis] Generated AI analysis for ${input.filename}`);
+
+              // Extract structured clauses and risks
+              try {
+                const { extractClausesAndRisks } = await import('./documentAnalysisExtractor');
+                const structuredAnalysis = await extractClausesAndRisks(extractedText!, input.filename, language);
+                
+                // Update document with analysis data
+                await db.updateDocument(documentId, {
+                  analysisData: JSON.stringify(structuredAnalysis)
+                });
+                
+                console.log(`[Text Analysis] Extracted ${structuredAnalysis.clauses.length} clauses and ${structuredAnalysis.risks.length} risks`);
+              } catch (error) {
+                console.error('[Text Analysis] Structured extraction failed:', error);
+              }
             }
           } catch (error) {
             console.error('[PDF Auto-Analysis] Failed:', error);
@@ -636,6 +666,22 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
         return db.getDocumentById(input.id);
+      }),
+
+    getAnalysis: protectedProcedure
+      .input(z.object({ documentId: z.number() }))
+      .query(async ({ input }) => {
+        const document = await db.getDocumentById(input.documentId);
+        if (!document || !document.analysisData) {
+          return null;
+        }
+        
+        try {
+          return JSON.parse(document.analysisData);
+        } catch (error) {
+          console.error('[Document Analysis] Failed to parse analysis data:', error);
+          return null;
+        }
       }),
   }),
 

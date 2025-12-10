@@ -43,6 +43,13 @@
       "when": 1765340618235,
       "tag": "0005_mighty_sleepwalker",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1765346617731,
+      "tag": "0006_romantic_karma",
+      "breakpoints": true
     }
   ]
 }

@@ -200,6 +200,13 @@ export async function updateDocumentText(id: number, extractedText: string) {
   await db.update(documents).set({ extractedText }).where(eq(documents.id, id));
 }
 
+export async function updateDocument(id: number, data: Partial<InsertDocument>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(documents).set(data).where(eq(documents.id, id));
+}
+
 // Contract review queries
 export async function createContractReview(data: InsertContractReview) {
   const db = await getDb();

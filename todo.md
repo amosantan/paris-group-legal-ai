@@ -775,3 +775,15 @@ Before public launch, ensure:
 - [x] Add vision AI support for analyzing images and scanned PDFs
 - [x] Test PDF analysis logic with vitest (all tests passing)
 - [x] Verify vision AI decision logic works correctly
+
+
+## 📋 Key Clauses & Risks Extraction Feature ✅ COMPLETE
+- [x] Design JSON schema for structured clause and risk data
+- [x] Implement AI extraction using structured JSON output (invokeLLM with response_format)
+- [x] Create DocumentAnalysisDisplay component with clauses and risks
+- [x] Add visual indicators (severity levels, icons, badges) for risks
+- [x] Integrate extraction into document upload flow (both text and vision AI)
+- [x] Store extracted data in database (analysisData field)
+- [x] Display clauses/risks in Documents tab with View Analysis button
+- [x] Write vitest tests for extraction logic (6 tests passing)
+- [x] Verified schema structure and sample data validation
