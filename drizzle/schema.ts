@@ -136,6 +136,8 @@ export const legalKnowledge = mysqlTable("legalKnowledge", {
   importance: int("importance").default(5), // Importance score 1-10 (default: 5)
   applicableScenarios: text("applicableScenarios"), // JSON array of scenarios: ["rental dispute", "lease termination"]
   searchKeywords: text("searchKeywords"), // JSON array of pre-computed search keywords for faster retrieval
+  // Phase 2 Vector Embeddings field
+  embedding: text("embedding"), // JSON array of 1536-dimensional vector for semantic search
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

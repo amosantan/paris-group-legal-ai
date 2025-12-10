@@ -165,15 +165,15 @@ export const appRouter = router({
         // Preprocess user query for better search results
         const preprocessed = preprocessQuery(input.content);
         
-        // Build enhanced search query with synonyms and category hints
-        const categoryHints = getCategoryHints(preprocessed.category);
-        const enhancedQuery = [preprocessed.cleaned, ...preprocessed.synonyms, ...categoryHints]
-          .filter(Boolean)
-          .slice(0, 20) // Limit to top 20 terms to avoid query bloat
-          .join(' ');
+        // Use hybrid search (keyword + semantic) for better results
+        const { hybridSearch } = await import("./hybridSearch");
+        const hybridResults = await hybridSearch(input.content, {
+          topK: 10,
+          categoryFilter: preprocessed.category || undefined,
+        });
         
-        // Search for relevant legal articles using enhanced query (includes PDF chunks)
-        const relevantArticles = await searchLegalKnowledgeEnhanced(enhancedQuery);
+        // Extract articles from hybrid search results
+        const relevantArticles = hybridResults.map(result => result.article);
         
         // Calculate confidence score
         const confidenceScore = calculateConfidenceScore(input.content, relevantArticles);

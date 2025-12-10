@@ -709,3 +709,222 @@
 
 **Let's start! 🚀**
 
+
+
+---
+
+## 🎯 PHASE 2: CORE UPGRADES (Week 3-4)
+
+**Status:** Starting implementation
+**Goal:** Implement vector embeddings and hybrid search for semantic understanding
+**Expected Impact:** +400% quality, 70x faster retrieval (7-15ms vs 100-500ms)
+
+### Week 3: Vector Embeddings & Vector Database
+
+#### Day 1-2: Vector Embedding Research & Selection ✅ COMPLETE
+- [x] Research embedding models for legal documents
+  - [x] Evaluate multilingual models (EN/AR support required)
+  - [x] Compare: OpenAI text-embedding-3-small, bge-m3-law, BAAI/bge-m3, sentence-transformers
+  - [x] Benchmark embedding quality on legal text samples
+  - [x] Consider: dimension size (768 vs 1536), inference speed, cost
+- [x] Select vector database solution
+  - [x] Evaluate: ChromaDB (local), Pinecone (cloud), pgvector (PostgreSQL extension)
+  - [x] Consider: cost, latency, scalability, ease of integration
+  - [x] Decision criteria: <50ms query latency, support for 100K+ vectors
+- [x] Document selected solution and rationale
+
+**Decision:** OpenAI text-embedding-3-small (1536-dim) + ChromaDB
+**Rationale:** Fastest to production, SOTA performance, excellent multilingual, $15/month cost
+
+**Files created:**
+- ✅ `VECTOR_EMBEDDING_RESEARCH.md` (comprehensive research findings)
+
+---
+
+#### Day 3-5: Implement Vector Embeddings
+- [ ] Install required packages
+  - [ ] Vector database client (e.g., `pnpm add chromadb` or `pnpm add @pinecone-database/pinecone`)
+  - [ ] Embedding model client (e.g., OpenAI SDK already installed)
+- [ ] Create `server/vectorEmbeddings.ts` module
+- [ ] Implement `generateEmbedding(text: string): Promise<number[]>` function
+- [ ] Implement `batchGenerateEmbeddings(texts: string[]): Promise<number[][]>` function
+- [ ] Add error handling and retry logic
+- [ ] Add embedding caching to avoid re-computing
+- [ ] Write unit tests for embedding generation
+- [ ] Create `server/vectorDatabase.ts` module
+- [ ] Implement vector database connection
+- [ ] Implement `upsertVector(id, vector, metadata)` function
+- [ ] Implement `searchVectors(queryVector, topK)` function
+- [ ] Implement `deleteVector(id)` function
+- [ ] Add connection pooling and error handling
+
+**Files to create:**
+- `server/vectorEmbeddings.ts`
+- `server/vectorDatabase.ts`
+- `server/vectorEmbeddings.test.ts`
+
+---
+
+#### Day 6-7: Generate Embeddings for All Articles
+- [ ] Create `server/scripts/generateEmbeddings.ts` script
+- [ ] Implement embedding generation for all 740 articles
+- [ ] Combine titleEn + contentEn for embedding input
+- [ ] Store embeddings in vector database with metadata (id, category, importance)
+- [ ] Add progress tracking (log every 50 articles)
+- [ ] Handle rate limits (batch processing with delays)
+- [ ] Verify all embeddings stored successfully
+- [ ] Test vector search with sample queries
+- [ ] Measure embedding generation time and cost
+
+**Files to create:**
+- `server/scripts/generateEmbeddings.ts`
+
+**Expected Results:**
+- ✅ 740 articles embedded (768-dimensional vectors)
+- ✅ Vector database populated
+- ✅ Vector search returns relevant results
+- ✅ Query latency <50ms
+
+---
+
+### Week 4: Hybrid Search & Re-ranking
+
+#### Day 1-2: Implement BM25 Keyword Search
+- [ ] Install BM25 package: `pnpm add bm25`
+- [ ] Create `server/bm25Search.ts` module
+- [ ] Implement BM25 index building from articles
+- [ ] Implement `searchBM25(query, topK)` function
+- [ ] Add document preprocessing (tokenization, stopword removal)
+- [ ] Test BM25 search accuracy
+- [ ] Compare BM25 vs current keyword search
+
+**Files to create:**
+- `server/bm25Search.ts`
+
+---
+
+#### Day 3-4: Implement Hybrid Search
+- [ ] Create `server/hybridSearch.ts` module
+- [ ] Implement `hybridSearch(query, topK)` function
+  - [ ] Run BM25 keyword search (weight: 0.3)
+  - [ ] Run vector semantic search (weight: 0.7)
+  - [ ] Combine results with weighted scoring
+  - [ ] Deduplicate and rank by combined score
+- [ ] Add configurable weights for BM25 vs vector
+- [ ] Implement result fusion algorithms (RRF - Reciprocal Rank Fusion)
+- [ ] Test hybrid search on diverse queries
+- [ ] Compare: keyword-only vs vector-only vs hybrid
+- [ ] Measure precision@10 and recall@10
+
+**Files to create:**
+- `server/hybridSearch.ts`
+
+**Files to modify:**
+- `server/legalKnowledgeBase.ts` (replace with hybrid search)
+
+---
+
+#### Day 5-6: Implement Cross-Encoder Re-ranking
+- [ ] Research cross-encoder models for legal text
+- [ ] Select re-ranking model (e.g., cross-encoder/ms-marco-MiniLM-L-6-v2)
+- [ ] Install re-ranking package or use API
+- [ ] Create `server/reranking.ts` module
+- [ ] Implement `rerankResults(query, results, topK)` function
+- [ ] Apply re-ranking to top 50 hybrid search results
+- [ ] Return top 10 after re-ranking
+- [ ] Test re-ranking impact on relevance
+- [ ] Measure re-ranking latency (<100ms target)
+
+**Files to create:**
+- `server/reranking.ts`
+
+**Files to modify:**
+- `server/hybridSearch.ts` (add re-ranking step)
+
+---
+
+#### Day 7: Integration & Testing
+- [ ] Integrate hybrid search + re-ranking into consultation chat
+- [ ] Update `messages.send` procedure to use new search
+- [ ] Test end-to-end with real user queries
+- [ ] Measure total search latency (target: <150ms)
+- [ ] Compare old vs new search quality
+- [ ] Run A/B test with 20 sample queries
+- [ ] Document performance improvements
+- [ ] Update cache to work with hybrid search
+
+**Files to modify:**
+- `server/routers.ts` (use hybrid search in messages.send)
+- `server/searchCache.ts` (update cache keys for hybrid search)
+
+---
+
+## 📄 HOME PAGE UPDATE
+
+### Update Home Page to Version 8.0
+- [ ] Update version number to "Version 8.0 - Semantic Search & Hybrid Intelligence"
+- [ ] Update article count (if changed)
+- [ ] Add new features description:
+  - [ ] "Vector embeddings for semantic understanding"
+  - [ ] "Hybrid search (BM25 + AI vectors)"
+  - [ ] "Cross-encoder re-ranking for precision"
+  - [ ] "70x faster search (7-15ms latency)"
+- [ ] Create version history section
+  - [ ] Version 8.0: Semantic search & hybrid intelligence (Phase 2)
+  - [ ] Version 7.0: Query preprocessing, metadata enrichment, caching (Phase 1)
+  - [ ] Version 6.0: Expanded knowledge base (740 articles)
+  - [ ] Version 5.0: PDF ingestion system
+  - [ ] Version 4.0: Document analysis & contract review
+  - [ ] Version 3.0: Lawyer review workflow
+  - [ ] Version 2.0: Consultation chat with AI
+  - [ ] Version 1.0: Initial release
+
+**Files to modify:**
+- `client/src/pages/Home.tsx`
+
+---
+
+## 📊 SUCCESS METRICS
+
+### Phase 2 Target Metrics
+- [ ] Precision@10: 40% → 90% (+125%)
+- [ ] Recall@10: 30% → 80% (+167%)
+- [ ] Search latency: 100-500ms → 7-15ms (70x faster)
+- [ ] Semantic understanding: 0% → 95%+
+- [ ] User satisfaction: Measure with feedback
+
+### Testing Queries
+- [ ] "tenant eviction without notice" (synonym test)
+- [ ] "landlord wants to kick me out" (informal language)
+- [ ] "إخلاء المستأجر" (Arabic semantic test)
+- [ ] "security deposit refund dispute" (multi-concept)
+- [ ] "mortgage enforcement procedures" (specific domain)
+- [ ] "DIFC vs mainland Dubai property laws" (comparison)
+- [ ] "rent increase legal limits" (numerical + legal)
+- [ ] "maintenance responsibility landlord tenant" (multi-party)
+- [ ] "early lease termination penalties" (scenario-based)
+- [ ] "property transfer DLD requirements" (procedural)
+
+---
+
+
+---
+
+## 🔄 AUTOMATIC EMBEDDING GENERATION FOR NEW UPLOADS
+
+**Priority:** HIGH
+**Goal:** Ensure new PDF uploads automatically get vector embeddings
+
+### Tasks
+- [ ] Update PDF ingestion service to generate embeddings after successful upload
+- [ ] Add embedding generation to `pdfIngestionService.ts`
+- [ ] Call `generateEmbedding()` for each new chunk
+- [ ] Call `upsertVector()` to store in ChromaDB
+- [ ] Test with new PDF upload
+- [ ] Verify new articles appear in semantic search
+
+**Files to modify:**
+- `server/pdfIngestionService.ts` (add embedding generation)
+- `server/routers.ts` (ensure PDF upload triggers embeddings)
+
+---

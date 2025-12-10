@@ -1,0 +1,1 @@
+ALTER TABLE `legalKnowledge` ADD `embedding` text;

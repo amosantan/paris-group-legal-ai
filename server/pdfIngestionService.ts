@@ -281,10 +281,13 @@ export async function ingestPDF(
   try {
     const chunks = await processPDF(pdfSource, metadata, options);
     
-    // Insert chunks into database
+    // Insert chunks into database and generate embeddings
     let insertedCount = 0;
+    const { generateEmbedding, prepareTextForEmbedding } = await import("./vectorEmbeddings");
+    const { storeEmbedding } = await import("./vectorDatabase");
+    
     for (const chunk of chunks) {
-      await db.createLegalKnowledge({
+      const articleId = await db.createLegalKnowledge({
         lawName: chunk.lawName,
         lawNumber: chunk.lawNumber,
         articleNumber: chunk.articleNumber || '',
@@ -302,6 +305,26 @@ export async function ingestPDF(
         pageNumber: chunk.pageNumber,
       });
       insertedCount++;
+      
+      // Generate and store embedding for the new article
+      try {
+        const textForEmbedding = prepareTextForEmbedding(
+          chunk.titleEn,
+          chunk.contentEn,
+          {
+            lawName: chunk.lawName,
+            lawNumber: chunk.lawNumber,
+            articleNumber: chunk.articleNumber,
+            category: chunk.category,
+          }
+        );
+        const embedding = await generateEmbedding(textForEmbedding);
+        await storeEmbedding(articleId, embedding);
+        console.log(`[PDF Ingestion] Generated embedding for chunk ${insertedCount}/${chunks.length}`);
+      } catch (embeddingError) {
+        console.error(`[PDF Ingestion] Failed to generate embedding for chunk ${insertedCount}:`, embeddingError);
+        // Continue even if embedding fails
+      }
     }
     
     console.log(`[PDF Ingestion] Successfully ingested ${insertedCount} chunks from ${metadata.filename}`);
