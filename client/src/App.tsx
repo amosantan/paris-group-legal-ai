@@ -16,6 +16,7 @@ import LawyerReviewDashboard from "./pages/LawyerReviewDashboard";
 import LegalDocumentGenerator from "./pages/LegalDocumentGenerator";
 import AuditLogViewer from "./pages/AuditLogViewer";
 import PDFUploadAdmin from "./pages/PDFUploadAdmin";
+import CitationTest from "./pages/CitationTest";
 
 function Router() {
   return (
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/document-generator" component={LegalDocumentGenerator} />
       <Route path="/audit-logs" component={AuditLogViewer} />
       <Route path="/pdf-upload" component={PDFUploadAdmin} />
+      <Route path="/citation-test" component={CitationTest} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

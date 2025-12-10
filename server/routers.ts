@@ -854,6 +854,17 @@ Use formal legal language and cite relevant articles and laws.`;
         );
       }),
 
+    // Get article by law name and article number (for citation modal)
+    getArticle: publicProcedure
+      .input(z.object({
+        lawName: z.string(),
+        articleNumber: z.string(),
+      }))
+      .query(async ({ input }) => {
+        const { getArticleByReference } = await import("./db_getArticle");
+        return getArticleByReference(input.lawName, input.articleNumber);
+      }),
+
     getCategories: protectedProcedure.query(() => {
       return [
         { value: "all", label: "All Categories", count: searchKB("").length },

@@ -1160,3 +1160,24 @@
 - [ ] Create new checkpoint with actual code changes
 - [ ] Verify Version 9.0 shows as "Current" in version history
 - [ ] Verify Publish button appears on new checkpoint card
+
+
+---
+
+## 🎨 CITATION HIGHLIGHTING FEATURE (Current Sprint)
+
+**Goal:** Enhance citation cards with text highlighting and copy functionality  
+**Timeline:** 3-4 hours  
+**Status:** ✅ Complete
+
+### Tasks:
+- [x] Enhance CitationModal to highlight quoted text in article content
+- [x] Add "Copy Citation" button to CitationModal header
+- [x] Implement citation formatting (legal citation format: Law Name, Article X (Year))
+- [x] Add visual highlighting with yellow background for matched text
+- [x] Implement smooth scroll to highlighted text on modal open
+- [x] Add toast notification on successful citation copy
+- [x] Test highlighting with various article types and content lengths
+- [x] Verify copy functionality works across browsers
+- [x] Test with Arabic and English content
+- [x] Document citation highlighting feature in code comments
