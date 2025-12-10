@@ -123,3 +123,13 @@
 **Status:** ✅ System is production-ready with minor improvements needed  
 **Bugs Found:** 2 (PDF statistics display, audit logs table - both low severity)  
 **Recommended Next Steps:** Fix PDF stats (2h), implement citation display (8h), complete lawyer review workflow (16h)
+
+
+## 🐛 Bug Fix: PDF Statistics Display ✅ COMPLETE
+- [x] Analyze current getStats query in knowledgeBase router
+- [x] Fix query to correctly count entries by source field (PDF vs manual)
+- [x] Update PDFUploadAdmin.tsx to display fromPDFs and hardcoded fields
+- [x] Make hardcoded count dynamic by importing LEGAL_KNOWLEDGE_BASE.length
+- [x] Fix PDF count to include both 'pdf_upload' and 'pdf_url' source types
+- [x] Test statistics display shows correct counts (740 PDF, 80 hardcoded, 820 total)
+- [x] Verified on /pdf-upload page - all statistics now accurate and automatic

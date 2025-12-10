@@ -314,7 +314,12 @@ export async function listLegalKnowledge(options: {
 
 export async function getLegalKnowledgeStats() {
   const db = await getDb();
-  if (!db) return { total: 0, byCategory: {}, bySourceType: {} };
+  
+  // Import hardcoded knowledge base to count articles dynamically
+  const { LEGAL_KNOWLEDGE_BASE } = await import('./legalKnowledgeBase');
+  const hardcoded = LEGAL_KNOWLEDGE_BASE.length;
+  
+  if (!db) return { total: hardcoded, byCategory: {}, bySourceType: {}, fromPDFs: 0, hardcoded };
   
   const all = await db.select().from(legalKnowledge);
   
@@ -326,10 +331,15 @@ export async function getLegalKnowledgeStats() {
     bySourceType[item.sourceType] = (bySourceType[item.sourceType] || 0) + 1;
   }
   
+  // Count PDF entries (both pdf_upload and pdf_url)
+  const fromPDFs = (bySourceType['pdf_upload'] || 0) + (bySourceType['pdf_url'] || 0);
+  
   return {
-    total: all.length,
+    total: all.length + hardcoded, // Total = database entries + hardcoded
     byCategory,
     bySourceType,
+    fromPDFs,
+    hardcoded, // Dynamically counted from LEGAL_KNOWLEDGE_BASE array
   };
 }
 

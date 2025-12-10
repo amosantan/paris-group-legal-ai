@@ -112,15 +112,15 @@ export default function PDFUploadAdmin() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">
-                    {statsQuery.data.bySourceType?.pdf_upload || 0}
+                    {statsQuery.data.fromPDFs || 0}
                   </p>
                   <p className="text-sm text-muted-foreground">From PDFs</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold">
-                    {statsQuery.data.bySourceType?.manual || 0}
+                    {statsQuery.data.hardcoded || 0}
                   </p>
-                  <p className="text-sm text-muted-foreground">Manual Entries</p>
+                  <p className="text-sm text-muted-foreground">Hardcoded Articles</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold">

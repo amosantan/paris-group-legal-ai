@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, titleEn, sourceType, sourceUrl FROM legalKnowledge LIMIT 5",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3qjjvhuo9AvMUPD.4c14534c73ee --database KcWfniXrXNRRDvZYmnr2u6 --execute SELECT id, titleEn, sourceType, sourceUrl FROM legalKnowledge LIMIT 5",
+  "rows": [
+    {
+      "id": "1",
+      "titleEn": "Abu Dhabi Law No. 20 of 2006 - Leasing Relations - Part 1 of 9",
+      "sourceType": "pdf_url",
+      "sourceUrl": "Abu Dhabi Government - services.dari.ae"
+    },
+    {
+      "id": "2",
+      "titleEn": "Abu Dhabi Law No. 20 of 2006 - Leasing Relations - Part 2 of 9",
+      "sourceType": "pdf_url",
+      "sourceUrl": "Abu Dhabi Government - services.dari.ae"
+    },
+    {
+      "id": "3",
+      "titleEn": "Abu Dhabi Law No. 20 of 2006 - Leasing Relations - Part 3 of 9",
+      "sourceType": "pdf_url",
+      "sourceUrl": "Abu Dhabi Government - services.dari.ae"
+    },
+    {
+      "id": "4",
+      "titleEn": "Abu Dhabi Law No. 20 of 2006 - Leasing Relations - Part 4 of 9",
+      "sourceType": "pdf_url",
+      "sourceUrl": "Abu Dhabi Government - services.dari.ae"
+    },
+    {
+      "id": "5",
+      "titleEn": "Abu Dhabi Law No. 20 of 2006 - Leasing Relations - Part 5 of 9",
+      "sourceType": "pdf_url",
+      "sourceUrl": "Abu Dhabi Government - services.dari.ae"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitleEn\tsourceType\tsourceUrl\n1\tAbu Dhabi Law No. 20 of 2006 - Leasing Relations - Part 1 of 9\tpdf_url\tAbu Dhabi Government - services.dari.ae\n2\tAbu Dhabi Law No. 20 of 2006 - Leasing Relations - Part 2 of 9\tpdf_url\tAbu Dhabi Government - services.dari.ae\n3\tAbu Dhabi Law No. 20 of 2006 - Leasing Relations - Part 3 of 9\tpdf_url\tAbu Dhabi Government - services.dari.ae\n4\tAbu Dhabi Law No. 20 of 2006 - Leasing Relations - Part 4 of 9\tpdf_url\tAbu Dhabi Government - services.dari.ae\n5\tAbu Dhabi Law No. 20 of 2006 - Leasing Relations - Part 5 of 9\tpdf_url\tAbu Dhabi Government - services.dari.ae\n",
+  "stderr": "",
+  "execution_time_ms": 1520
+}

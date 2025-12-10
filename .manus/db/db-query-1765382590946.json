@@ -1,0 +1,14 @@
+{
+  "query": "SELECT sourceType, COUNT(*) as count FROM legalKnowledge GROUP BY sourceType",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3qjjvhuo9AvMUPD.4c14534c73ee --database KcWfniXrXNRRDvZYmnr2u6 --execute SELECT sourceType, COUNT(*) as count FROM legalKnowledge GROUP BY sourceType",
+  "rows": [
+    {
+      "sourceType": "pdf_url",
+      "count": "740"
+    }
+  ],
+  "messages": [],
+  "stdout": "sourceType\tcount\npdf_url\t740\n",
+  "stderr": "",
+  "execution_time_ms": 1951
+}
