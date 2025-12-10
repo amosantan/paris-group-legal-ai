@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ConfidenceIndicator } from "@/components/ConfidenceIndicator";
 import { ConfidenceWarning } from "@/components/ConfidenceWarning";
 import { DisclaimerBadge } from "@/components/DisclaimerBadge";
+import { ConversationContextSidebar } from "@/components/ConversationContextSidebar";
+import { VoiceInputButton } from "@/components/VoiceInputButton";
 
 export default function Consultation() {
   const { id } = useParams<{ id: string }>();
@@ -179,7 +181,8 @@ export default function Consultation() {
           </TabsList>
 
           <TabsContent value="chat" className="space-y-4">
-            <Card className="h-[600px] flex flex-col">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4">
+              <Card className="h-[600px] flex flex-col">
               <CardHeader>
                 <CardTitle>Legal Consultation Chat</CardTitle>
                 <CardDescription>
@@ -256,6 +259,10 @@ export default function Consultation() {
                     placeholder="Type your legal question..."
                     disabled={sendMutation.isPending}
                   />
+                  <VoiceInputButton
+                    onTranscription={(text) => setMessage(text)}
+                    language="en"
+                  />
                   <Button type="submit" disabled={sendMutation.isPending || !message.trim()}>
                     {sendMutation.isPending ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -266,6 +273,17 @@ export default function Consultation() {
                 </form>
               </CardContent>
             </Card>
+            
+            
+            <div className="hidden lg:block">
+              <ConversationContextSidebar 
+                context={undefined}
+                onClearContext={() => {
+                  toast.info("Clear context feature coming soon");
+                }}
+              />
+            </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="documents" className="space-y-4">

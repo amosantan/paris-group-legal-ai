@@ -660,3 +660,101 @@ Before public launch, ensure:
 
 **Total Tasks:** 80+ tasks across 3 phases
 **Estimated Completion:** 144 hours remaining
+
+
+## 🎯 ACTIVE: Complete Phase 2 & 3 (60 hours remaining)
+
+### Phase 2.1: Integrate Context Sidebar ✅ COMPLETE
+- [x] Update Consultation.tsx layout to grid with sidebar column
+- [x] ConversationContextSidebar integrated into Consultation page
+- [x] Sidebar displays on desktop (hidden on mobile)
+- [ ] Add conversationMemory.getContext tRPC query (backend pending)
+- [ ] Connect ConversationContextSidebar to query data (backend pending)
+- [ ] Add clear context mutation (backend pending)
+- [ ] Test context tracking with multi-turn conversation
+
+### Phase 2.2: Integrate Suggestions Panel (2 hours)
+- [ ] Add ProactiveSuggestionsPanel below chat messages
+- [ ] Update messages.send backend to return suggestions
+- [ ] Connect suggestion click to message input
+- [ ] Test suggestions with various query types
+
+### Phase 2.3: Voice Input UI ✅ COMPONENT COMPLETE
+- [x] Add microphone button to message input
+- [x] Implement MediaRecorder API for audio recording
+- [x] VoiceInputButton component created with recording states
+- [x] Display transcription in message input via callback
+- [x] Language selector support (Arabic/English)
+- [x] Error handling for microphone access
+- [x] 16MB file size validation
+- [ ] Upload audio to storage and get URL (storage integration pending)
+- [ ] Add waveform animation during recording (enhancement)
+
+### Phase 2.4: Image OCR UI (7 hours)
+- [ ] Add image upload button with drag-drop zone
+- [ ] Show image preview with loading spinner
+- [ ] Upload image to storage
+- [ ] Call imageOCR.extractText with image URL
+- [ ] Display extracted text in editable textarea
+- [ ] "Use This Text" button to insert into message
+- [ ] Support multiple formats (jpg, png, heic)
+- [ ] Error handling for failed OCR
+
+### Phase 2.5: Document Drafting UI (5 hours)
+- [ ] Add "Generate Document" button in consultation header
+- [ ] Create template selection modal (demand letter, eviction, NOC)
+- [ ] Call documentDrafting.extractData with consultationId
+- [ ] Show extracted data with confidence scores
+- [ ] Editable fields for missing information
+- [ ] Call documentDrafting.generateDemandLetter/etc with data
+- [ ] Download generated PDF
+- [ ] Test with real consultation data
+
+### Phase 3.1: Review Request Functionality (7 hours)
+- [ ] Add lawyerReview.requestReview tRPC procedure
+- [ ] Update ConfidenceWarning "Request Review" button
+- [ ] Create review request with reason
+- [ ] Send notification to lawyers (notifyOwner)
+- [ ] Update consultation status to "pending_review"
+- [ ] Show "Review Requested" badge in UI
+- [ ] Test review request flow
+
+### Phase 3.2: Status Indicators (8 hours)
+- [ ] Add review status field to consultations table
+- [ ] Create status badge component (pending/under_review/approved/needs_revision)
+- [ ] Add status badges to consultation list
+- [ ] Add filter by review status
+- [ ] Show badge count in sidebar navigation
+- [ ] Update status when lawyer reviews
+- [ ] Test status transitions
+
+### Phase 3.3: Lawyer Response Display (8 hours)
+- [ ] Add lawyer corrections field to lawyerReviews table
+- [ ] Create LawyerCorrectionBadge component
+- [ ] Display lawyer corrections in consultation messages
+- [ ] Highlight corrected text
+- [ ] Show "View Original AI Response" toggle
+- [ ] Add timestamp and lawyer name
+- [ ] "Accept Correction" button
+- [ ] Test correction display
+
+### Phase 3.4: Email Notifications (5 hours)
+- [ ] Research email service (SendGrid/AWS SES/Resend)
+- [ ] Add email notification helper function
+- [ ] Send email when review requested
+- [ ] Send email when review completed
+- [ ] Send email when correction added
+- [ ] Email templates (HTML)
+- [ ] Test email delivery
+
+### Phase 3.5: Final Testing (10 hours)
+- [ ] End-to-end test: Terms acceptance → Consultation → Low confidence → Review request → Lawyer review → Correction display
+- [ ] Test voice input with Arabic and English
+- [ ] Test image OCR with various document types
+- [ ] Test document drafting with all templates
+- [ ] Test email notifications
+- [ ] Test on mobile devices
+- [ ] Fix any bugs found
+- [ ] Performance testing
+- [ ] Security review
+- [ ] Documentation update
