@@ -5,6 +5,7 @@ import { getLoginUrl } from "@/const";
 import { FileText, MessageSquare, Scale, Shield, Upload, Database, Sparkles, Zap, Brain } from "lucide-react";
 import { Link } from "wouter";
 
+// Last updated: Version 9.0 - December 2024
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
 

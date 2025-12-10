@@ -1149,3 +1149,14 @@
   - [ ] Check if checkpoint was created successfully
   - [ ] Verify Management UI state
   - [ ] Test Publish button functionality
+
+
+---
+
+## 🔧 FIX: Browser Cache Issue & Publish Button
+
+- [ ] Make small code change to trigger new build
+- [ ] Restart development server
+- [ ] Create new checkpoint with actual code changes
+- [ ] Verify Version 9.0 shows as "Current" in version history
+- [ ] Verify Publish button appears on new checkpoint card
