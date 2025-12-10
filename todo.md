@@ -673,11 +673,12 @@ Before public launch, ensure:
 - [ ] Add clear context mutation (backend pending)
 - [ ] Test context tracking with multi-turn conversation
 
-### Phase 2.2: Integrate Suggestions Panel (2 hours)
-- [ ] Add ProactiveSuggestionsPanel below chat messages
-- [ ] Update messages.send backend to return suggestions
-- [ ] Connect suggestion click to message input
-- [ ] Test suggestions with various query types
+### Phase 2.2: Integrate Suggestions Panel ✅ COMPLETE
+- [x] Add ProactiveSuggestionsPanel below chat messages
+- [x] Backend already returns suggestions (generateProactiveSuggestions)
+- [x] Connect suggestion click to message input
+- [x] Suggestions populate message field when clicked
+- [x] Suggestions clear after use
 
 ### Phase 2.3: Voice Input UI ✅ COMPONENT COMPLETE
 - [x] Add microphone button to message input

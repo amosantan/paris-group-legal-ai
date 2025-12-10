@@ -16,11 +16,14 @@ import { ConfidenceWarning } from "@/components/ConfidenceWarning";
 import { DisclaimerBadge } from "@/components/DisclaimerBadge";
 import { ConversationContextSidebar } from "@/components/ConversationContextSidebar";
 import { VoiceInputButton } from "@/components/VoiceInputButton";
+import { ProactiveSuggestionsPanel } from "@/components/ProactiveSuggestionsPanel";
+import { ImageOCRUpload } from "@/components/ImageOCRUpload";
 
 export default function Consultation() {
   const { id } = useParams<{ id: string }>();
   const consultationId = parseInt(id || "0");
   const [message, setMessage] = useState("");
+  const [suggestions, setSuggestions] = useState<any>(null);
   const [uploadingFile, setUploadingFile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -42,9 +45,13 @@ export default function Consultation() {
   });
 
   const sendMutation = trpc.messages.send.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       utils.messages.list.invalidate({ consultationId });
       setMessage("");
+      // Store suggestions from response
+      if (data.suggestions) {
+        setSuggestions(data.suggestions);
+      }
     },
     onError: (error) => {
       toast.error("Failed to send message: " + error.message);
@@ -252,6 +259,16 @@ export default function Consultation() {
                   )}
                 </div>
 
+                {suggestions && (
+                  <ProactiveSuggestionsPanel
+                    suggestions={suggestions}
+                    onSuggestionClick={(suggestion) => {
+                      setMessage(suggestion.action || suggestion.description);
+                      setSuggestions(null);
+                    }}
+                  />
+                )}
+
                 <form onSubmit={handleSendMessage} className="flex gap-2">
                   <Input
                     value={message}
@@ -320,6 +337,23 @@ export default function Consultation() {
                     </>
                   )}
                 </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Extract Text from Image</CardTitle>
+                <CardDescription>
+                  Upload a photo of a document to extract text automatically
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ImageOCRUpload
+                  onTextExtracted={(text) => {
+                    toast.success("Text extracted! You can now ask questions about it.");
+                    setMessage(`Analyze this document: ${text.substring(0, 500)}...`);
+                  }}
+                />
               </CardContent>
             </Card>
 
