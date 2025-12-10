@@ -166,17 +166,41 @@ export const appRouter = router({
         const preprocessed = preprocessQuery(input.content);
         
         // Use hybrid search (keyword + semantic) for better results
+        const searchStartTime = Date.now();
         const { hybridSearch } = await import("./hybridSearch");
         const hybridResults = await hybridSearch(input.content, {
           topK: 10,
           categoryFilter: preprocessed.category || undefined,
         });
+        const searchResponseTime = Date.now() - searchStartTime;
         
         // Extract articles from hybrid search results
         const relevantArticles = hybridResults.map(result => result.article);
         
         // Calculate confidence score
         const confidenceScore = calculateConfidenceScore(input.content, relevantArticles);
+        
+        // Track query analytics
+        const { trackQuery, trackArticleRetrievalBatch } = await import("./analytics");
+        await trackQuery({
+          query: input.content,
+          language: preprocessed.language,
+          category: preprocessed.category || undefined,
+          resultsCount: hybridResults.length,
+          responseTime: searchResponseTime,
+          confidenceScore: confidenceScore.overall,
+          userId: ctx.user.id,
+          consultationId: input.consultationId,
+          searchMethod: "reranked",
+        });
+        
+        // Track article retrievals
+        await trackArticleRetrievalBatch(
+          hybridResults.map(result => ({
+            articleId: result.article.id,
+            relevanceScore: Math.round(result.score * 100),
+          }))
+        );
         
         // Verify citations in the response
         const citationVerification = verifyAllCitations(assistantMessage);

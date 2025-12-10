@@ -5,8 +5,16 @@
  * - Cleaning and normalizing text
  * - Expanding with legal synonyms
  * - Detecting legal categories
+ * - Arabic morphological analysis
  * - Improving retrieval quality
  */
+
+import { 
+  normalizeArabic, 
+  isPrimarilyArabic, 
+  processArabicQuery,
+  getArabicSynonyms 
+} from './arabicNLP';
 
 export type Language = 'en' | 'ar';
 export type LegalCategory = 
@@ -318,7 +326,17 @@ export function detectCategory(query: string): LegalCategory | null {
  * Main preprocessing function
  * Enhances user query for better search results
  */
-export function preprocessQuery(userQuery: string): PreprocessedQuery {
+export function preprocessQuery(query: string): PreprocessedQuery {
+  // Detect if query is primarily Arabic
+  const isArabicQuery = isPrimarilyArabic(query);
+  
+  // Apply Arabic-specific preprocessing if needed
+  if (isArabicQuery) {
+    return preprocessArabicQuery(query);
+  }
+  
+  // Continue with English preprocessing
+  const userQuery = query;
   // Detect language
   const language = detectLanguage(userQuery);
   
@@ -339,13 +357,50 @@ export function preprocessQuery(userQuery: string): PreprocessedQuery {
   const expandedQuery = allTerms.join(' OR ');
   
   return {
-    original: userQuery,
+    original: query,
     cleaned,
     legalTerms,
     synonyms,
     category,
     expandedQuery,
-    language
+    language,
+  };
+}
+
+/**
+ * Preprocess Arabic query with morphological analysis
+ */
+function preprocessArabicQuery(query: string): PreprocessedQuery {
+  // Normalize Arabic text
+  const cleaned = normalizeArabic(query);
+  
+  // Process Arabic query (morphological variations + synonyms)
+  const expandedTerms = processArabicQuery(query);
+  
+  // Extract legal terms (words that have synonyms)
+  const legalTerms: string[] = [];
+  const words = cleaned.split(/\s+/);
+  for (const word of words) {
+    const synonyms = getArabicSynonyms(word);
+    if (synonyms.length > 0) {
+      legalTerms.push(word);
+    }
+  }
+  
+  // Detect category (same logic as English)
+  const category = detectCategory(cleaned);
+  
+  // Build expanded query (combine all terms with OR)
+  const expandedQuery = expandedTerms.join(' OR ');
+  
+  return {
+    original: query,
+    cleaned,
+    legalTerms,
+    synonyms: expandedTerms,
+    category,
+    expandedQuery,
+    language: 'ar',
   };
 }
 

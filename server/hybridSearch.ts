@@ -14,6 +14,7 @@
 import { searchLegalKnowledgeEnhanced } from "./legalKnowledgeBase";
 import { generateEmbedding } from "./vectorEmbeddings";
 import { searchSimilarArticles } from "./vectorDatabase";
+import { rerankResultsCached } from "./reranker";
 
 /**
  * Hybrid search configuration
@@ -39,6 +40,7 @@ export async function hybridSearch(
     categoryFilter?: string;
     keywordWeight?: number;
     semanticWeight?: number;
+    useReranking?: boolean; // Default: true
   }
 ): Promise<Array<{
   article: any;
@@ -108,6 +110,44 @@ export async function hybridSearch(
       `[HybridSearch] Combined: ${filteredResults.length} results ` +
       `(top score: ${filteredResults[0]?.score.toFixed(4) || 'N/A'})`
     );
+
+    // Step 7: Apply re-ranking with Gemini (optional, enabled by default)
+    const useReranking = options?.useReranking !== false; // Default: true
+    
+    if (useReranking && filteredResults.length > 0) {
+      try {
+        const rerankStartTime = Date.now();
+        const rerankedResults = await rerankResultsCached(
+          query,
+          filteredResults.map(r => ({
+            article: r.article,
+            score: r.score,
+            source: r.source as 'keyword' | 'semantic' | 'hybrid',
+          })),
+          topK
+        );
+        const rerankLatency = Date.now() - rerankStartTime;
+        
+        console.log(
+          `[HybridSearch] Re-ranked ${rerankedResults.length} results in ${rerankLatency}ms`
+        );
+        
+        // Convert back to hybrid search result format
+        return rerankedResults.map(r => ({
+          article: r.article,
+          score: r.rerankScore / 100, // Normalize from 0-100 to 0-1
+          keywordScore: (r as any).keywordScore || 0,
+          semanticScore: (r as any).semanticScore || 0,
+          source: r.source,
+          rerankScore: r.rerankScore,
+          originalScore: r.originalScore,
+          originalRank: r.originalRank,
+        }));
+      } catch (error) {
+        console.error('[HybridSearch] Re-ranking failed, using hybrid results:', error);
+        return filteredResults;
+      }
+    }
 
     return filteredResults;
   } catch (error) {

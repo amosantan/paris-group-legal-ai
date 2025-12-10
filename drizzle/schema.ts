@@ -245,3 +245,40 @@ export const aiResponseMetadata = mysqlTable("aiResponseMetadata", {
 
 export type AiResponseMetadata = typeof aiResponseMetadata.$inferSelect;
 export type InsertAiResponseMetadata = typeof aiResponseMetadata.$inferInsert;
+
+/**
+ * Query Analytics - tracks all search queries for improvement insights
+ */
+export const queryAnalytics = mysqlTable("queryAnalytics", {
+  id: int("id").autoincrement().primaryKey(),
+  query: text("query").notNull(),
+  language: mysqlEnum("language", ["en", "ar"]).notNull(),
+  category: varchar("category", { length: 100 }),
+  resultsCount: int("resultsCount").notNull(),
+  responseTime: int("responseTime").notNull(), // milliseconds
+  confidenceScore: int("confidenceScore"), // 0-100
+  wasHelpful: int("wasHelpful"), // boolean as int, nullable (user feedback)
+  userId: int("userId"),
+  consultationId: int("consultationId"),
+  searchMethod: varchar("searchMethod", { length: 50 }).default("hybrid").notNull(), // keyword, semantic, hybrid, reranked
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type QueryAnalytics = typeof queryAnalytics.$inferSelect;
+export type InsertQueryAnalytics = typeof queryAnalytics.$inferInsert;
+
+/**
+ * Article Analytics - tracks article retrieval and usage patterns
+ */
+export const articleAnalytics = mysqlTable("articleAnalytics", {
+  id: int("id").autoincrement().primaryKey(),
+  articleId: int("articleId").notNull(),
+  timesRetrieved: int("timesRetrieved").notNull().default(1),
+  timesClicked: int("timesClicked").notNull().default(0),
+  avgRelevanceScore: int("avgRelevanceScore"), // 0-100, average relevance across all retrievals
+  lastRetrieved: timestamp("lastRetrieved").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ArticleAnalytics = typeof articleAnalytics.$inferSelect;
+export type InsertArticleAnalytics = typeof articleAnalytics.$inferInsert;

@@ -928,3 +928,210 @@
 - `server/routers.ts` (ensure PDF upload triggers embeddings)
 
 ---
+
+
+---
+
+## 🚀 PHASE 3: INTELLIGENCE UPGRADES (Current) - IN PROGRESS
+
+**Goal:** Maximum intelligence improvements for production-grade legal AI  
+**Effort:** 28-36 hours  
+**Expected Impact:** +20-30% accuracy from re-ranking, +30-40% Arabic accuracy, continuous improvement insights
+
+### Task 1: Cross-Encoder Re-ranking (8-12 hours)
+
+**Goal:** +20-30% accuracy improvement by re-ranking top results with sophisticated AI model
+
+#### Subtasks:
+- [ ] Research cross-encoder models for legal text
+  - [ ] Evaluate: ms-marco-MiniLM-L-6-v2, cross-encoder/ms-marco-electra-base
+  - [ ] Check multilingual support (EN/AR)
+  - [ ] Benchmark latency (target: <200ms overhead)
+- [ ] Install dependencies
+  - [ ] Research if Gemini API supports re-ranking
+  - [ ] OR: Install sentence-transformers for local re-ranking
+  - [ ] `pnpm add @xenova/transformers` (if using local model)
+- [ ] Create `server/reranker.ts` module
+  - [ ] Implement `rerankResults(query: string, results: SearchResult[], topK: number): Promise<SearchResult[]>`
+  - [ ] Use cross-encoder to score query-document pairs
+  - [ ] Sort by cross-encoder scores
+  - [ ] Return top-K re-ranked results
+- [ ] Integrate into hybrid search
+  - [ ] Update `server/hybridSearch.ts` to optionally apply re-ranking
+  - [ ] Add `useReranking` parameter (default: true)
+  - [ ] Apply re-ranking to top 20 results, return top 10
+- [ ] Test re-ranking quality
+  - [ ] Create 20 test queries with known relevant articles
+  - [ ] Compare: hybrid search alone vs hybrid + re-ranking
+  - [ ] Measure precision@10 improvement
+- [ ] Benchmark performance
+  - [ ] Measure latency overhead (target: <200ms)
+  - [ ] Test with various result set sizes
+- [ ] Document re-ranking algorithm and model choice
+
+**Files to create:**
+- `server/reranker.ts`
+
+**Files to modify:**
+- `server/hybridSearch.ts` (add re-ranking step)
+- `server/routers.ts` (enable re-ranking in consultation chat)
+
+**Expected outcome:** +20-30% accuracy, <200ms latency overhead
+
+---
+
+### Task 2: Multi-language Arabic Enhancement (12-16 hours)
+
+**Goal:** +30-40% accuracy for Arabic queries through morphological analysis
+
+#### Subtasks:
+- [ ] Research Arabic NLP libraries
+  - [ ] Evaluate: CAMeL Tools, Farasa, Arabic-BERT
+  - [ ] Check Python vs JavaScript options
+  - [ ] Choose lightweight solution for production
+- [ ] Install Arabic NLP dependencies
+  - [ ] `pip3 install camel-tools` (if using Python)
+  - [ ] OR: Find JavaScript alternative
+- [ ] Create `server/arabicNLP.ts` module
+  - [ ] Implement `normalizeArabic(text: string): string`
+    - [ ] Remove diacritics (تشكيل)
+    - [ ] Normalize alef variants (ا، أ، إ، آ → ا)
+    - [ ] Normalize teh marbuta (ة → ه)
+  - [ ] Implement `stemArabic(word: string): string`
+    - [ ] Remove common prefixes (ال، و، ف، ب، ك، ل)
+    - [ ] Remove common suffixes (ة، ات، ين، ون، ها، هم، كم)
+  - [ ] Implement `expandArabicQuery(query: string): string[]`
+    - [ ] Generate morphological variations
+    - [ ] Add plural/singular forms
+    - [ ] Add gender variations
+- [ ] Expand Arabic synonym dictionary
+  - [ ] Add 50+ more Arabic legal terms
+  - [ ] Add morphological variations for each term
+  - [ ] Include common misspellings
+- [ ] Integrate into query preprocessing
+  - [ ] Update `server/queryPreprocessing.ts`
+  - [ ] Detect Arabic text (check for Arabic Unicode range)
+  - [ ] Apply Arabic normalization before synonym expansion
+  - [ ] Apply Arabic stemming to query terms
+- [ ] Test with Arabic queries
+  - [ ] Create 30 Arabic test queries
+  - [ ] Test morphological variations (مستأجر، المستأجر، مستأجرين، etc.)
+  - [ ] Measure accuracy improvement
+- [ ] Update embedding generation for Arabic
+  - [ ] Apply normalization before generating embeddings
+  - [ ] Re-generate embeddings for Arabic content (if needed)
+- [ ] Document Arabic NLP pipeline
+
+**Files to create:**
+- `server/arabicNLP.ts`
+- `server/arabicNLP.test.ts`
+
+**Files to modify:**
+- `server/queryPreprocessing.ts` (integrate Arabic NLP)
+- `server/vectorEmbeddings.ts` (apply normalization before embedding)
+
+**Expected outcome:** +30-40% accuracy for Arabic queries
+
+---
+
+### Task 3: Query Analytics Dashboard (8 hours)
+
+**Goal:** Track usage patterns and identify improvement opportunities
+
+#### Subtasks:
+- [ ] Create analytics database schema
+  - [ ] Add `queryAnalytics` table to `drizzle/schema.ts`
+    - [ ] id, query, language, category, resultsCount, responseTime, timestamp
+    - [ ] confidenceScore, wasHelpful (boolean, nullable)
+    - [ ] userId, consultationId (foreign keys)
+  - [ ] Add `articleAnalytics` table
+    - [ ] id, articleId, timesRetrieved, timesClicked, avgRelevanceScore, timestamp
+  - [ ] Run migration: `pnpm db:push`
+- [ ] Implement analytics tracking
+  - [ ] Create `server/analytics.ts` module
+  - [ ] Implement `trackQuery(query, language, category, results, responseTime)`
+  - [ ] Implement `trackArticleRetrieval(articleId, relevanceScore)`
+  - [ ] Integrate into `server/routers.ts` (consultation.chat)
+- [ ] Create analytics queries
+  - [ ] Create `server/db.ts` analytics functions
+  - [ ] `getTopQueries(limit: number, timeRange: string)`
+  - [ ] `getMostRetrievedArticles(limit: number, timeRange: string)`
+  - [ ] `getQueryTrends(timeRange: string)` (queries per day/week)
+  - [ ] `getAverageResponseTime(timeRange: string)`
+  - [ ] `getLanguageDistribution(timeRange: string)` (EN vs AR)
+  - [ ] `getCategoryDistribution(timeRange: string)`
+  - [ ] `getLowConfidenceQueries(threshold: number, limit: number)`
+- [ ] Create analytics dashboard page
+  - [ ] Create `client/src/pages/Analytics.tsx`
+  - [ ] Add to admin-only routes in `App.tsx`
+  - [ ] Display key metrics:
+    - [ ] Total queries (last 7/30 days)
+    - [ ] Average response time
+    - [ ] Language distribution (pie chart)
+    - [ ] Category distribution (bar chart)
+    - [ ] Top 10 queries (table)
+    - [ ] Top 10 retrieved articles (table)
+    - [ ] Low-confidence queries (table)
+    - [ ] Query trends over time (line chart)
+  - [ ] Add date range selector (7 days, 30 days, 90 days, all time)
+  - [ ] Add export to CSV functionality
+- [ ] Create tRPC procedures
+  - [ ] Add `analytics` router to `server/routers.ts`
+  - [ ] `analytics.getOverview(timeRange)`
+  - [ ] `analytics.getTopQueries(limit, timeRange)`
+  - [ ] `analytics.getTopArticles(limit, timeRange)`
+  - [ ] `analytics.getTrends(timeRange)`
+- [ ] Test analytics tracking
+  - [ ] Run 20 test queries
+  - [ ] Verify data is tracked correctly
+  - [ ] Check dashboard displays correctly
+- [ ] Document analytics features
+
+**Files to create:**
+- `server/analytics.ts`
+- `client/src/pages/Analytics.tsx`
+
+**Files to modify:**
+- `drizzle/schema.ts` (add analytics tables)
+- `server/db.ts` (add analytics query functions)
+- `server/routers.ts` (add analytics router, integrate tracking)
+- `client/src/App.tsx` (add analytics route)
+
+**Expected outcome:** Visibility into usage patterns, identify knowledge gaps
+
+---
+
+## 📊 Success Metrics for Phase 3
+
+**Quality Improvements:**
+- [ ] Cross-encoder re-ranking: +20-30% precision@10
+- [ ] Arabic enhancement: +30-40% accuracy for Arabic queries
+- [ ] Analytics: Identify top 10 knowledge gaps
+
+**Performance:**
+- [ ] Re-ranking latency: <200ms overhead
+- [ ] Arabic NLP: <50ms overhead
+- [ ] Analytics queries: <500ms
+
+**Testing:**
+- [ ] 50+ test queries (25 EN, 25 AR)
+- [ ] Measure before/after accuracy
+- [ ] Verify analytics tracking works
+
+**Documentation:**
+- [ ] Update README.md with Phase 3 features
+- [ ] Document re-ranking algorithm
+- [ ] Document Arabic NLP pipeline
+- [ ] Document analytics dashboard usage
+
+---
+
+## 🎯 Phase 3 Completion Checklist
+
+- [ ] All 3 tasks implemented and tested
+- [ ] Quality improvements verified (+20-30% re-ranking, +30-40% Arabic)
+- [ ] Analytics dashboard functional
+- [ ] Performance targets met (<200ms re-ranking, <50ms Arabic NLP)
+- [ ] Documentation updated
+- [ ] Home page updated to Version 9.0
+- [ ] Checkpoint saved: "Phase 3 Complete: Cross-encoder re-ranking, Arabic enhancement, analytics dashboard"
