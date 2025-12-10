@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "5a0721c8-c882-4d10-a3e9-411717409117",
+  "id": "6d522d29-44dd-45fb-bf8e-bc41015f703a",
   "prevId": "76d784e3-82d3-451c-858d-f351969ab3d1",
   "tables": {
     "aiResponseMetadata": {
@@ -142,8 +142,8 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
-    "audit_logs": {
-      "name": "audit_logs",
+    "auditLogs": {
+      "name": "auditLogs",
       "columns": {
         "id": {
           "name": "id",
@@ -220,8 +220,8 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
-        "audit_logs_id": {
-          "name": "audit_logs_id",
+        "auditLogs_id": {
+          "name": "auditLogs_id",
           "columns": [
             "id"
           ]
@@ -738,7 +738,7 @@
         },
         "category": {
           "name": "category",
-          "type": "enum('rental_law','civil_code','rera_regulation','escrow_law','real_estate_law','other')",
+          "type": "enum('rental_law','civil_code','rera_regulation','escrow_law','real_estate_law','labor_law','commercial_law','difc_law','other')",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -746,6 +746,49 @@
         "keywords": {
           "name": "keywords",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sourceType": {
+          "name": "sourceType",
+          "type": "enum('manual','pdf_upload','pdf_url')",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'manual'"
+        },
+        "sourceUrl": {
+          "name": "sourceUrl",
+          "type": "varchar(1024)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sourceFileName": {
+          "name": "sourceFileName",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "chunkIndex": {
+          "name": "chunkIndex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "totalChunks": {
+          "name": "totalChunks",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "pageNumber": {
+          "name": "pageNumber",
+          "type": "int",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -998,66 +1041,6 @@
       "compositePrimaryKeys": {
         "savedSearches_id": {
           "name": "savedSearches_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "terms_acceptance": {
-      "name": "terms_acceptance",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "userId": {
-          "name": "userId",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "acceptedAt": {
-          "name": "acceptedAt",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "ipAddress": {
-          "name": "ipAddress",
-          "type": "varchar(45)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "userAgent": {
-          "name": "userAgent",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "termsVersion": {
-          "name": "termsVersion",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'1.0'"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "terms_acceptance_id": {
-          "name": "terms_acceptance_id",
           "columns": [
             "id"
           ]

@@ -63,7 +63,6 @@ export const documents = mysqlTable("documents", {
   fileSize: int("fileSize").notNull(),
   extractedText: text("extractedText"),
   documentType: mysqlEnum("documentType", ["contract", "lease", "agreement", "notice", "other"]).default("other").notNull(),
-  analysisData: text("analysisData"), // JSON string of DocumentAnalysisResult
   uploadedAt: timestamp("uploadedAt").defaultNow().notNull(),
 });
 
@@ -122,8 +121,15 @@ export const legalKnowledge = mysqlTable("legalKnowledge", {
   titleAr: varchar("titleAr", { length: 500 }),
   contentEn: text("contentEn").notNull(),
   contentAr: text("contentAr"),
-  category: mysqlEnum("category", ["rental_law", "civil_code", "rera_regulation", "escrow_law", "real_estate_law", "other"]).notNull(),
+  category: mysqlEnum("category", ["rental_law", "civil_code", "rera_regulation", "escrow_law", "real_estate_law", "labor_law", "commercial_law", "difc_law", "other"]).notNull(),
   keywords: text("keywords"), // JSON array for search
+  // PDF source tracking
+  sourceType: mysqlEnum("sourceType", ["manual", "pdf_upload", "pdf_url"]).default("manual").notNull(),
+  sourceUrl: varchar("sourceUrl", { length: 1024 }), // Original PDF URL
+  sourceFileName: varchar("sourceFileName", { length: 255 }), // Original PDF filename
+  chunkIndex: int("chunkIndex"), // For PDF chunks: 0, 1, 2, etc.
+  totalChunks: int("totalChunks"), // Total chunks in this document
+  pageNumber: int("pageNumber"), // Page number in original PDF
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -188,24 +194,9 @@ export type LawyerReview = typeof lawyerReviews.$inferSelect;
 export type InsertLawyerReview = typeof lawyerReviews.$inferInsert;
 
 /**
- * Terms Acceptance - track user agreement to terms of service
- */
-export const termsAcceptance = mysqlTable("terms_acceptance", {
-  id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
-  acceptedAt: timestamp("acceptedAt").notNull(),
-  ipAddress: varchar("ipAddress", { length: 45 }),
-  userAgent: text("userAgent"),
-  termsVersion: varchar("termsVersion", { length: 10 }).notNull().default("1.0"),
-});
-
-export type TermsAcceptance = typeof termsAcceptance.$inferSelect;
-export type InsertTermsAcceptance = typeof termsAcceptance.$inferInsert;
-
-/**
  * Audit trail - comprehensive logging of all AI interactions
  */
-export const auditLogs = mysqlTable("audit_logs", {
+export const auditLogs = mysqlTable("auditLogs", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   userName: varchar("userName", { length: 255 }),

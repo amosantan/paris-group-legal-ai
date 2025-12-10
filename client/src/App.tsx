@@ -6,7 +6,6 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import TermsOfService from "./pages/TermsOfService";
 import Dashboard from "./pages/Dashboard";
 import NewConsultation from "./pages/NewConsultation";
 import Consultation from "./pages/Consultation";
@@ -16,12 +15,12 @@ import LLMSettings from "./pages/LLMSettings";
 import LawyerReviewDashboard from "./pages/LawyerReviewDashboard";
 import LegalDocumentGenerator from "./pages/LegalDocumentGenerator";
 import AuditLogViewer from "./pages/AuditLogViewer";
+import PDFUploadAdmin from "./pages/PDFUploadAdmin";
 
 function Router() {
   return (
     <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/terms-of-service" component={TermsOfService} />
+      <Route path={"/"} component={Home} />
       <Route path={"/knowledge-base"} component={KnowledgeBase} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/new-consultation"} component={NewConsultation} />
@@ -29,9 +28,10 @@ function Router() {
       <Route path={"/contract-review/:documentId"} component={ContractReview} />
       <Route path={"/reports/:consultationId"} component={Reports} />
       <Route path={"/llm-settings"} component={LLMSettings} />
-        <Route path="/lawyer-review" component={LawyerReviewDashboard} />
-        <Route path="/document-generator" component={LegalDocumentGenerator} />
-      <Route path={"/audit-logs"} component={AuditLogViewer} />
+      <Route path="/lawyer-review" component={LawyerReviewDashboard} />
+      <Route path="/document-generator" component={LegalDocumentGenerator} />
+      <Route path="/audit-logs" component={AuditLogViewer} />
+      <Route path="/pdf-upload" component={PDFUploadAdmin} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

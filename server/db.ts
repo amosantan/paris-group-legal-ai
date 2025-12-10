@@ -200,13 +200,6 @@ export async function updateDocumentText(id: number, extractedText: string) {
   await db.update(documents).set({ extractedText }).where(eq(documents.id, id));
 }
 
-export async function updateDocument(id: number, data: Partial<InsertDocument>) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
-  
-  await db.update(documents).set(data).where(eq(documents.id, id));
-}
-
 // Contract review queries
 export async function createContractReview(data: InsertContractReview) {
   const db = await getDb();
@@ -287,6 +280,65 @@ export async function getAllLegalKnowledge() {
   if (!db) return [];
   
   return db.select().from(legalKnowledge);
+}
+
+export async function listLegalKnowledge(options: {
+  category?: string;
+  sourceType?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  let query = db.select().from(legalKnowledge);
+  
+  if (options.category) {
+    query = query.where(eq(legalKnowledge.category, options.category as any)) as any;
+  }
+  
+  if (options.sourceType) {
+    query = query.where(eq(legalKnowledge.sourceType, options.sourceType as any)) as any;
+  }
+  
+  if (options.limit) {
+    query = query.limit(options.limit) as any;
+  }
+  
+  if (options.offset) {
+    query = query.offset(options.offset) as any;
+  }
+  
+  return query;
+}
+
+export async function getLegalKnowledgeStats() {
+  const db = await getDb();
+  if (!db) return { total: 0, byCategory: {}, bySourceType: {} };
+  
+  const all = await db.select().from(legalKnowledge);
+  
+  const byCategory: Record<string, number> = {};
+  const bySourceType: Record<string, number> = {};
+  
+  for (const item of all) {
+    byCategory[item.category] = (byCategory[item.category] || 0) + 1;
+    bySourceType[item.sourceType] = (bySourceType[item.sourceType] || 0) + 1;
+  }
+  
+  return {
+    total: all.length,
+    byCategory,
+    bySourceType,
+  };
+}
+
+export async function deleteLegalKnowledge(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(legalKnowledge).where(eq(legalKnowledge.id, id));
+  return true;
 }
 
 // Bookmark queries

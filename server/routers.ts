@@ -7,27 +7,17 @@ import * as db from "./db";
 import { invokeLLM } from "./_core/llm";
 import { invokeUnifiedLLM, getCurrentProvider, getAvailableProviders, getProviderInfo, LLMProvider } from "./_core/unifiedLLM";
 import { storagePut } from "./storage";
-import { buildLegalContext, searchLegalKnowledge as searchKB } from "./legalKnowledgeBase";
+import { buildLegalContext, searchLegalKnowledge as searchKB, searchLegalKnowledgeEnhanced } from "./legalKnowledgeBase";
 import { getSystemPrompt } from "./enhancedLegalPrompts";
 import { extractTextFromPDF, cleanExtractedText, validatePDFSize, extractContractInfo } from "./pdfExtractor";
 import { calculateConfidenceScore } from "./confidenceScoring";
 import { verifyAllCitations, calculateGroundingScore } from "./citationVerification";
 import { lawyerReviewRouter, auditLogRouter } from "./routers_lawyerReview";
-import { getConversationContext, enhancePromptWithContext } from "./conversationMemory";
-import { generateProactiveSuggestions } from "./proactiveSuggestions";
-import { suggestDocumentTypes, extractDemandLetterData, extractEvictionNoticeData, extractNOCData } from "./automaticDocumentDrafting";
-import { transcribeConsultationQuestion, validateAudioFile } from "./voiceConsultation";
-import { extractTextFromImage, validateImageFile } from "./imageRecognition";
 import { logAIInteraction } from "./db_lawyerReviews";
 import { generateConsultationPDF, generateContractReviewPDF } from "./pdfGenerator";
 import { generateDemandLetterPDF, generateEvictionNoticePDF, generateNOCPDF, DemandLetterData, EvictionNoticeData, NOCData } from "./legalDocumentTemplates";
 import { nanoid } from "nanoid";
-import { 
-  recordTermsAcceptance, 
-  hasAcceptedTerms, 
-  getTermsAcceptanceHistory,
-  getLatestTermsAcceptance 
-} from "./db_termsAcceptance";
+import { ingestPDF } from "./pdfIngestionService";
 
 export const appRouter = router({
   system: systemRouter,
@@ -150,14 +140,7 @@ export const appRouter = router({
         const consultationType = consultation.category === "rental_dispute" ? "rental" 
           : consultation.category === "real_estate_transaction" ? "real_estate" 
           : "general";
-        let systemPrompt = getSystemPrompt("consultation", consultationType);
-        
-        // Get conversation context and enhance prompt
-        const conversationContext = await getConversationContext(
-          input.consultationId,
-          messageHistory
-        );
-        systemPrompt = enhancePromptWithContext(systemPrompt, conversationContext);
+        const systemPrompt = getSystemPrompt("consultation", consultationType);
 
         // Prepare messages for LLM
         const llmMessages = [
@@ -177,8 +160,8 @@ export const appRouter = router({
           ? response.choices[0]?.message?.content 
           : "I apologize, but I couldn't generate a response.");
 
-        // Search for relevant legal articles based on user query
-        const relevantArticles = searchKB(input.content);
+        // Search for relevant legal articles based on user query (includes PDF chunks)
+        const relevantArticles = await searchLegalKnowledgeEnhanced(input.content);
         
         // Calculate confidence score
         const confidenceScore = calculateConfidenceScore(input.content, relevantArticles);
@@ -234,20 +217,8 @@ export const appRouter = router({
           ]),
         });
 
-        // Generate proactive suggestions
-        const proactiveSuggestions = await generateProactiveSuggestions(
-          consultation.category,
-          conversationContext,
-          input.content
-        );
-
         return { 
           message: assistantMessage,
-          suggestions: proactiveSuggestions,
-          conversationContext: {
-            summary: conversationContext.summary,
-            keyFacts: conversationContext.keyFacts,
-          },
           confidence: {
             score: confidenceScore.overall,
             level: confidenceScore.level,
@@ -260,131 +231,6 @@ export const appRouter = router({
             unverified: citationVerification.citationCount - citationVerification.verifiedCount,
           }
         };
-      }),
-  }),
-
-  imageOCR: router({
-    extractText: protectedProcedure
-      .input(z.object({
-        imageUrl: z.string(),
-        documentHint: z.string().optional(),
-        fileSize: z.number(),
-        mimeType: z.string(),
-      }))
-      .mutation(async ({ input }) => {
-        // Validate image file
-        validateImageFile(input.fileSize, input.mimeType);
-        
-        // Extract text from image
-        const result = await extractTextFromImage(input.imageUrl, input.documentHint);
-        
-        return result;
-      }),
-  }),
-
-  terms: router({
-    accept: protectedProcedure
-      .input(z.object({
-        ipAddress: z.string().optional(),
-        userAgent: z.string().optional(),
-        termsVersion: z.string().optional(),
-      }))
-      .mutation(async ({ ctx, input }) => {
-        const acceptance = await recordTermsAcceptance({
-          userId: ctx.user.id,
-          ipAddress: input.ipAddress,
-          userAgent: input.userAgent,
-          termsVersion: input.termsVersion || "1.0",
-        });
-        return { success: true, acceptance };
-      }),
-
-    hasAccepted: protectedProcedure
-      .input(z.object({
-        termsVersion: z.string().optional(),
-      }))
-      .query(async ({ ctx, input }) => {
-        const accepted = await hasAcceptedTerms(
-          ctx.user.id,
-          input.termsVersion || "1.0"
-        );
-        return { accepted };
-      }),
-
-    getHistory: protectedProcedure
-      .query(async ({ ctx }) => {
-        const history = await getTermsAcceptanceHistory(ctx.user.id);
-        return { history };
-      }),
-
-    getLatest: protectedProcedure
-      .query(async ({ ctx }) => {
-        const latest = await getLatestTermsAcceptance(ctx.user.id);
-        return { latest };
-      }),
-  }),
-
-  voice: router({
-    transcribe: protectedProcedure
-      .input(z.object({
-        audioUrl: z.string(),
-        language: z.enum(["en", "ar"]),
-        fileSize: z.number(),
-        mimeType: z.string(),
-      }))
-      .mutation(async ({ input }) => {
-        // Validate audio file
-        validateAudioFile(input.fileSize, input.mimeType);
-        
-        // Transcribe audio
-        const result = await transcribeConsultationQuestion(input.audioUrl, input.language);
-        
-        return result;
-      }),
-  }),
-
-  documentDrafting: router({
-    suggestDocuments: protectedProcedure
-      .input(z.object({ consultationId: z.number() }))
-      .query(async ({ input }) => {
-        const consultation = await db.getConsultationById(input.consultationId);
-        if (!consultation) throw new Error("Consultation not found");
-        
-        const messages = await db.getConsultationMessages(input.consultationId);
-        const { getConversationContext } = await import("./conversationMemory");
-        const context = await getConversationContext(input.consultationId, messages);
-        
-        return suggestDocumentTypes(consultation.category, context);
-      }),
-
-    extractDemandLetter: protectedProcedure
-      .input(z.object({ consultationId: z.number() }))
-      .query(async ({ input }) => {
-        const messages = await db.getConsultationMessages(input.consultationId);
-        const { getConversationContext } = await import("./conversationMemory");
-        const context = await getConversationContext(input.consultationId, messages);
-        
-        return extractDemandLetterData(messages, context);
-      }),
-
-    extractEvictionNotice: protectedProcedure
-      .input(z.object({ consultationId: z.number() }))
-      .query(async ({ input }) => {
-        const messages = await db.getConsultationMessages(input.consultationId);
-        const { getConversationContext } = await import("./conversationMemory");
-        const context = await getConversationContext(input.consultationId, messages);
-        
-        return extractEvictionNoticeData(messages, context);
-      }),
-
-    extractNOC: protectedProcedure
-      .input(z.object({ consultationId: z.number() }))
-      .query(async ({ input }) => {
-        const messages = await db.getConsultationMessages(input.consultationId);
-        const { getConversationContext } = await import("./conversationMemory");
-        const context = await getConversationContext(input.consultationId, messages);
-        
-        return extractNOCData(messages, context);
       }),
   }),
 
@@ -445,209 +291,6 @@ export const appRouter = router({
           extractedText,
         });
 
-        // Automatically analyze document using text extraction or vision AI
-        const shouldAnalyze = (extractedText && extractedText.length > 50) || 
-                             (input.mimeType.startsWith('image/')) ||
-                             (input.mimeType === 'application/pdf' && (!extractedText || extractedText.length < 100));
-        
-        if (shouldAnalyze) {
-          try {
-            // Get consultation details for language
-            const consultation = await db.getConsultationById(input.consultationId);
-            const language = consultation?.language || "en";
-
-            // Determine if we should use vision AI or text analysis
-            const useVisionAI = input.mimeType.startsWith('image/') || 
-                               (input.mimeType === 'application/pdf' && (!extractedText || extractedText.length < 100));
-
-            if (useVisionAI) {
-              // Use vision AI for images or scanned PDFs
-              console.log(`[Vision AI] Analyzing ${input.filename} with vision model`);
-              
-              // Create system message indicating vision analysis
-              await db.createMessage({
-                consultationId: input.consultationId,
-                role: "system",
-                content: `[Document Uploaded: ${input.filename}]\n\nAnalyzing document using vision AI...`,
-              });
-
-              const analysisPrompt = language === "ar"
-                ? `تم تحميل مستند بعنوان "${input.filename}". يرجى تحليل المحتوى المرئي وتقديم ملخص قانوني شامل يتضمن:\n1. نوع المستند والغرض منه\n2. الأطراف المعنية\n3. المبالغ والتواريخ الرئيسية\n4. البنود القانونية المهمة\n5. أي مخاطر أو مشاكل قانونية محتملة\n6. التوصيات بناءً على قوانين دبي/الإمارات`
-                : `A document titled "${input.filename}" has been uploaded. Please analyze the visual content and provide a comprehensive legal summary including:\n1. Document type and purpose\n2. Parties involved\n3. Key amounts and dates\n4. Important legal clauses\n5. Any potential legal risks or issues\n6. Recommendations based on Dubai/UAE law`;
-
-              // Send vision AI request with image
-              const messageHistory = await db.getConsultationMessages(input.consultationId);
-              const conversationContext = await getConversationContext(input.consultationId, messageHistory);
-              const systemPrompt = getSystemPrompt("consultation", "general");
-              const legalContext = buildLegalContext(undefined);
-
-              const response = await invokeUnifiedLLM({
-                messages: [
-                  { role: "system", content: systemPrompt + "\n\n" + legalContext },
-                  { 
-                    role: "user", 
-                    content: [
-                      { type: "text", text: analysisPrompt },
-                      { type: "image_url", image_url: { url, detail: "high" } }
-                    ] as any
-                  },
-                ],
-              });
-
-              const aiResponse = typeof response.choices[0].message.content === 'string' 
-                ? response.choices[0].message.content 
-                : '';
-
-              // Calculate confidence and citations
-              const relevantArticles = searchKB(analysisPrompt);
-              const confidenceData = calculateConfidenceScore(aiResponse, relevantArticles);
-              const citationData = await verifyAllCitations(aiResponse);
-              const groundingScore = calculateGroundingScore(aiResponse, relevantArticles);
-
-              // Save AI response
-              const messageId = await db.createMessage({
-                consultationId: input.consultationId,
-                role: "assistant",
-                content: aiResponse,
-              });
-
-              // Get current LLM provider info
-              const currentProvider = getCurrentProvider();
-              const providerInfo = getProviderInfo(currentProvider);
-
-              // Store AI response metadata
-              await db.createAiResponseMetadata({
-                messageId,
-                consultationId: input.consultationId,
-                llmProvider: currentProvider,
-                llmModel: providerInfo.name,
-                confidenceScore: confidenceData.overall,
-                confidenceLevel: confidenceData.level,
-                citationCount: citationData.citationCount,
-                verifiedCitations: citationData.verifiedCount,
-                groundingScore: groundingScore,
-                knowledgeBaseCoverage: confidenceData.factors.knowledgeBaseCoverage,
-                legalClarityScore: confidenceData.factors.legalClarityScore,
-                queryComplexityScore: confidenceData.factors.queryComplexityScore,
-                requiresLawyerReview: confidenceData.requiresLawyerReview ? 1 : 0,
-                usedArticles: JSON.stringify(relevantArticles.map(a => `${a.lawName} - ${a.articleNumber || 'General'}`)),
-                warnings: JSON.stringify([...confidenceData.recommendations, ...citationData.warnings]),
-              });
-
-              console.log(`[Vision AI] Generated analysis for ${input.filename}`);
-
-              // Extract structured clauses and risks
-              try {
-                const { extractClausesAndRisksFromVision } = await import('./documentAnalysisExtractor');
-                const structuredAnalysis = await extractClausesAndRisksFromVision(url, input.filename, language);
-                
-                // Update document with analysis data
-                await db.updateDocument(documentId, {
-                  analysisData: JSON.stringify(structuredAnalysis)
-                });
-                
-                console.log(`[Vision AI] Extracted ${structuredAnalysis.clauses.length} clauses and ${structuredAnalysis.risks.length} risks`);
-              } catch (error) {
-                console.error('[Vision AI] Structured extraction failed:', error);
-              }
-            } else {
-              // Use text-based analysis for PDFs with extracted text
-              console.log(`[Text Analysis] Analyzing ${input.filename} with extracted text`);
-              
-              // Create system message with PDF content
-              await db.createMessage({
-                consultationId: input.consultationId,
-                role: "system",
-                content: `[PDF Document Uploaded: ${input.filename}]\n\nExtracted Content:\n${extractedText!.substring(0, 15000)}${extractedText!.length > 15000 ? '\n\n[Content truncated - full document saved]' : ''}`,
-              });
-
-              const analysisPrompt = language === "ar" 
-                ? `تم تحميل مستند PDF بعنوان "${input.filename}". يرجى تحليل المحتوى المستخرج أعلاه وتقديم ملخص قانوني شامل يتضمن:\n1. نوع المستند والغرض منه\n2. الأطراف المعنية\n3. المبالغ والتواريخ الرئيسية\n4. البنود القانونية المهمة\n5. أي مخاطر أو مشاكل قانونية محتملة\n6. التوصيات بناءً على قوانين دبي/الإمارات`
-                : `A PDF document titled "${input.filename}" has been uploaded. Please analyze the extracted content above and provide a comprehensive legal summary including:\n1. Document type and purpose\n2. Parties involved\n3. Key amounts and dates\n4. Important legal clauses\n5. Any potential legal risks or issues\n6. Recommendations based on Dubai/UAE law`;
-
-              await db.createMessage({
-                consultationId: input.consultationId,
-                role: "user",
-                content: analysisPrompt,
-              });
-
-              // Get AI response
-              const messageHistory = await db.getConsultationMessages(input.consultationId);
-              const conversationContext = await getConversationContext(input.consultationId, messageHistory);
-              const enhancedPrompt = enhancePromptWithContext(analysisPrompt, conversationContext);
-              const systemPrompt = getSystemPrompt("consultation", "general");
-              const legalContext = buildLegalContext(undefined);
-
-              const response = await invokeUnifiedLLM({
-                messages: [
-                  { role: "system", content: systemPrompt + "\n\n" + legalContext },
-                  { role: "user", content: enhancedPrompt },
-                ],
-              });
-
-              const aiResponse = typeof response.choices[0].message.content === 'string' 
-                ? response.choices[0].message.content 
-                : '';
-
-              // Calculate confidence and citations
-              const relevantArticles = searchKB(enhancedPrompt);
-              const confidenceData = calculateConfidenceScore(aiResponse, relevantArticles);
-              const citationData = await verifyAllCitations(aiResponse);
-              const groundingScore = calculateGroundingScore(aiResponse, relevantArticles);
-
-              // Save AI response
-              const messageId = await db.createMessage({
-                consultationId: input.consultationId,
-                role: "assistant",
-                content: aiResponse,
-              });
-
-              // Get current LLM provider info
-              const currentProvider = getCurrentProvider();
-              const providerInfo = getProviderInfo(currentProvider);
-
-              // Store AI response metadata
-              await db.createAiResponseMetadata({
-                messageId,
-                consultationId: input.consultationId,
-                llmProvider: currentProvider,
-                llmModel: providerInfo.name,
-                confidenceScore: confidenceData.overall,
-                confidenceLevel: confidenceData.level,
-                citationCount: citationData.citationCount,
-                verifiedCitations: citationData.verifiedCount,
-                groundingScore: groundingScore,
-                knowledgeBaseCoverage: confidenceData.factors.knowledgeBaseCoverage,
-                legalClarityScore: confidenceData.factors.legalClarityScore,
-                queryComplexityScore: confidenceData.factors.queryComplexityScore,
-                requiresLawyerReview: confidenceData.requiresLawyerReview ? 1 : 0,
-                usedArticles: JSON.stringify(relevantArticles.map(a => `${a.lawName} - ${a.articleNumber || 'General'}`)),
-                warnings: JSON.stringify([...confidenceData.recommendations, ...citationData.warnings]),
-              });
-
-              console.log(`[Text Analysis] Generated AI analysis for ${input.filename}`);
-
-              // Extract structured clauses and risks
-              try {
-                const { extractClausesAndRisks } = await import('./documentAnalysisExtractor');
-                const structuredAnalysis = await extractClausesAndRisks(extractedText!, input.filename, language);
-                
-                // Update document with analysis data
-                await db.updateDocument(documentId, {
-                  analysisData: JSON.stringify(structuredAnalysis)
-                });
-                
-                console.log(`[Text Analysis] Extracted ${structuredAnalysis.clauses.length} clauses and ${structuredAnalysis.risks.length} risks`);
-              } catch (error) {
-                console.error('[Text Analysis] Structured extraction failed:', error);
-              }
-            }
-          } catch (error) {
-            console.error('[PDF Auto-Analysis] Failed:', error);
-            // Don't fail the upload if analysis fails
-          }
-        }
-
         return { 
           documentId, 
           url,
@@ -666,22 +309,6 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .query(async ({ input }) => {
         return db.getDocumentById(input.id);
-      }),
-
-    getAnalysis: protectedProcedure
-      .input(z.object({ documentId: z.number() }))
-      .query(async ({ input }) => {
-        const document = await db.getDocumentById(input.documentId);
-        if (!document || !document.analysisData) {
-          return null;
-        }
-        
-        try {
-          return JSON.parse(document.analysisData);
-        } catch (error) {
-          console.error('[Document Analysis] Failed to parse analysis data:', error);
-          return null;
-        }
       }),
   }),
 
@@ -1201,6 +828,64 @@ Use formal legal language and cite relevant articles and laws.`;
         { value: "procedures", label: "Procedures", count: searchKB("").filter(a => a.category === "procedures").length },
       ];
     }),
+
+    // PDF Upload for ingestion
+    uploadPDF: protectedProcedure
+      .input(z.object({
+        fileUrl: z.string().url(),
+        filename: z.string(),
+        lawName: z.string().optional(),
+        lawNumber: z.string().optional(),
+        category: z.enum(["rental_law", "civil_code", "rera_regulation", "escrow_law", "real_estate_law", "labor_law", "commercial_law", "difc_law", "other"]).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const result = await ingestPDF(
+          input.fileUrl,
+          {
+            filename: input.filename,
+            sourceUrl: input.fileUrl,
+            lawName: input.lawName,
+            lawNumber: input.lawNumber,
+            category: input.category,
+          }
+        );
+        return result;
+      }),
+
+    // List all knowledge entries (for admin)
+    listAll: protectedProcedure
+      .input(z.object({
+        category: z.enum(["rental_law", "civil_code", "rera_regulation", "escrow_law", "real_estate_law", "labor_law", "commercial_law", "difc_law", "other"]).optional(),
+        sourceType: z.enum(["manual", "pdf_upload", "pdf_url"]).optional(),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }))
+      .query(async ({ input }) => {
+        const results = await db.listLegalKnowledge({
+          category: input.category,
+          sourceType: input.sourceType,
+          limit: input.limit,
+          offset: input.offset,
+        });
+        return results;
+      }),
+
+    // Get statistics
+    stats: publicProcedure.query(async () => {
+      const stats = await db.getLegalKnowledgeStats();
+      return stats;
+    }),
+
+    // Delete knowledge entry (admin only)
+    deleteEntry: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== 'admin') {
+          throw new Error('Admin access required');
+        }
+        await db.deleteLegalKnowledge(input.id);
+        return { success: true };
+      }),
   }),
 
   // Bookmarks
@@ -1320,7 +1005,7 @@ Use formal legal language and cite relevant articles and laws.`;
         await db.updateSavedSearchName(input.id, ctx.user.id, input.name);
         return { success: true };
       }),
-  }),
-});
+   }),
 
+});
 export type AppRouter = typeof appRouter;

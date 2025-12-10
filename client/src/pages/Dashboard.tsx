@@ -6,42 +6,16 @@ import { trpc } from "@/lib/trpc";
 import { FileText, MessageSquare, Plus, Scale } from "lucide-react";
 import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
-import { DisclaimerModal } from "@/components/DisclaimerModal";
-import { useState, useEffect } from "react";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { data: consultations, isLoading } = trpc.consultations.list.useQuery();
-  const { data: termsData } = trpc.terms.hasAccepted.useQuery({ termsVersion: "1.0" });
-  const acceptTermsMutation = trpc.terms.accept.useMutation();
-  const [showDisclaimer, setShowDisclaimer] = useState(false);
-
-  useEffect(() => {
-    if (termsData && !termsData.accepted) {
-      setShowDisclaimer(true);
-    }
-  }, [termsData]);
-
-  const handleAcceptTerms = async () => {
-    try {
-      await acceptTermsMutation.mutateAsync({
-        termsVersion: "1.0",
-        ipAddress: undefined, // Could be captured from request headers
-        userAgent: navigator.userAgent,
-      });
-      setShowDisclaimer(false);
-    } catch (error) {
-      console.error("Failed to accept terms:", error);
-    }
-  };
 
   const activeCons = consultations?.filter(c => c.status === "active").length || 0;
   const completedCons = consultations?.filter(c => c.status === "completed").length || 0;
 
   return (
-    <>
-      <DisclaimerModal open={showDisclaimer} onAccept={handleAcceptTerms} />
-      <DashboardLayout>
+    <DashboardLayout>
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
@@ -145,6 +119,5 @@ export default function Dashboard() {
         </Card>
       </div>
     </DashboardLayout>
-    </>
   );
 }

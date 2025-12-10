@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, FileText, Settings, Brain, Book, Shield, ScrollText, FilePlus } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, FileText, Settings, Brain, Book, Shield, ScrollText, FilePlus, Upload } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -34,6 +34,7 @@ const menuItems = [
   { icon: Shield, label: "Lawyer Review", path: "/lawyer-review", adminOnly: true },
   { icon: ScrollText, label: "Audit Logs", path: "/audit-logs", adminOnly: true },
   { icon: Book, label: "Knowledge Base", path: "/knowledge-base" },
+  { icon: Upload, label: "PDF Upload", path: "/pdf-upload", adminOnly: true },
   { icon: Brain, label: "LLM Settings", path: "/llm-settings" },
 ];
 

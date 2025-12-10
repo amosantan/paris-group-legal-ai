@@ -912,6 +912,61 @@ export function searchLegalKnowledge(query: string): LegalArticle[] {
 }
 
 /**
+ * Enhanced search that includes both hardcoded articles AND database PDF chunks
+ */
+export async function searchLegalKnowledgeEnhanced(query: string): Promise<LegalArticle[]> {
+  const lowerQuery = query.toLowerCase();
+  
+  // Search hardcoded knowledge base
+  const hardcodedResults = LEGAL_KNOWLEDGE_BASE.filter(article => 
+    article.keywords.some(keyword => keyword.toLowerCase().includes(lowerQuery)) ||
+    article.titleEn.toLowerCase().includes(lowerQuery) ||
+    article.contentEn.toLowerCase().includes(lowerQuery) ||
+    (article.practicalExample && article.practicalExample.toLowerCase().includes(lowerQuery))
+  );
+  
+  // Search database for PDF chunks
+  const dbResults = await searchDatabaseKnowledge(query);
+  
+  // Convert database results to LegalArticle format
+  const dbArticles: LegalArticle[] = dbResults.map(chunk => ({
+    lawName: chunk.lawName,
+    lawNumber: chunk.lawNumber,
+    articleNumber: chunk.articleNumber || undefined,
+    titleEn: chunk.titleEn,
+    titleAr: chunk.titleAr || "",
+    contentEn: chunk.contentEn,
+    contentAr: chunk.contentAr || "",
+    category: chunk.category as any, // Cast to match LegalArticle type
+    keywords: chunk.keywords ? JSON.parse(chunk.keywords) : [],
+    practicalExample: undefined,
+  }));
+  
+  // Combine and deduplicate results
+  return [...hardcodedResults, ...dbArticles];
+}
+
+/**
+ * Search database for PDF chunks matching query
+ */
+async function searchDatabaseKnowledge(query: string) {
+  const db = await import("./db");
+  const allChunks = await db.getAllLegalKnowledge();
+  
+  const lowerQuery = query.toLowerCase();
+  
+  return allChunks.filter(chunk => {
+    const keywords = chunk.keywords ? JSON.parse(chunk.keywords) : [];
+    return (
+      keywords.some((kw: string) => kw.toLowerCase().includes(lowerQuery)) ||
+      chunk.titleEn.toLowerCase().includes(lowerQuery) ||
+      chunk.contentEn.toLowerCase().includes(lowerQuery) ||
+      chunk.lawName.toLowerCase().includes(lowerQuery)
+    );
+  });
+}
+
+/**
  * Get all legal articles for a specific law
  */
 export function getLegalArticlesByLaw(lawNumber: string): LegalArticle[] {

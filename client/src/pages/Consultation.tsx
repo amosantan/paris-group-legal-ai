@@ -12,19 +12,11 @@ import { Streamdown } from "streamdown";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfidenceIndicator } from "@/components/ConfidenceIndicator";
-import { ConfidenceWarning } from "@/components/ConfidenceWarning";
-import { DisclaimerBadge } from "@/components/DisclaimerBadge";
-import { ConversationContextSidebar } from "@/components/ConversationContextSidebar";
-import { VoiceInputButton } from "@/components/VoiceInputButton";
-import { ProactiveSuggestionsPanel } from "@/components/ProactiveSuggestionsPanel";
-import { ImageOCRUpload } from "@/components/ImageOCRUpload";
-import { DocumentAnalysisDisplay } from "@/components/DocumentAnalysisDisplay";
 
 export default function Consultation() {
   const { id } = useParams<{ id: string }>();
   const consultationId = parseInt(id || "0");
   const [message, setMessage] = useState("");
-  const [suggestions, setSuggestions] = useState<any>(null);
   const [uploadingFile, setUploadingFile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -46,13 +38,9 @@ export default function Consultation() {
   });
 
   const sendMutation = trpc.messages.send.useMutation({
-    onSuccess: (data) => {
+    onSuccess: () => {
       utils.messages.list.invalidate({ consultationId });
       setMessage("");
-      // Store suggestions from response
-      if (data.suggestions) {
-        setSuggestions(data.suggestions);
-      }
     },
     onError: (error) => {
       toast.error("Failed to send message: " + error.message);
@@ -89,11 +77,7 @@ export default function Consultation() {
   });
 
   useEffect(() => {
-    // Use setTimeout to ensure DOM is fully updated before scrolling
-    const timer = setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-    return () => clearTimeout(timer);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -104,10 +88,6 @@ export default function Consultation() {
       content: message,
       language: consultation?.language || "en",
     });
-    // Scroll immediately after sending to show user's message
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 50);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -197,8 +177,7 @@ export default function Consultation() {
           </TabsList>
 
           <TabsContent value="chat" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4">
-              <Card className="h-[600px] flex flex-col">
+            <Card className="h-[600px] flex flex-col">
               <CardHeader>
                 <CardTitle>Legal Consultation Chat</CardTitle>
                 <CardDescription>
@@ -234,31 +213,18 @@ export default function Consultation() {
                                 <p className="whitespace-pre-wrap">{msg.content}</p>
                               )}
                             </div>
-                            {msg.role === "assistant" && (
-                              <>
-                                <DisclaimerBadge />
-                                {msg.aiMetadata && (
-                                  <>
-                                    <ConfidenceWarning 
-                                      confidenceScore={msg.aiMetadata.confidenceScore}
-                                      onRequestReview={() => {
-                                        toast.info("Lawyer review request feature coming soon");
-                                      }}
-                                    />
-                                    <ConfidenceIndicator
-                                      score={msg.aiMetadata.confidenceScore}
-                                      level={msg.aiMetadata.confidenceLevel}
-                                      requiresReview={msg.aiMetadata.requiresLawyerReview === 1}
-                                      citationStats={{
-                                        total: msg.aiMetadata.citationCount,
-                                        verified: msg.aiMetadata.verifiedCitations,
-                                        unverified: msg.aiMetadata.citationCount - msg.aiMetadata.verifiedCitations,
-                                      }}
-                                      compact={false}
-                                    />
-                                  </>
-                                )}
-                              </>
+                            {msg.role === "assistant" && msg.aiMetadata && (
+                              <ConfidenceIndicator
+                                score={msg.aiMetadata.confidenceScore}
+                                level={msg.aiMetadata.confidenceLevel}
+                                requiresReview={msg.aiMetadata.requiresLawyerReview === 1}
+                                citationStats={{
+                                  total: msg.aiMetadata.citationCount,
+                                  verified: msg.aiMetadata.verifiedCitations,
+                                  unverified: msg.aiMetadata.citationCount - msg.aiMetadata.verifiedCitations,
+                                }}
+                                compact={false}
+                              />
                             )}
                           </div>
                         </div>
@@ -268,26 +234,12 @@ export default function Consultation() {
                   )}
                 </div>
 
-                {suggestions && (
-                  <ProactiveSuggestionsPanel
-                    suggestions={suggestions}
-                    onSuggestionClick={(suggestion) => {
-                      setMessage(suggestion.action || suggestion.description);
-                      setSuggestions(null);
-                    }}
-                  />
-                )}
-
                 <form onSubmit={handleSendMessage} className="flex gap-2">
                   <Input
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Type your legal question..."
                     disabled={sendMutation.isPending}
-                  />
-                  <VoiceInputButton
-                    onTranscription={(text) => setMessage(text)}
-                    language="en"
                   />
                   <Button type="submit" disabled={sendMutation.isPending || !message.trim()}>
                     {sendMutation.isPending ? (
@@ -299,17 +251,6 @@ export default function Consultation() {
                 </form>
               </CardContent>
             </Card>
-            
-            
-            <div className="hidden lg:block">
-              <ConversationContextSidebar 
-                context={undefined}
-                onClearContext={() => {
-                  toast.info("Clear context feature coming soon");
-                }}
-              />
-            </div>
-            </div>
           </TabsContent>
 
           <TabsContent value="documents" className="space-y-4">
@@ -351,30 +292,27 @@ export default function Consultation() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Extract Text from Image</CardTitle>
-                <CardDescription>
-                  Upload a photo of a document to extract text automatically
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ImageOCRUpload
-                  onTextExtracted={(text) => {
-                    toast.success("Text extracted! You can now ask questions about it.");
-                    setMessage(`Analyze this document: ${text.substring(0, 500)}...`);
-                  }}
-                />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
                 <CardTitle>Uploaded Documents</CardTitle>
               </CardHeader>
               <CardContent>
                 {documents && documents.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     {documents.map((doc) => (
-                      <DocumentCard key={doc.id} doc={doc} />
+                      <div
+                        key={doc.id}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <FileText className="h-5 w-5 text-muted-foreground" />
+                          <div>
+                            <p className="font-medium">{doc.filename}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(doc.uploadedAt).toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant="outline">{doc.documentType}</Badge>
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -386,59 +324,5 @@ export default function Consultation() {
         </Tabs>
       </div>
     </DashboardLayout>
-  );
-}
-
-function DocumentCard({ doc }: { doc: any }) {
-  const [showAnalysis, setShowAnalysis] = useState(false);
-  const { data: analysis, isLoading } = trpc.documents.getAnalysis.useQuery(
-    { documentId: doc.id },
-    { enabled: showAnalysis }
-  );
-
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
-            <FileText className="h-5 w-5 text-muted-foreground" />
-            <div>
-              <p className="font-medium">{doc.filename}</p>
-              <p className="text-sm text-muted-foreground">
-                {new Date(doc.uploadedAt).toLocaleString()}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline">{doc.documentType}</Badge>
-            {doc.analysisData && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAnalysis(!showAnalysis)}
-              >
-                {showAnalysis ? "Hide Analysis" : "View Analysis"}
-              </Button>
-            )}
-          </div>
-        </div>
-        
-        {showAnalysis && (
-          <div className="mt-4 pt-4 border-t">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : analysis ? (
-              <DocumentAnalysisDisplay analysis={analysis} />
-            ) : (
-              <p className="text-center text-muted-foreground py-4">
-                No analysis available for this document
-              </p>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
   );
 }
