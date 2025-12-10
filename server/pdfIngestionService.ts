@@ -5,13 +5,7 @@
  * into the knowledge base for RAG (Retrieval-Augmented Generation)
  */
 
-import { exec } from "child_process";
-import { promisify } from "util";
-import { writeFile, unlink } from "fs/promises";
-import { randomBytes } from "crypto";
 import * as db from "./db";
-
-const execAsync = promisify(exec);
 
 export interface PDFChunk {
   lawName: string;
@@ -37,40 +31,33 @@ export interface ChunkingOptions {
 }
 
 /**
- * Extract text from PDF file or URL
+ * Extract text from PDF (URL or Buffer)
  */
 export async function extractTextFromPDF(pdfSource: string | Buffer): Promise<string> {
-  const tempFile = `/tmp/pdf-${randomBytes(8).toString('hex')}.pdf`;
-  
   try {
-    // Write PDF to temp file
+    let buffer: Buffer;
+    
     if (typeof pdfSource === 'string') {
       // Download from URL
       const response = await fetch(pdfSource);
       if (!response.ok) {
         throw new Error(`Failed to download PDF: ${response.statusText}`);
       }
-      const buffer = Buffer.from(await response.arrayBuffer());
-      await writeFile(tempFile, buffer);
+      buffer = Buffer.from(await response.arrayBuffer());
     } else {
       // Use provided buffer
-      await writeFile(tempFile, pdfSource);
+      buffer = pdfSource;
     }
 
-    // Extract text using pdftotext (from poppler-utils, pre-installed)
-    const { stdout } = await execAsync(`pdftotext -layout "${tempFile}" -`);
+    // Extract text using pdf-parse (pure JavaScript, no external dependencies)
+    const { PDFParse } = await import('pdf-parse');
+    const parser = new PDFParse({ data: buffer });
+    const result = await parser.getText();
     
-    return stdout.trim();
+    return result.text.trim();
   } catch (error) {
     console.error('[PDF Extraction] Failed:', error);
     throw new Error(`PDF text extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-  } finally {
-    // Clean up temp file
-    try {
-      await unlink(tempFile);
-    } catch (e) {
-      // Ignore cleanup errors
-    }
   }
 }
 

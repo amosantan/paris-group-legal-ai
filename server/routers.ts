@@ -876,7 +876,7 @@ Use formal legal language and cite relevant articles and laws.`;
       ];
     }),
 
-    // PDF Upload for ingestion
+    // PDF Upload from URL
     uploadPDF: protectedProcedure
       .input(z.object({
         fileUrl: z.string().url(),
@@ -898,6 +898,43 @@ Use formal legal language and cite relevant articles and laws.`;
         );
         
         // Clear search cache after ingesting new PDF
+        clearAllCache();
+        console.log('[PDF Ingestion] Search cache cleared after adding new legal knowledge');
+        
+        return result;
+      }),
+
+    // PDF Upload from device (direct file upload)
+    uploadPDFFile: protectedProcedure
+      .input(z.object({
+        fileData: z.string(), // base64 encoded PDF
+        filename: z.string(),
+        lawName: z.string().optional(),
+        lawNumber: z.string().optional(),
+        category: z.enum(["rental_law", "civil_code", "rera_regulation", "escrow_law", "real_estate_law", "labor_law", "commercial_law", "difc_law", "other"]).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        // Decode base64 to buffer
+        const base64Data = input.fileData.replace(/^data:application\/pdf;base64,/, "");
+        const buffer = Buffer.from(base64Data, "base64");
+        
+        // Upload to S3
+        const s3Key = `legal-pdfs/${Date.now()}-${input.filename}`;
+        const { url: fileUrl } = await storagePut(s3Key, buffer, "application/pdf");
+        
+        // Ingest PDF from S3 URL
+        const result = await ingestPDF(
+          fileUrl,
+          {
+            filename: input.filename,
+            sourceUrl: fileUrl,
+            lawName: input.lawName,
+            lawNumber: input.lawNumber,
+            category: input.category,
+          }
+        );
+        
+        // Clear search cache
         clearAllCache();
         console.log('[PDF Ingestion] Search cache cleared after adding new legal knowledge');
         

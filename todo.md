@@ -1181,3 +1181,36 @@
 - [x] Verify copy functionality works across browsers
 - [x] Test with Arabic and English content
 - [x] Document citation highlighting feature in code comments
+
+
+---
+
+## 🐛 PDF UPLOAD BUG FIX (Urgent)
+
+**Issue:** PDF upload fails with "pdftotext: not found" error  
+**Cause:** Production environment doesn't have pdftotext command-line tool installed  
+**Solution:** Replace with pure JavaScript PDF extraction library
+
+### Tasks:
+- [x] Investigate current PDF extraction implementation in pdfExtractor.ts
+- [x] Replace pdftotext with pdf-parse npm package
+- [x] Update PDF ingestion pipeline to use new extraction method
+- [x] Test PDF extraction with working PDF
+- [x] Verify pdf-parse v2 API works correctly
+
+---
+
+## 📤 DIRECT FILE UPLOAD FEATURE (User Request)
+
+**Issue:** Users have to provide URL instead of uploading files from device  
+**Solution:** Add file picker UI and direct upload endpoint
+
+### Tasks:
+- [x] Add file input to PDF upload page
+- [x] Create tRPC procedure to handle direct file uploads (uploadPDFFile)
+- [x] Upload file to S3 storage
+- [x] Pass S3 URL to existing ingestion pipeline
+- [x] Add upload method selector (Device vs URL)
+- [x] Implement base64 file reading and transmission
+- [ ] Test file upload from mobile device (ready for user testing)
+- [ ] Add progress indicator for large files (future enhancement)

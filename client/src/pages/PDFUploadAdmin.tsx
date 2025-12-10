@@ -16,6 +16,8 @@ export default function PDFUploadAdmin() {
   const [lawName, setLawName] = useState("");
   const [lawNumber, setLawNumber] = useState("");
   const [category, setCategory] = useState<string>("other");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadMethod, setUploadMethod] = useState<"url" | "file">("file");
 
   const uploadMutation = trpc.knowledgeBase.uploadPDF.useMutation({
     onSuccess: (result) => {
@@ -27,6 +29,7 @@ export default function PDFUploadAdmin() {
         setLawName("");
         setLawNumber("");
         setCategory("other");
+        setSelectedFile(null);
         // Refetch stats and list
         statsQuery.refetch();
         listQuery.refetch();
@@ -36,6 +39,29 @@ export default function PDFUploadAdmin() {
     },
     onError: (error) => {
       toast.error(`Upload failed: ${error.message}`);
+    },
+  });
+
+  const fileUploadMutation = trpc.knowledgeBase.uploadPDFFile.useMutation({
+    onSuccess: (result) => {
+      if (result.success) {
+        toast.success(`Successfully ingested ${result.chunksCreated} chunks!`);
+        // Reset form
+        setPdfUrl("");
+        setFilename("");
+        setLawName("");
+        setLawNumber("");
+        setCategory("other");
+        setSelectedFile(null);
+        // Refetch stats and list
+        statsQuery.refetch();
+        listQuery.refetch();
+      } else {
+        toast.error(`Failed to ingest PDF: ${result.error}`);
+      }
+    },
+    onError: (error) => {
+      toast.error(`File upload failed: ${error.message}`);
     },
   });
 
@@ -56,21 +82,47 @@ export default function PDFUploadAdmin() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!pdfUrl || !filename) {
-      toast.error("Please provide PDF URL and filename");
-      return;
-    }
+    if (uploadMethod === "url") {
+      if (!pdfUrl || !filename) {
+        toast.error("Please provide PDF URL and filename");
+        return;
+      }
 
-    uploadMutation.mutate({
-      fileUrl: pdfUrl,
-      filename,
-      lawName: lawName || undefined,
-      lawNumber: lawNumber || undefined,
-      category: category as any,
-    });
+      uploadMutation.mutate({
+        fileUrl: pdfUrl,
+        filename,
+        lawName: lawName || undefined,
+        lawNumber: lawNumber || undefined,
+        category: category as any,
+      });
+    } else {
+      // File upload
+      if (!selectedFile || !filename) {
+        toast.error("Please select a PDF file and provide a filename");
+        return;
+      }
+
+      // Convert file to base64 and upload
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        
+        fileUploadMutation.mutate({
+          fileData: base64,
+          filename,
+          lawName: lawName || undefined,
+          lawNumber: lawNumber || undefined,
+          category: category as any,
+        });
+      };
+      reader.onerror = () => {
+        toast.error("Failed to read file");
+      };
+      reader.readAsDataURL(selectedFile);
+    }
   };
 
   const getCategoryLabel = (cat: string) => {
@@ -144,10 +196,61 @@ export default function PDFUploadAdmin() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="pdfUrl">PDF URL *</Label>
-                <Input
-                  id="pdfUrl"
+              {/* Upload Method Selector */}
+              <div className="flex gap-4 p-4 bg-muted rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => setUploadMethod("file")}
+                  className={`flex-1 py-3 px-4 rounded-md font-medium transition-colors ${
+                    uploadMethod === "file"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-background hover:bg-accent"
+                  }`}
+                >
+                  📁 Upload from Device
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUploadMethod("url")}
+                  className={`flex-1 py-3 px-4 rounded-md font-medium transition-colors ${
+                    uploadMethod === "url"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-background hover:bg-accent"
+                  }`}
+                >
+                  🔗 Upload from URL
+                </button>
+              </div>
+
+              {uploadMethod === "file" ? (
+                <div className="space-y-2">
+                  <Label htmlFor="pdfFile">Select PDF File *</Label>
+                  <Input
+                    id="pdfFile"
+                    type="file"
+                    accept=".pdf"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setSelectedFile(file);
+                        if (!filename) {
+                          setFilename(file.name.replace(/\.pdf$/i, ""));
+                        }
+                      }
+                    }}
+                    className="cursor-pointer"
+                  />
+                  {selectedFile && (
+                    <p className="text-sm text-muted-foreground">
+                      Selected: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="pdfUrl">PDF URL *</Label>
+                  <Input
+                    id="pdfUrl"
                   type="url"
                   placeholder="https://example.com/law-document.pdf"
                   value={pdfUrl}
@@ -155,6 +258,7 @@ export default function PDFUploadAdmin() {
                   required
                 />
               </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="filename">Filename *</Label>
