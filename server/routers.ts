@@ -13,6 +13,11 @@ import { extractTextFromPDF, cleanExtractedText, validatePDFSize, extractContrac
 import { calculateConfidenceScore } from "./confidenceScoring";
 import { verifyAllCitations, calculateGroundingScore } from "./citationVerification";
 import { lawyerReviewRouter, auditLogRouter } from "./routers_lawyerReview";
+import { getConversationContext, enhancePromptWithContext } from "./conversationMemory";
+import { generateProactiveSuggestions } from "./proactiveSuggestions";
+import { suggestDocumentTypes, extractDemandLetterData, extractEvictionNoticeData, extractNOCData } from "./automaticDocumentDrafting";
+import { transcribeConsultationQuestion, validateAudioFile } from "./voiceConsultation";
+import { extractTextFromImage, validateImageFile } from "./imageRecognition";
 import { logAIInteraction } from "./db_lawyerReviews";
 import { generateConsultationPDF, generateContractReviewPDF } from "./pdfGenerator";
 import { generateDemandLetterPDF, generateEvictionNoticePDF, generateNOCPDF, DemandLetterData, EvictionNoticeData, NOCData } from "./legalDocumentTemplates";
@@ -139,7 +144,14 @@ export const appRouter = router({
         const consultationType = consultation.category === "rental_dispute" ? "rental" 
           : consultation.category === "real_estate_transaction" ? "real_estate" 
           : "general";
-        const systemPrompt = getSystemPrompt("consultation", consultationType);
+        let systemPrompt = getSystemPrompt("consultation", consultationType);
+        
+        // Get conversation context and enhance prompt
+        const conversationContext = await getConversationContext(
+          input.consultationId,
+          messageHistory
+        );
+        systemPrompt = enhancePromptWithContext(systemPrompt, conversationContext);
 
         // Prepare messages for LLM
         const llmMessages = [
@@ -216,8 +228,20 @@ export const appRouter = router({
           ]),
         });
 
+        // Generate proactive suggestions
+        const proactiveSuggestions = await generateProactiveSuggestions(
+          consultation.category,
+          conversationContext,
+          input.content
+        );
+
         return { 
           message: assistantMessage,
+          suggestions: proactiveSuggestions,
+          conversationContext: {
+            summary: conversationContext.summary,
+            keyFacts: conversationContext.keyFacts,
+          },
           confidence: {
             score: confidenceScore.overall,
             level: confidenceScore.level,
@@ -230,6 +254,89 @@ export const appRouter = router({
             unverified: citationVerification.citationCount - citationVerification.verifiedCount,
           }
         };
+      }),
+  }),
+
+  imageOCR: router({
+    extractText: protectedProcedure
+      .input(z.object({
+        imageUrl: z.string(),
+        documentHint: z.string().optional(),
+        fileSize: z.number(),
+        mimeType: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        // Validate image file
+        validateImageFile(input.fileSize, input.mimeType);
+        
+        // Extract text from image
+        const result = await extractTextFromImage(input.imageUrl, input.documentHint);
+        
+        return result;
+      }),
+  }),
+
+  voice: router({
+    transcribe: protectedProcedure
+      .input(z.object({
+        audioUrl: z.string(),
+        language: z.enum(["en", "ar"]),
+        fileSize: z.number(),
+        mimeType: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        // Validate audio file
+        validateAudioFile(input.fileSize, input.mimeType);
+        
+        // Transcribe audio
+        const result = await transcribeConsultationQuestion(input.audioUrl, input.language);
+        
+        return result;
+      }),
+  }),
+
+  documentDrafting: router({
+    suggestDocuments: protectedProcedure
+      .input(z.object({ consultationId: z.number() }))
+      .query(async ({ input }) => {
+        const consultation = await db.getConsultationById(input.consultationId);
+        if (!consultation) throw new Error("Consultation not found");
+        
+        const messages = await db.getConsultationMessages(input.consultationId);
+        const { getConversationContext } = await import("./conversationMemory");
+        const context = await getConversationContext(input.consultationId, messages);
+        
+        return suggestDocumentTypes(consultation.category, context);
+      }),
+
+    extractDemandLetter: protectedProcedure
+      .input(z.object({ consultationId: z.number() }))
+      .query(async ({ input }) => {
+        const messages = await db.getConsultationMessages(input.consultationId);
+        const { getConversationContext } = await import("./conversationMemory");
+        const context = await getConversationContext(input.consultationId, messages);
+        
+        return extractDemandLetterData(messages, context);
+      }),
+
+    extractEvictionNotice: protectedProcedure
+      .input(z.object({ consultationId: z.number() }))
+      .query(async ({ input }) => {
+        const messages = await db.getConsultationMessages(input.consultationId);
+        const { getConversationContext } = await import("./conversationMemory");
+        const context = await getConversationContext(input.consultationId, messages);
+        
+        return extractEvictionNoticeData(messages, context);
+      }),
+
+    extractNOC: protectedProcedure
+      .input(z.object({ consultationId: z.number() }))
+      .query(async ({ input }) => {
+        const messages = await db.getConsultationMessages(input.consultationId);
+        const { getConversationContext } = await import("./conversationMemory");
+        const context = await getConversationContext(input.consultationId, messages);
+        
+        return extractNOCData(messages, context);
       }),
   }),
 
