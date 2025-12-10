@@ -36,6 +36,13 @@
       "when": 1765311379994,
       "tag": "0004_clever_cerise",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1765340618235,
+      "tag": "0005_mighty_sleepwalker",
+      "breakpoints": true
     }
   ]
 }

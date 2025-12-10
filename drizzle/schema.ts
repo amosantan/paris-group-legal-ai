@@ -187,9 +187,24 @@ export type LawyerReview = typeof lawyerReviews.$inferSelect;
 export type InsertLawyerReview = typeof lawyerReviews.$inferInsert;
 
 /**
+ * Terms Acceptance - track user agreement to terms of service
+ */
+export const termsAcceptance = mysqlTable("terms_acceptance", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  acceptedAt: timestamp("acceptedAt").notNull(),
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  termsVersion: varchar("termsVersion", { length: 10 }).notNull().default("1.0"),
+});
+
+export type TermsAcceptance = typeof termsAcceptance.$inferSelect;
+export type InsertTermsAcceptance = typeof termsAcceptance.$inferInsert;
+
+/**
  * Audit trail - comprehensive logging of all AI interactions
  */
-export const auditLogs = mysqlTable("auditLogs", {
+export const auditLogs = mysqlTable("audit_logs", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
   userName: varchar("userName", { length: 255 }),
