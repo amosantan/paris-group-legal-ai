@@ -88,7 +88,11 @@ export default function Consultation() {
   });
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Use setTimeout to ensure DOM is fully updated before scrolling
+    const timer = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+    return () => clearTimeout(timer);
   }, [messages]);
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -99,6 +103,10 @@ export default function Consultation() {
       content: message,
       language: consultation?.language || "en",
     });
+    // Scroll immediately after sending to show user's message
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 50);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
