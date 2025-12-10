@@ -9,6 +9,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Upload, Loader2, FileText, Trash2, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import UploadProgress, { UploadStage } from "@/components/UploadProgress";
 
 export default function PDFUploadAdmin() {
   const [pdfUrl, setPdfUrl] = useState("");
@@ -18,26 +19,40 @@ export default function PDFUploadAdmin() {
   const [category, setCategory] = useState<string>("other");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadMethod, setUploadMethod] = useState<"url" | "file">("file");
+  const [uploadStage, setUploadStage] = useState<UploadStage | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [currentFilename, setCurrentFilename] = useState("");
 
   const uploadMutation = trpc.knowledgeBase.uploadPDF.useMutation({
     onSuccess: (result) => {
       if (result.success) {
+        setUploadStage("complete");
+        setUploadProgress(100);
         toast.success(`Successfully ingested ${result.chunksCreated} chunks!`);
-        // Reset form
-        setPdfUrl("");
-        setFilename("");
-        setLawName("");
-        setLawNumber("");
-        setCategory("other");
-        setSelectedFile(null);
-        // Refetch stats and list
-        statsQuery.refetch();
-        listQuery.refetch();
+        // Reset form after delay
+        setTimeout(() => {
+          setPdfUrl("");
+          setFilename("");
+          setLawName("");
+          setLawNumber("");
+          setCategory("other");
+          setSelectedFile(null);
+          setUploadStage(null);
+          setUploadProgress(0);
+          // Refetch stats and list
+          statsQuery.refetch();
+          listQuery.refetch();
+        }, 2000);
       } else {
+        setUploadStage("error");
+        setUploadError(result.error || "Unknown error");
         toast.error(`Failed to ingest PDF: ${result.error}`);
       }
     },
     onError: (error) => {
+      setUploadStage("error");
+      setUploadError(error.message);
       toast.error(`Upload failed: ${error.message}`);
     },
   });
@@ -45,22 +60,32 @@ export default function PDFUploadAdmin() {
   const fileUploadMutation = trpc.knowledgeBase.uploadPDFFile.useMutation({
     onSuccess: (result) => {
       if (result.success) {
+        setUploadStage("complete");
+        setUploadProgress(100);
         toast.success(`Successfully ingested ${result.chunksCreated} chunks!`);
-        // Reset form
-        setPdfUrl("");
-        setFilename("");
-        setLawName("");
-        setLawNumber("");
-        setCategory("other");
-        setSelectedFile(null);
-        // Refetch stats and list
-        statsQuery.refetch();
-        listQuery.refetch();
+        // Reset form after delay
+        setTimeout(() => {
+          setPdfUrl("");
+          setFilename("");
+          setLawName("");
+          setLawNumber("");
+          setCategory("other");
+          setSelectedFile(null);
+          setUploadStage(null);
+          setUploadProgress(0);
+          // Refetch stats and list
+          statsQuery.refetch();
+          listQuery.refetch();
+        }, 2000);
       } else {
+        setUploadStage("error");
+        setUploadError(result.error || "Unknown error");
         toast.error(`Failed to ingest PDF: ${result.error}`);
       }
     },
     onError: (error) => {
+      setUploadStage("error");
+      setUploadError(error.message);
       toast.error(`File upload failed: ${error.message}`);
     },
   });
@@ -82,8 +107,41 @@ export default function PDFUploadAdmin() {
     },
   });
 
+  const simulateProgress = () => {
+    // Simulate upload stages with progress
+    setUploadStage("uploading");
+    setUploadProgress(0);
+    
+    // Uploading: 0-25%
+    setTimeout(() => setUploadProgress(25), 500);
+    
+    // Extracting: 25-50%
+    setTimeout(() => {
+      setUploadStage("extracting");
+      setUploadProgress(30);
+    }, 1000);
+    setTimeout(() => setUploadProgress(50), 1500);
+    
+    // Chunking: 50-75%
+    setTimeout(() => {
+      setUploadStage("chunking");
+      setUploadProgress(60);
+    }, 2000);
+    setTimeout(() => setUploadProgress(75), 2500);
+    
+    // Embedding: 75-95%
+    setTimeout(() => {
+      setUploadStage("embedding");
+      setUploadProgress(80);
+    }, 3000);
+    setTimeout(() => setUploadProgress(95), 3500);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Reset progress state
+    setUploadError(null);
     
     if (uploadMethod === "url") {
       if (!pdfUrl || !filename) {
@@ -91,6 +149,9 @@ export default function PDFUploadAdmin() {
         return;
       }
 
+      setCurrentFilename(filename);
+      simulateProgress();
+      
       uploadMutation.mutate({
         fileUrl: pdfUrl,
         filename,
@@ -104,6 +165,9 @@ export default function PDFUploadAdmin() {
         toast.error("Please select a PDF file and provide a filename");
         return;
       }
+
+      setCurrentFilename(filename);
+      simulateProgress();
 
       // Convert file to base64 and upload
       const reader = new FileReader();
@@ -119,6 +183,8 @@ export default function PDFUploadAdmin() {
         });
       };
       reader.onerror = () => {
+        setUploadStage("error");
+        setUploadError("Failed to read file");
         toast.error("Failed to read file");
       };
       reader.readAsDataURL(selectedFile);
@@ -183,6 +249,16 @@ export default function PDFUploadAdmin() {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* Upload Progress */}
+        {uploadStage && (
+          <UploadProgress
+            stage={uploadStage}
+            progress={uploadProgress}
+            filename={currentFilename}
+            error={uploadError || undefined}
+          />
         )}
 
         {/* Upload Form */}
