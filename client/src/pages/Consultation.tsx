@@ -12,6 +12,8 @@ import { Streamdown } from "streamdown";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfidenceIndicator } from "@/components/ConfidenceIndicator";
+import { ConfidenceWarning } from "@/components/ConfidenceWarning";
+import { DisclaimerBadge } from "@/components/DisclaimerBadge";
 
 export default function Consultation() {
   const { id } = useParams<{ id: string }>();
@@ -213,18 +215,31 @@ export default function Consultation() {
                                 <p className="whitespace-pre-wrap">{msg.content}</p>
                               )}
                             </div>
-                            {msg.role === "assistant" && msg.aiMetadata && (
-                              <ConfidenceIndicator
-                                score={msg.aiMetadata.confidenceScore}
-                                level={msg.aiMetadata.confidenceLevel}
-                                requiresReview={msg.aiMetadata.requiresLawyerReview === 1}
-                                citationStats={{
-                                  total: msg.aiMetadata.citationCount,
-                                  verified: msg.aiMetadata.verifiedCitations,
-                                  unverified: msg.aiMetadata.citationCount - msg.aiMetadata.verifiedCitations,
-                                }}
-                                compact={false}
-                              />
+                            {msg.role === "assistant" && (
+                              <>
+                                <DisclaimerBadge />
+                                {msg.aiMetadata && (
+                                  <>
+                                    <ConfidenceWarning 
+                                      confidenceScore={msg.aiMetadata.confidenceScore}
+                                      onRequestReview={() => {
+                                        toast.info("Lawyer review request feature coming soon");
+                                      }}
+                                    />
+                                    <ConfidenceIndicator
+                                      score={msg.aiMetadata.confidenceScore}
+                                      level={msg.aiMetadata.confidenceLevel}
+                                      requiresReview={msg.aiMetadata.requiresLawyerReview === 1}
+                                      citationStats={{
+                                        total: msg.aiMetadata.citationCount,
+                                        verified: msg.aiMetadata.verifiedCitations,
+                                        unverified: msg.aiMetadata.citationCount - msg.aiMetadata.verifiedCitations,
+                                      }}
+                                      compact={false}
+                                    />
+                                  </>
+                                )}
+                              </>
                             )}
                           </div>
                         </div>

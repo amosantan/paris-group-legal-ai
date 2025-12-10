@@ -1,6 +1,42 @@
 import PDFDocument from "pdfkit";
 import { Readable } from "stream";
 
+/**
+ * Add watermark and disclaimer to PDF page
+ */
+function addWatermarkAndDisclaimer(doc: any) {
+  const pageHeight = doc.page.height;
+  const pageWidth = doc.page.width;
+  
+  // Add watermark (semi-transparent)
+  doc.save();
+  doc.fontSize(10)
+     .fillColor('#999999')
+     .opacity(0.3)
+     .text('AI-Generated - Not Legal Advice', 50, pageHeight - 60, { 
+       align: 'center',
+       width: pageWidth - 100
+     });
+  doc.restore();
+  
+  // Add disclaimer footer
+  doc.fontSize(7)
+     .fillColor('#000000')
+     .opacity(1)
+     .text(
+       '⚠️ DISCLAIMER: This is AI-generated information based on UAE/Dubai law. This does not constitute legal advice. ' +
+       'Always consult a licensed UAE lawyer before taking any legal action. Paris Group is not liable for outcomes ' +
+       'resulting from reliance on this information.',
+       50,
+       pageHeight - 40,
+       { 
+         align: 'center',
+         width: pageWidth - 100,
+         lineGap: 2
+       }
+     );
+}
+
 interface ConsultationReport {
   consultationId: number;
   title: string;
@@ -130,6 +166,9 @@ export async function generateConsultationPDF(report: ConsultationReport): Promi
       { align: "center" }
     );
 
+    // Add watermark and disclaimer to final page
+    addWatermarkAndDisclaimer(doc);
+    
     doc.end();
   });
 }
@@ -227,6 +266,9 @@ export async function generateContractReviewPDF(
       { align: "center" }
     );
 
+    // Add watermark and disclaimer to final page
+    addWatermarkAndDisclaimer(doc);
+    
     doc.end();
   });
 }
