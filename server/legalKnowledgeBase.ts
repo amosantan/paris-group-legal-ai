@@ -970,7 +970,20 @@ async function searchDatabaseKnowledge(query: string) {
   const lowerQuery = query.toLowerCase();
   
   return allChunks.filter(chunk => {
-    const keywords = chunk.keywords ? JSON.parse(chunk.keywords) : [];
+    // Safely parse keywords (handle both keywords and searchKeywords fields)
+    let keywords: string[] = [];
+    try {
+      if (chunk.keywords) {
+        keywords = typeof chunk.keywords === 'string' ? JSON.parse(chunk.keywords) : chunk.keywords;
+      } else if ((chunk as any).searchKeywords) {
+        keywords = typeof (chunk as any).searchKeywords === 'string'
+          ? JSON.parse((chunk as any).searchKeywords)
+          : (chunk as any).searchKeywords;
+      }
+    } catch (e) {
+      keywords = [];
+    }
+    
     return (
       keywords.some((kw: string) => kw.toLowerCase().includes(lowerQuery)) ||
       chunk.titleEn.toLowerCase().includes(lowerQuery) ||

@@ -38,10 +38,31 @@ function calculateKnowledgeBaseCoverage(
   // Check how many topics are covered by relevant articles
   let coveredTopics = 0;
   topics.forEach(topic => {
-    const isCovered = relevantArticles.some(article => 
-      article.keywords.some(kw => kw.toLowerCase().includes(topic.toLowerCase())) ||
-      article.contentEn.toLowerCase().includes(topic.toLowerCase())
-    );
+    const isCovered = relevantArticles.some(article => {
+      // Safely get keywords array (handle both array and JSON string formats)
+      let keywords: string[] = [];
+      if (Array.isArray(article.keywords)) {
+        keywords = article.keywords;
+      } else if (typeof article.keywords === 'string') {
+        try {
+          keywords = JSON.parse(article.keywords);
+        } catch {
+          keywords = [];
+        }
+      } else if ((article as any).searchKeywords) {
+        // Handle database articles with searchKeywords field
+        try {
+          keywords = typeof (article as any).searchKeywords === 'string'
+            ? JSON.parse((article as any).searchKeywords)
+            : (article as any).searchKeywords;
+        } catch {
+          keywords = [];
+        }
+      }
+      
+      return keywords.some(kw => kw.toLowerCase().includes(topic.toLowerCase())) ||
+        article.contentEn.toLowerCase().includes(topic.toLowerCase());
+    });
     if (isCovered) coveredTopics++;
   });
   
