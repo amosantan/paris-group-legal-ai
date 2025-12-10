@@ -1,184 +1,275 @@
-import { useAuth } from "@/_core/hooks/useAuth";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getLoginUrl } from "@/const";
-import { FileText, MessageSquare, Scale, Shield } from "lucide-react";
-import { Link } from "wouter";
+import { Badge } from "@/components/ui/badge";
+import {
+  MessageSquare,
+  FileText,
+  Search,
+  Scale,
+  Building,
+  Home,
+  FileCheck,
+  Building2,
+  Key,
+  UserCheck,
+  FileSearch,
+  ShieldCheck,
+  FileDown,
+  Languages,
+  Brain,
+  Lightbulb,
+  Mic,
+  Image,
+  Gauge,
+  CheckCircle,
+  Settings,
+  ArrowRight,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
+import { versionHistory, getLatestVersion, getTotalStats } from "@/lib/versionHistory";
+import { VersionTimeline } from "@/components/VersionTimeline";
 
-export default function Home() {
-  const { user, isAuthenticated } = useAuth();
+const iconMap: Record<string, any> = {
+  MessageSquare,
+  FileText,
+  Search,
+  Scale,
+  Building,
+  Home,
+  FileCheck,
+  Building2,
+  Key,
+  UserCheck,
+  FileSearch,
+  ShieldCheck,
+  FileDown,
+  Languages,
+  Brain,
+  Lightbulb,
+  Mic,
+  Image,
+  Gauge,
+  CheckCircle,
+  Settings,
+};
+
+export default function HomePage() {
+  const latestVersion = getLatestVersion();
+  const stats = getTotalStats();
+
+  const categoryColors: Record<string, string> = {
+    core: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
+    knowledge: "bg-purple-500/10 text-purple-700 dark:text-purple-300",
+    quality: "bg-green-500/10 text-green-700 dark:text-green-300",
+    automation: "bg-orange-500/10 text-orange-700 dark:text-orange-300",
+    intelligence: "bg-pink-500/10 text-pink-700 dark:text-pink-300",
+  };
+
+  const categoryLabels: Record<string, string> = {
+    core: "Core Features",
+    knowledge: "Legal Knowledge",
+    quality: "Quality Control",
+    automation: "Automation",
+    intelligence: "AI Intelligence",
+  };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      {/* Header */}
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            <Scale className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold">Paris Group Legal AI</h1>
+            <Scale className="h-6 w-6 text-primary" />
+            <span className="text-xl font-bold">Paris Group Legal AI</span>
           </div>
-          <div>
-            {isAuthenticated ? (
-              <Link href="/dashboard">
-                <Button>Go to Dashboard</Button>
-              </Link>
-            ) : (
-              <Button asChild>
-                <a href={getLoginUrl()}>Sign In</a>
-              </Button>
-            )}
-          </div>
+          <Link href="/dashboard">
+            <Button>Go to Dashboard</Button>
+          </Link>
         </div>
       </header>
 
-      <main className="flex-1">
-        <section className="container mx-auto px-4 py-20 text-center">
-          <div className="max-w-3xl mx-auto space-y-6">
-            <h2 className="text-5xl font-bold tracking-tight">
-              Expert Legal Consultation for Dubai Real Estate
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              AI-powered legal assistant specializing in rental disputes, real estate transactions, property mortgages, and DIFC regulations, 
-              backed by comprehensive UAE/Dubai law knowledge including 33 newly added articles
-            </p>
-            {isAuthenticated ? (
-              <div className="flex gap-4 justify-center">
-                <Link href="/dashboard">
-                  <Button size="lg">View Consultations</Button>
-                </Link>
-                <Link href="/new-consultation">
-                  <Button size="lg" variant="outline">Start New Consultation</Button>
-                </Link>
-              </div>
-            ) : (
-              <Button size="lg" asChild>
-                <a href={getLoginUrl()}>Get Started</a>
-              </Button>
-            )}
-          </div>
-        </section>
-
-        <section className="bg-muted py-20">
-          <div className="container mx-auto px-4">
-            <h3 className="text-3xl font-bold text-center mb-12">Our Services</h3>
-            <div className="grid gap-8 md:grid-cols-3">
-              <Card>
-                <CardHeader>
-                  <MessageSquare className="h-12 w-12 text-primary mb-4" />
-                  <CardTitle>Legal Consultation</CardTitle>
-                  <CardDescription>
-                    Get expert guidance on rental disputes, mortgage enforcement, property ownership, and DIFC regulations
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li>• Tenant-landlord disputes</li>
-                    <li>• Mortgage enforcement procedures</li>
-                    <li>• Property ownership restrictions</li>
-                    <li>• DIFC vs mainland Dubai laws</li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <FileText className="h-12 w-12 text-primary mb-4" />
-                  <CardTitle>Contract Review</CardTitle>
-                  <CardDescription>
-                    Advanced clause-by-clause analysis with risk assessment and compliance checking
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li>• Identify problematic clauses</li>
-                    <li>• Risk scoring and assessment</li>
-                    <li>• Missing clause detection</li>
-                    <li>• Revision suggestions</li>
-                  </ul>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <Scale className="h-12 w-12 text-primary mb-4" />
-                  <CardTitle>Real Estate Transactions</CardTitle>
-                  <CardDescription>
-                    Guidance on property transfers, mortgages, DLD registration, and DIFC real estate transactions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li>• Property ownership & transfer</li>
-                    <li>• Mortgage registration & discharge</li>
-                    <li>• DLD registration requirements</li>
-                    <li>• DIFC property transactions</li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        <section className="container mx-auto px-4 py-20">
-          <div className="max-w-4xl mx-auto">
-            <h3 className="text-3xl font-bold text-center mb-12">Legal Framework Coverage</h3>
-            <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>UAE/Dubai Laws</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p>• Dubai Rental Law 26/2007 & 33/2008</p>
-                  <p>• Dubai Mortgage Law 14/2008 (NEW)</p>
-                  <p>• Dubai Property Registration Law 7/2006 (NEW)</p>
-                  <p>• DIFC Real Property Law 10/2018 (NEW)</p>
-                  <p>• DIFC Leasing Law 1/2020 (NEW)</p>
-                  <p>• UAE Civil Code (Federal Law 5/1985)</p>
-                  <p>• RERA regulations & Strata Law 27/2007</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Key Features</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <p>• AI confidence scoring with visual indicators</p>
-                  <p>• Automatic lawyer review for low confidence</p>
-                  <p>• Citation verification for all legal claims</p>
-                  <p>• Bilingual support (English & Arabic)</p>
-                  <p>• Exact article and law citations</p>
-                  <p>• Professional report generation</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-muted py-20">
-          <div className="container mx-auto px-4 text-center">
-            <Shield className="h-16 w-16 text-primary mx-auto mb-6" />
-            <h3 className="text-3xl font-bold mb-4">Restricted Access</h3>
-            <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-              This legal consultant AI is exclusively available to the Paris Group Legal Department. 
-              All consultations and documents are handled with strict confidentiality and comply with 
-              internal data protection policies.
-            </p>
-            {!isAuthenticated && (
-              <Button size="lg" asChild>
-                <a href={getLoginUrl()}>Sign In to Access</a>
-              </Button>
-            )}
-          </div>
-        </section>
-      </main>
-
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p className="mb-2">
-            <strong>Legal Disclaimer:</strong> This AI provides guidance based on current UAE/Dubai law 
-            and Paris Group internal documents. It is not a substitute for a licensed lawyer.
+      {/* Hero Section */}
+      <section className="container py-16 md:py-24">
+        <div className="flex flex-col items-center text-center space-y-6">
+          <Badge className="px-4 py-1 text-sm" variant="secondary">
+            <Sparkles className="h-3 w-3 mr-1" />
+            Version {latestVersion.version} - {latestVersion.name}
+          </Badge>
+          
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+            Expert Legal Consultation for
+            <br />
+            <span className="text-primary">Dubai Real Estate</span>
+          </h1>
+          
+          <p className="text-xl text-muted-foreground max-w-3xl">
+            AI-powered legal assistant specializing in rental disputes, real estate
+            transactions, property mortgages, and DIFC regulations, backed by
+            comprehensive UAE/Dubai law knowledge including{" "}
+            <span className="font-semibold text-foreground">33 newly added articles</span>
           </p>
-          <p>© 2024 Paris Group Dubai. All rights reserved.</p>
+
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link href="/dashboard">
+              <Button size="lg" className="gap-2">
+                Start New Consultation
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Button size="lg" variant="outline" asChild>
+              <a href="#version-history">View Version History</a>
+            </Button>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 w-full max-w-4xl">
+            <div className="flex flex-col items-center">
+              <div className="text-3xl font-bold text-primary">{stats.totalVersions}</div>
+              <div className="text-sm text-muted-foreground">Major Versions</div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-3xl font-bold text-primary">{stats.legalArticles}</div>
+              <div className="text-sm text-muted-foreground">Legal Articles</div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-3xl font-bold text-primary">{stats.casePrecedents}</div>
+              <div className="text-sm text-muted-foreground">Case Precedents</div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="text-3xl font-bold text-primary">{stats.testPassRate}</div>
+              <div className="text-sm text-muted-foreground">Test Pass Rate</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* What's New Section */}
+      <section className="container py-16 bg-muted/30">
+        <div className="flex items-center gap-3 mb-8">
+          <TrendingUp className="h-6 w-6 text-primary" />
+          <h2 className="text-3xl font-bold">What's New in v{latestVersion.version}</h2>
+          <Badge variant="default">Latest</Badge>
+        </div>
+        
+        <p className="text-lg text-muted-foreground mb-8">
+          {latestVersion.tagline}
+        </p>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {latestVersion.features.map((feature, idx) => {
+            const Icon = iconMap[feature.icon] || FileText;
+            return (
+              <Card key={idx} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className={`p-2 rounded-lg ${categoryColors[feature.category]}`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {categoryLabels[feature.category]}
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-lg mt-4">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>{feature.description}</CardDescription>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {latestVersion.stats && (
+          <div className="flex flex-wrap gap-6 justify-center mt-8 pt-8 border-t">
+            {latestVersion.stats.map((stat, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <div className="text-2xl font-bold text-primary">{stat.value}</div>
+                <div className="text-sm text-muted-foreground">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* All Capabilities Section */}
+      <section className="container py-16">
+        <h2 className="text-3xl font-bold mb-8 text-center">All Capabilities</h2>
+        
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Object.entries(categoryLabels).map(([category, label]) => {
+            const features = versionHistory
+              .flatMap((v) => v.features)
+              .filter((f) => f.category === category);
+            
+            return (
+              <Card key={category} className="overflow-hidden">
+                <CardHeader className={`${categoryColors[category]} border-b`}>
+                  <CardTitle className="text-lg">{label}</CardTitle>
+                  <CardDescription className="text-xs">
+                    {features.length} features
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <ul className="space-y-3">
+                    {features.map((feature, idx) => {
+                      const Icon = iconMap[feature.icon] || FileText;
+                      return (
+                        <li key={idx} className="flex items-start gap-2">
+                          <Icon className="h-4 w-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+                          <span className="text-sm">{feature.title}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Version History Timeline */}
+      <section id="version-history" className="container py-16 bg-muted/30">
+        <h2 className="text-3xl font-bold mb-12 text-center">Version History</h2>
+        <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+          Click on any version to expand and see detailed features and improvements
+        </p>
+        <VersionTimeline
+          versions={versionHistory}
+          iconMap={iconMap}
+          categoryColors={categoryColors}
+        />
+      </section>
+
+      {/* CTA Section */}
+      <section className="container py-16">
+        <Card className="bg-primary text-primary-foreground">
+          <CardContent className="flex flex-col md:flex-row items-center justify-between gap-6 p-8">
+            <div>
+              <h3 className="text-2xl font-bold mb-2">Ready to Get Started?</h3>
+              <p className="text-primary-foreground/90">
+                Start your legal consultation now with our AI-powered assistant
+              </p>
+            </div>
+            <Link href="/dashboard">
+              <Button size="lg" variant="secondary" className="gap-2">
+                Start New Consultation
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t py-8 bg-background">
+        <div className="container text-center text-sm text-muted-foreground">
+          <p>© 2025 Paris Group Dubai Legal Consultant AI. All rights reserved.</p>
+          <p className="mt-2">
+            Powered by advanced AI • {stats.legalArticles} legal articles • {stats.casePrecedents} case precedents
+          </p>
         </div>
       </footer>
     </div>
