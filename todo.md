@@ -1213,4 +1213,4 @@
 - [x] Add upload method selector (Device vs URL)
 - [x] Implement base64 file reading and transmission
 - [ ] Test file upload from mobile device (ready for user testing)
-- [x] Add progress indicator for large files (implemented!)
+- [ ] Add progress indicator for large files (future enhancement)

@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "3c3cb6f0-e5c8-4a9c-844c-29d4afb4bd70",
-  "prevId": "6d522d29-44dd-45fb-bf8e-bc41015f703a",
+  "id": "5f66d2cf-76c8-41a2-ab5c-4fd75960aa1e",
+  "prevId": "3c3cb6f0-e5c8-4a9c-844c-29d4afb4bd70",
   "tables": {
     "aiResponseMetadata": {
       "name": "aiResponseMetadata",
@@ -824,6 +824,13 @@
         },
         "searchKeywords": {
           "name": "searchKeywords",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "embedding": {
+          "name": "embedding",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
