@@ -1,17 +1,23 @@
 {
   "version": 2,
-  "buildCommand": "pnpm install && pnpm run build",
-  "devCommand": "pnpm run dev",
-  "installCommand": "pnpm install",
-  "framework": null,
-  "outputDirectory": "dist",
-  "env": {
-    "DATABASE_URL": "@database_url",
-    "OAUTH_SERVER_URL": "@oauth_server_url",
-    "VITE_APP_ID": "@vite_app_id",
-    "VITE_OAUTH_PORTAL_URL": "@vite_oauth_portal_url",
-    "JWT_SECRET": "@jwt_secret",
-    "GEMINI_API_KEY": "@gemini_api_key",
-    "VITE_FRONTEND_FORGE_API_URL": "@vite_frontend_forge_api_url"
-  }
+  "builds": [
+    {
+      "src": "dist/index.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "dist/public/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/dist/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/dist/public/$1"
+    }
+  ]
 }
