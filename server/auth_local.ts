@@ -74,17 +74,29 @@ export const localAuthRouter = router({
 
         console.log("[LocalAuth] User found:", { id: user.id, email: user.email, name: user.name, role: user.role });
         
-        // Generate JWT token
+        // Generate JWT token with OAuth-compatible fields
         const token = jwt.sign(
           {
+            // Local auth fields
             id: user.id,
             email: user.email,
             name: user.name,
             role: user.role,
+            // OAuth-compatible fields (required by verifySession)
+            openId: user.id, // Use local user ID as openId
+            appId: process.env.VITE_APP_ID || "local-dev", // Use the app ID from env
           },
           JWT_SECRET,
           { expiresIn: "7d" }
         );
+        
+        console.log("[LocalAuth] JWT payload:", {
+          id: user.id,
+          openId: user.id,
+          appId: process.env.VITE_APP_ID,
+          name: user.name,
+          role: user.role,
+        });
 
         console.log("[LocalAuth] JWT token generated, length:", token.length);
         
