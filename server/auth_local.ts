@@ -28,14 +28,21 @@ export const localAuthRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      console.log("[LocalAuth] Login attempt:", { username: input.username });
+      
       // Check credentials
       if (
         input.username !== ADMIN_CREDENTIALS.username ||
         input.password !== ADMIN_CREDENTIALS.password
       ) {
+        console.log("[LocalAuth] Invalid credentials");
         throw new Error("Invalid credentials");
       }
 
+      console.log("[LocalAuth] Credentials valid, querying database...");
+      console.log("[LocalAuth] DATABASE_URL configured:", !!DATABASE_URL);
+      console.log("[LocalAuth] Looking for user ID:", ADMIN_CREDENTIALS.userId);
+      
       // Get user from database using postgres client directly
       const sql = postgres(DATABASE_URL);
       
@@ -47,14 +54,19 @@ export const localAuthRouter = router({
           LIMIT 1
         `;
         
+        console.log("[LocalAuth] Query result:", result);
+        
         await sql.end();
         
         if (!result || result.length === 0) {
+          console.error("[LocalAuth] User not found in database");
           throw new Error("User not found in database");
         }
         
         const user = result[0];
 
+        console.log("[LocalAuth] User found:", { id: user.id, email: user.email, name: user.name, role: user.role });
+        
         // Generate JWT token
         const token = jwt.sign(
           {
@@ -67,9 +79,14 @@ export const localAuthRouter = router({
           { expiresIn: "7d" }
         );
 
+        console.log("[LocalAuth] JWT token generated, length:", token.length);
+        
         // Set cookie
         const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+        
+        console.log("[LocalAuth] Cookie set with name:", COOKIE_NAME);
+        console.log("[LocalAuth] Login successful!");
 
         return {
           success: true,
