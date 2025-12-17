@@ -23,9 +23,14 @@ export default function Home() {
                 <Button>Go to Dashboard</Button>
               </Link>
             ) : (
-              <Button asChild>
-                <a href={getLoginUrl()}>Sign In</a>
-              </Button>
+              <div className="flex gap-2">
+                <Button asChild>
+                  <a href={getLoginUrl()}>Sign In</a>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link href="/local-login">Local Login</Link>
+                </Button>
+              </div>
             )}
           </div>
         </div>

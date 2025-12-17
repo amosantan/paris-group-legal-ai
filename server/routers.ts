@@ -14,6 +14,7 @@ import { extractTextFromPDF, cleanExtractedText, validatePDFSize, extractContrac
 import { calculateConfidenceScore } from "./confidenceScoring";
 import { verifyAllCitations, calculateGroundingScore } from "./citationVerification";
 import { lawyerReviewRouter, auditLogRouter } from "./routers_lawyerReview";
+import { localAuthRouter } from "./auth_local";
 import { logAIInteraction } from "./db_lawyerReviews";
 import { generateConsultationPDF, generateContractReviewPDF } from "./pdfGenerator";
 import { generateDemandLetterPDF, generateEvictionNoticePDF, generateNOCPDF, DemandLetterData, EvictionNoticeData, NOCData } from "./legalDocumentTemplates";
@@ -25,6 +26,7 @@ export const appRouter = router({
   system: systemRouter,
   lawyerReview: lawyerReviewRouter,
   auditLog: auditLogRouter,
+  localAuth: localAuthRouter,
 
 
   auth: router({
