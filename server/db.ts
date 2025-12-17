@@ -112,15 +112,42 @@ export async function getUserByOpenId(openId: string) {
 }
 
 export async function getUserById(id: string) {
-  const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
+  if (!process.env.DATABASE_URL) {
+    console.warn("[Database] Cannot get user: DATABASE_URL not configured");
     return undefined;
   }
 
-  const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
-
-  return result.length > 0 ? result[0] : undefined;
+  try {
+    const sql = postgres(process.env.DATABASE_URL);
+    const result = await sql`
+      SELECT id, email, name, picture_url, role, created_at, updated_at 
+      FROM users 
+      WHERE id = ${id}
+      LIMIT 1
+    `;
+    await sql.end();
+    
+    if (!result || result.length === 0) {
+      return undefined;
+    }
+    
+    // Map Supabase schema to expected User type
+    const user = result[0];
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      openId: user.id, // Use id as openId for compatibility
+      loginMethod: 'local',
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
+      lastSignedIn: user.updated_at,
+    } as any;
+  } catch (error) {
+    console.error("[Database] Error getting user by ID:", error);
+    return undefined;
+  }
 }
 
 // Consultation queries
