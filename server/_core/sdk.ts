@@ -257,9 +257,29 @@ class SDKServer {
   }
 
   async authenticateRequest(req: Request): Promise<User> {
-    // Regular authentication flow
     const cookies = this.parseCookies(req.headers.cookie);
     const sessionCookie = cookies.get(COOKIE_NAME);
+    
+    // Try local auth JWT first (development mode)
+    if (sessionCookie) {
+      try {
+        const jwt = require('jsonwebtoken');
+        const JWT_SECRET = process.env.JWT_SECRET || "paris-legal-ai-jwt-secret-2025-secure-token-key-v9";
+        const decoded = jwt.verify(sessionCookie, JWT_SECRET) as any;
+        
+        // If JWT has 'id' field, it's a local auth token
+        if (decoded.id) {
+          const user = await db.getUserById(decoded.id);
+          if (user) {
+            return user;
+          }
+        }
+      } catch (error) {
+        // Not a local auth JWT, continue with OAuth flow
+      }
+    }
+    
+    // Regular OAuth authentication flow
     const session = await this.verifySession(sessionCookie);
 
     if (!session) {
