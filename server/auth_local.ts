@@ -1,6 +1,6 @@
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import jwt from "jsonwebtoken";
+import { SignJWT } from "jose";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import postgres from "postgres";
@@ -74,21 +74,21 @@ export const localAuthRouter = router({
 
         console.log("[LocalAuth] User found:", { id: user.id, email: user.email, name: user.name, role: user.role });
         
-        // Generate JWT token with OAuth-compatible fields
-        const token = jwt.sign(
-          {
-            // Local auth fields
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            // OAuth-compatible fields (required by verifySession)
-            openId: user.id, // Use local user ID as openId
-            appId: process.env.VITE_APP_ID || "local-dev", // Use the app ID from env
-          },
-          JWT_SECRET,
-          { expiresIn: "7d" }
-        );
+        // Generate JWT token with OAuth-compatible fields using jose library
+        const secretKey = new TextEncoder().encode(JWT_SECRET);
+        const token = await new SignJWT({
+          // Local auth fields
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          // OAuth-compatible fields (required by verifySession)
+          openId: user.id, // Use local user ID as openId
+          appId: process.env.VITE_APP_ID || "local-dev", // Use the app ID from env
+        })
+          .setProtectedHeader({ alg: "HS256" })
+          .setExpirationTime("7d")
+          .sign(secretKey);
         
         console.log("[LocalAuth] JWT payload:", {
           id: user.id,
