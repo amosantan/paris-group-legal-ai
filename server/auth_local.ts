@@ -3,9 +3,10 @@ import { z } from "zod";
 import jwt from "jsonwebtoken";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
-import * as db from "./db";
+import postgres from "postgres";
 
 const JWT_SECRET = process.env.JWT_SECRET || "paris-legal-ai-jwt-secret-2025-secure-token-key-v9";
+const DATABASE_URL = process.env.DATABASE_URL || "";
 
 // Development-only local authentication
 // This bypasses OAuth for local development
@@ -35,38 +36,54 @@ export const localAuthRouter = router({
         throw new Error("Invalid credentials");
       }
 
-      // Get user from database
-      const user = await db.getUserById(ADMIN_CREDENTIALS.userId);
+      // Get user from database using postgres client directly
+      const sql = postgres(DATABASE_URL);
       
-      if (!user) {
-        throw new Error("User not found in database");
+      try {
+        const result = await sql`
+          SELECT id, email, name, role 
+          FROM users 
+          WHERE id = ${ADMIN_CREDENTIALS.userId}
+          LIMIT 1
+        `;
+        
+        await sql.end();
+        
+        if (!result || result.length === 0) {
+          throw new Error("User not found in database");
+        }
+        
+        const user = result[0];
+
+        // Generate JWT token
+        const token = jwt.sign(
+          {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+          },
+          JWT_SECRET,
+          { expiresIn: "7d" }
+        );
+
+        // Set cookie
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+
+        return {
+          success: true,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+          },
+        };
+      } catch (error) {
+        await sql.end();
+        throw error;
       }
-
-      // Generate JWT token
-      const token = jwt.sign(
-        {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        },
-        JWT_SECRET,
-        { expiresIn: "7d" }
-      );
-
-      // Set cookie
-      const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
-
-      return {
-        success: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        },
-      };
     }),
 
   // Check if local auth is enabled
