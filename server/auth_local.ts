@@ -44,9 +44,14 @@ export const localAuthRouter = router({
       console.log("[LocalAuth] Looking for user ID:", ADMIN_CREDENTIALS.userId);
       
       // Get user from database using postgres client directly
-      const sql = postgres(DATABASE_URL);
+      const sql = postgres(DATABASE_URL, {
+        max: 1,
+        idle_timeout: 20,
+        connect_timeout: 10,
+      });
       
       try {
+        console.log("[LocalAuth] Executing SQL query...");
         const result = await sql`
           SELECT id, email, name, role 
           FROM users 
@@ -54,9 +59,11 @@ export const localAuthRouter = router({
           LIMIT 1
         `;
         
-        console.log("[LocalAuth] Query result:", result);
+        console.log("[LocalAuth] Query completed, result count:", result?.length || 0);
+        console.log("[LocalAuth] Query result:", JSON.stringify(result));
         
         await sql.end();
+        console.log("[LocalAuth] Connection closed");
         
         if (!result || result.length === 0) {
           console.error("[LocalAuth] User not found in database");
@@ -98,8 +105,13 @@ export const localAuthRouter = router({
           },
         };
       } catch (error) {
-        await sql.end();
-        throw error;
+        console.error("[LocalAuth] Error during login:", error);
+        try {
+          await sql.end();
+        } catch (endError) {
+          console.error("[LocalAuth] Error closing connection:", endError);
+        }
+        throw new Error(error instanceof Error ? error.message : "Login failed");
       }
     }),
 
