@@ -263,18 +263,25 @@ class SDKServer {
     // Try local auth JWT first (development mode)
     if (sessionCookie) {
       try {
-        const jwt = require('jsonwebtoken');
         const JWT_SECRET = process.env.JWT_SECRET || "paris-legal-ai-jwt-secret-2025-secure-token-key-v9";
-        const decoded = jwt.verify(sessionCookie, JWT_SECRET) as any;
+        const secret = new TextEncoder().encode(JWT_SECRET);
+        const { payload } = await jwtVerify(sessionCookie, secret);
+        
+        console.log('[Auth] JWT payload:', payload);
         
         // If JWT has 'id' field, it's a local auth token
-        if (decoded.id) {
-          const user = await db.getUserById(decoded.id);
+        if (payload.id && typeof payload.id === 'string') {
+          console.log('[Auth] Local auth JWT detected, fetching user:', payload.id);
+          const user = await db.getUserById(payload.id);
           if (user) {
+            console.log('[Auth] Local auth successful for user:', user.name);
             return user;
+          } else {
+            console.log('[Auth] User not found in database:', payload.id);
           }
         }
       } catch (error) {
+        console.log('[Auth] JWT verification failed, trying OAuth:', error);
         // Not a local auth JWT, continue with OAuth flow
       }
     }
