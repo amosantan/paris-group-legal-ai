@@ -60,7 +60,7 @@ export const appRouter = router({
           role: "system",
           content: input.language === "ar" 
             ? "مرحباً بك في مستشار باريس جروب القانوني. أنا متخصص في قانون الإيجار في دبي والمعاملات العقارية. كيف يمكنني مساعدتك اليوم؟"
-            : "Welcome to Paris Group Legal Consultant. I specialize in Dubai rental law and real estate transactions. How may I assist you today?",
+            : "Welcome to SANZEN Legal Consultant. I specialize in Dubai rental law and real estate transactions. How may I assist you today?",
         });
 
         // Log consultation creation

@@ -234,7 +234,7 @@ export default function ContractReview() {
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Legal Disclaimer</AlertTitle>
               <AlertDescription>
-                This AI-powered analysis is informational and does not constitute legal advice. It is based on current UAE/Dubai law and Paris Group internal documents. For binding legal counsel, please consult with a licensed attorney.
+                This AI-powered analysis is informational and does not constitute legal advice. It is based on current UAE/Dubai law and SANZEN internal documents. For binding legal counsel, please consult with a licensed attorney.
               </AlertDescription>
             </Alert>
           </div>

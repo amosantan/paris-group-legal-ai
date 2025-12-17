@@ -528,7 +528,7 @@ export default function LegalDocumentGenerator() {
                     <Input
                       value={noc.issuerCompany}
                       onChange={(e) => setNOC({ ...noc, issuerCompany: e.target.value })}
-                      placeholder="Paris Group Legal Consultant"
+                      placeholder="SANZEN Legal Consultant"
                     />
                   </div>
                   <div className="space-y-2">

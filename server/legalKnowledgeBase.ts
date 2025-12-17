@@ -1,5 +1,5 @@
 /**
- * Legal Knowledge Base for Paris Group Dubai Legal AI
+ * Legal Knowledge Base for SANZEN Dubai Legal AI
  * Contains UAE/Dubai laws, regulations, and legal provisions
  * EXPANDED VERSION with comprehensive coverage
  */

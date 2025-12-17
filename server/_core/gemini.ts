@@ -1,7 +1,7 @@
 import axios from "axios";
 
 /**
- * Google Gemini API integration for Paris Group Legal AI
+ * Google Gemini API integration for SANZEN Legal AI
  * Provides an alternative LLM provider to the built-in Manus LLM
  */
 

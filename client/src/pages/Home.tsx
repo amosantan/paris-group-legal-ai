@@ -13,9 +13,9 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Scale className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold">Paris Group Legal AI</h1>
+          <div className="flex items-center gap-3">
+            <img src="/assets/sanzen-logo.png" alt="SANZEN" className="h-10" />
+            <h1 className="text-2xl font-bold">SANZEN Legal AI</h1>
           </div>
           <div>
             {isAuthenticated ? (
@@ -351,7 +351,7 @@ export default function Home() {
 
       <footer className="border-t py-8">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© 2024 Paris Group Legal AI. All rights reserved.</p>
+          <p>© 2024 SANZEN Legal AI. All rights reserved.</p>
           <p className="mt-2">Specialized in Dubai Real Estate Law & DIFC Regulations</p>
         </div>
       </footer>

@@ -206,7 +206,7 @@ describe("6-Hour Sprint - Comprehensive Feature Tests", () => {
         issuerNameAr: "أحمد المكتوم",
         issuerTitle: "Property Manager",
         issuerTitleAr: "مدير العقارات",
-        issuerCompany: "Paris Group Legal",
+        issuerCompany: "SANZEN Legal",
         issuerCompanyAr: "مستشار باريس جروب القانوني",
         recipientName: "John Smith",
         recipientNameAr: "جون سميث",
