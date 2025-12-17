@@ -1,6 +1,6 @@
 import { publicProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { sign } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import * as db from "./db";
@@ -43,7 +43,7 @@ export const localAuthRouter = router({
       }
 
       // Generate JWT token
-      const token = sign(
+      const token = jwt.sign(
         {
           id: user.id,
           email: user.email,
