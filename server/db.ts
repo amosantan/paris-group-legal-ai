@@ -176,7 +176,7 @@ export async function createConsultation(data: InsertConsultation) {
   }
 }
 
-export async function getConsultationById(id: number) {
+export async function getConsultationById(id: string) {
   const db = await getDb();
   if (!db) return undefined;
   
@@ -237,7 +237,7 @@ export async function createMessage(data: InsertMessage) {
   }
 }
 
-export async function getConsultationMessages(consultationId: number) {
+export async function getConsultationMessages(consultationId: string) {
   const db = await getDb();
   if (!db) return [];
   
@@ -266,7 +266,7 @@ export async function createDocument(data: InsertDocument) {
   return result[0].insertId;
 }
 
-export async function getDocumentById(id: number) {
+export async function getDocumentById(id: string) {
   const db = await getDb();
   if (!db) return undefined;
   
@@ -274,7 +274,7 @@ export async function getDocumentById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getConsultationDocuments(consultationId: number) {
+export async function getConsultationDocuments(consultationId: string) {
   const db = await getDb();
   if (!db) return [];
   
@@ -305,7 +305,7 @@ export async function getContractReviewByDocumentId(documentId: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getConsultationReviews(consultationId: number) {
+export async function getConsultationReviews(consultationId: string) {
   const db = await getDb();
   if (!db) return [];
   
@@ -321,7 +321,7 @@ export async function createReport(data: InsertReport) {
   return result[0].insertId;
 }
 
-export async function getReportById(id: number) {
+export async function getReportById(id: string) {
   const db = await getDb();
   if (!db) return undefined;
   
@@ -329,7 +329,7 @@ export async function getReportById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getConsultationReports(consultationId: number) {
+export async function getConsultationReports(consultationId: string) {
   const db = await getDb();
   if (!db) return [];
   
@@ -431,7 +431,7 @@ export async function getLegalKnowledgeStats() {
   };
 }
 
-export async function deleteLegalKnowledge(id: number) {
+export async function deleteLegalKnowledge(id: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
@@ -548,7 +548,7 @@ export async function getAiResponseMetadata(messageId: number) {
   return result[0] || null;
 }
 
-export async function getConsultationMetadata(consultationId: number) {
+export async function getConsultationMetadata(consultationId: string) {
   const db = await getDb();
   if (!db) return [];
   

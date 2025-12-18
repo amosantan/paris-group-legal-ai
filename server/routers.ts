@@ -87,14 +87,14 @@ export const appRouter = router({
     }),
 
     getById: protectedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.string() }))
       .query(async ({ input }) => {
         return db.getConsultationById(input.id);
       }),
 
     updateStatus: protectedProcedure
       .input(z.object({
-        id: z.number(),
+        id: z.string(),
         status: z.enum(["active", "completed", "archived"]),
       }))
       .mutation(async ({ input }) => {
@@ -105,14 +105,14 @@ export const appRouter = router({
 
   messages: router({
     list: protectedProcedure
-      .input(z.object({ consultationId: z.number() }))
+      .input(z.object({ consultationId: z.string() }))
       .query(async ({ input }) => {
         return db.getConsultationMessages(input.consultationId);
       }),
 
     send: protectedProcedure
       .input(z.object({
-        consultationId: z.number(),
+        consultationId: z.string(),
         content: z.string(),
         language: z.enum(["en", "ar"]).default("en"),
       }))
@@ -275,7 +275,7 @@ export const appRouter = router({
   documents: router({
     upload: protectedProcedure
       .input(z.object({
-        consultationId: z.number(),
+        consultationId: z.string(),
         filename: z.string(),
         fileData: z.string(), // base64
         mimeType: z.string(),
@@ -338,13 +338,13 @@ export const appRouter = router({
       }),
 
     list: protectedProcedure
-      .input(z.object({ consultationId: z.number() }))
+      .input(z.object({ consultationId: z.string() }))
       .query(async ({ input }) => {
         return db.getConsultationDocuments(input.consultationId);
       }),
 
     getById: protectedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.string() }))
       .query(async ({ input }) => {
         return db.getDocumentById(input.id);
       }),
@@ -354,7 +354,7 @@ export const appRouter = router({
     analyze: protectedProcedure
       .input(z.object({
         documentId: z.number(),
-        consultationId: z.number(),
+        consultationId: z.string(),
         language: z.enum(["en", "ar"]).default("en"),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -488,7 +488,7 @@ Provide detailed analysis in JSON format with the following fields:
       }),
 
     list: protectedProcedure
-      .input(z.object({ consultationId: z.number() }))
+      .input(z.object({ consultationId: z.string() }))
       .query(async ({ input }) => {
         return db.getConsultationReviews(input.consultationId);
       }),
@@ -496,7 +496,7 @@ Provide detailed analysis in JSON format with the following fields:
 
   reports: router({
     exportConsultationPDF: protectedProcedure
-      .input(z.object({ consultationId: z.number() }))
+      .input(z.object({ consultationId: z.string() }))
       .mutation(async ({ ctx, input }) => {
         const consultation = await db.getConsultationById(input.consultationId);
         if (!consultation) {
@@ -724,7 +724,7 @@ Provide detailed analysis in JSON format with the following fields:
 
     generate: protectedProcedure
       .input(z.object({
-        consultationId: z.number(),
+        consultationId: z.string(),
         title: z.string(),
         reportType: z.enum(["consultation_summary", "contract_review", "legal_analysis", "advisory_memo"]),
         language: z.enum(["en", "ar"]).default("en"),
@@ -801,13 +801,13 @@ Use formal legal language and cite relevant articles and laws.`;
       }),
 
     list: protectedProcedure
-      .input(z.object({ consultationId: z.number() }))
+      .input(z.object({ consultationId: z.string() }))
       .query(async ({ input }) => {
         return db.getConsultationReports(input.consultationId);
       }),
 
     getById: protectedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.string() }))
       .query(async ({ input }) => {
         return db.getReportById(input.id);
       }),
@@ -1010,7 +1010,7 @@ Use formal legal language and cite relevant articles and laws.`;
 
     // Delete knowledge entry (admin only)
     deleteEntry: protectedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.string() }))
       .mutation(async ({ ctx, input }) => {
         if (ctx.user.role !== 'admin') {
           throw new Error('Admin access required');
@@ -1048,7 +1048,7 @@ Use formal legal language and cite relevant articles and laws.`;
       }),
 
     delete: protectedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.string() }))
       .mutation(async ({ ctx, input }) => {
         await db.deleteBookmark(input.id, ctx.user.id);
         return { success: true };
@@ -1056,7 +1056,7 @@ Use formal legal language and cite relevant articles and laws.`;
 
     updateNotes: protectedProcedure
       .input(z.object({
-        id: z.number(),
+        id: z.string(),
         notes: z.string(),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -1102,7 +1102,7 @@ Use formal legal language and cite relevant articles and laws.`;
       }),
 
     getById: protectedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.string() }))
       .query(async ({ ctx, input }) => {
         const search = await db.getSavedSearchById(input.id, ctx.user.id);
         if (!search) return null;
@@ -1115,14 +1115,14 @@ Use formal legal language and cite relevant articles and laws.`;
       }),
 
     delete: protectedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.string() }))
       .mutation(async ({ ctx, input }) => {
         await db.deleteSavedSearch(input.id, ctx.user.id);
         return { success: true };
       }),
 
     updateLastUsed: protectedProcedure
-      .input(z.object({ id: z.number() }))
+      .input(z.object({ id: z.string() }))
       .mutation(async ({ ctx, input }) => {
         await db.updateSavedSearchLastUsed(input.id, ctx.user.id);
         return { success: true };
@@ -1130,7 +1130,7 @@ Use formal legal language and cite relevant articles and laws.`;
 
     rename: protectedProcedure
       .input(z.object({
-        id: z.number(),
+        id: z.string(),
         name: z.string().min(1).max(255),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -1180,10 +1180,15 @@ Document Type: ${input.documentType.replace("_", " ").toUpperCase()}`;
 ${input.text}`;
 
         // Use the unified LLM to perform translation
-        const response = await invokeUnifiedLLM([
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt }
-        ]);
+        const result = await invokeUnifiedLLM({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ]
+        });
+        
+        // Extract the translated text from the response
+        const response = result.choices[0]?.message?.content || "";
 
         // Log the translation activity
         await logAIInteraction(

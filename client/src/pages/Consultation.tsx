@@ -18,7 +18,7 @@ import { splitTextWithCitations, hasCitations } from "@/lib/citationParser";
 
 export default function Consultation() {
   const { id } = useParams<{ id: string }>();
-  const consultationId = parseInt(id || "0");
+  const consultationId = id || "";
   const [message, setMessage] = useState("");
   const [uploadingFile, setUploadingFile] = useState(false);
   const [selectedCitation, setSelectedCitation] = useState<any>(null);
