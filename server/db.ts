@@ -111,7 +111,7 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getUserById(id: string) {
+export async function getUserById(id: number) {
   if (!process.env.DATABASE_URL) {
     console.warn("[Database] Cannot get user: DATABASE_URL not configured");
     return undefined;
@@ -176,7 +176,7 @@ export async function createConsultation(data: InsertConsultation) {
   }
 }
 
-export async function getConsultationById(id: string) {
+export async function getConsultationById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
   
@@ -237,7 +237,7 @@ export async function createMessage(data: InsertMessage) {
   }
 }
 
-export async function getConsultationMessages(consultationId: string) {
+export async function getConsultationMessages(consultationId: number) {
   const db = await getDb();
   if (!db) return [];
   
@@ -266,7 +266,7 @@ export async function createDocument(data: InsertDocument) {
   return result[0].insertId;
 }
 
-export async function getDocumentById(id: string) {
+export async function getDocumentById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
   
@@ -274,7 +274,7 @@ export async function getDocumentById(id: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getConsultationDocuments(consultationId: string) {
+export async function getConsultationDocuments(consultationId: number) {
   const db = await getDb();
   if (!db) return [];
   
@@ -305,7 +305,7 @@ export async function getContractReviewByDocumentId(documentId: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getConsultationReviews(consultationId: string) {
+export async function getConsultationReviews(consultationId: number) {
   const db = await getDb();
   if (!db) return [];
   
@@ -321,7 +321,7 @@ export async function createReport(data: InsertReport) {
   return result[0].insertId;
 }
 
-export async function getReportById(id: string) {
+export async function getReportById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
   
@@ -329,7 +329,7 @@ export async function getReportById(id: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getConsultationReports(consultationId: string) {
+export async function getConsultationReports(consultationId: number) {
   const db = await getDb();
   if (!db) return [];
   
@@ -431,7 +431,7 @@ export async function getLegalKnowledgeStats() {
   };
 }
 
-export async function deleteLegalKnowledge(id: string) {
+export async function deleteLegalKnowledge(id: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
@@ -548,7 +548,7 @@ export async function getAiResponseMetadata(messageId: number) {
   return result[0] || null;
 }
 
-export async function getConsultationMetadata(consultationId: string) {
+export async function getConsultationMetadata(consultationId: number) {
   const db = await getDb();
   if (!db) return [];
   
