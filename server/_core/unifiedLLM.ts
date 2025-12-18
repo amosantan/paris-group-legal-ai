@@ -35,20 +35,36 @@ export async function invokeUnifiedLLM(params: UnifiedLLMParams) {
   const provider = params.provider || getCurrentProvider();
   
   console.log(`[Unified LLM] Using provider: ${provider}`);
+  console.log(`[Unified LLM] GEMINI_API_KEY available: ${!!process.env.GEMINI_API_KEY}`);
+  console.log(`[Unified LLM] LLM_PROVIDER env: ${process.env.LLM_PROVIDER}`);
   
   try {
     if (provider === "gemini") {
-      return await invokeGeminiProvider(params);
+      console.log('[Unified LLM] Invoking Gemini provider...');
+      const result = await invokeGeminiProvider(params);
+      console.log('[Unified LLM] Gemini provider succeeded');
+      return result;
     } else {
-      return await invokeManusProvider(params);
+      console.log('[Unified LLM] Invoking Manus provider...');
+      const result = await invokeManusProvider(params);
+      console.log('[Unified LLM] Manus provider succeeded');
+      return result;
     }
   } catch (error: any) {
     console.error(`[Unified LLM] Error with ${provider}:`, error.message);
+    console.error(`[Unified LLM] Full error:`, error);
     
     // Fallback to Manus if Gemini fails
     if (provider === "gemini") {
       console.log("[Unified LLM] Falling back to Manus provider");
-      return await invokeManusProvider(params);
+      try {
+        const result = await invokeManusProvider(params);
+        console.log('[Unified LLM] Manus fallback succeeded');
+        return result;
+      } catch (fallbackError: any) {
+        console.error('[Unified LLM] Manus fallback also failed:', fallbackError.message);
+        throw fallbackError;
+      }
     }
     
     throw error;

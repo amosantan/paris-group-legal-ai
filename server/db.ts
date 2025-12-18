@@ -159,8 +159,8 @@ export async function createConsultation(data: InsertConsultation) {
   try {
     const sql = postgres(process.env.DATABASE_URL);
     const result = await sql`
-      INSERT INTO consultations (user_id, title, category, status, created_at, updated_at)
-      VALUES (${data.userId}, ${data.title}, ${data.category}, ${data.status || 'active'}, NOW(), NOW())
+      INSERT INTO consultations (user_id, title, category, language, status, created_at, updated_at)
+      VALUES (${data.userId}, ${data.title}, ${data.category}, ${data.language || 'en'}, ${data.status || 'active'}, NOW(), NOW())
       RETURNING id
     `;
     await sql.end();
@@ -177,11 +177,21 @@ export async function createConsultation(data: InsertConsultation) {
 }
 
 export async function getConsultationById(id: number) {
+  console.log('[DB] getConsultationById called with id:', id);
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) {
+    console.error('[DB] getConsultationById: database not available');
+    return undefined;
+  }
   
-  const result = await db.select().from(consultations).where(eq(consultations.id, id)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  try {
+    const result = await db.select().from(consultations).where(eq(consultations.id, id)).limit(1);
+    console.log('[DB] getConsultationById result:', result);
+    return result.length > 0 ? result[0] : undefined;
+  } catch (error) {
+    console.error('[DB] getConsultationById error:', error);
+    throw error;
+  }
 }
 
 export async function getUserConsultations(userId: string) {
@@ -238,23 +248,33 @@ export async function createMessage(data: InsertMessage) {
 }
 
 export async function getConsultationMessages(consultationId: number) {
+  console.log('[DB] getConsultationMessages called with consultationId:', consultationId);
   const db = await getDb();
-  if (!db) return [];
+  if (!db) {
+    console.error('[DB] getConsultationMessages: database not available');
+    return [];
+  }
   
-  const results = await db
-    .select({
-      message: messages,
-      metadata: aiResponseMetadata,
-    })
-    .from(messages)
-    .leftJoin(aiResponseMetadata, eq(messages.id, aiResponseMetadata.messageId))
-    .where(eq(messages.consultationId, consultationId))
-    .orderBy(messages.createdAt);
-  
-  return results.map(r => ({
-    ...r.message,
-    aiMetadata: r.metadata || undefined,
-  }));
+  try {
+    const results = await db
+      .select({
+        message: messages,
+        metadata: aiResponseMetadata,
+      })
+      .from(messages)
+      .leftJoin(aiResponseMetadata, eq(messages.id, aiResponseMetadata.messageId))
+      .where(eq(messages.consultationId, consultationId))
+      .orderBy(messages.createdAt);
+    
+    console.log('[DB] getConsultationMessages result count:', results.length);
+    return results.map(r => ({
+      ...r.message,
+      aiMetadata: r.metadata || undefined,
+    }));
+  } catch (error) {
+    console.error('[DB] getConsultationMessages error:', error);
+    throw error;
+  }
 }
 
 // Document queries
