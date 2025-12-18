@@ -68,6 +68,31 @@ export default function LegalDocumentGenerator() {
     issueDate: new Date().toISOString().split("T")[0],
   });
 
+  // LOI State
+  const [loi, setLOI] = useState({
+    buyerName: "",
+    buyerNameAr: "",
+    buyerAddress: "",
+    buyerAddressAr: "",
+    buyerContact: "",
+    sellerName: "",
+    sellerNameAr: "",
+    sellerAddress: "",
+    sellerAddressAr: "",
+    sellerContact: "",
+    propertyAddress: "",
+    propertyAddressAr: "",
+    propertyType: "",
+    propertyTypeAr: "",
+    purchasePrice: 0,
+    currency: "AED",
+    depositAmount: 0,
+    validityDays: 30,
+    specialConditions: "",
+    specialConditionsAr: "",
+    issueDate: new Date().toISOString().split("T")[0],
+  });
+
   const demandLetterMutation = trpc.reports.generateDemandLetter.useMutation({
     onSuccess: (data) => {
       toast.success("Demand letter generated successfully!");
@@ -98,6 +123,16 @@ export default function LegalDocumentGenerator() {
     },
   });
 
+  const loiMutation = trpc.reports.generateLOI.useMutation({
+    onSuccess: (data) => {
+      toast.success("Letter of Intent generated successfully!");
+      window.open(data.url, "_blank");
+    },
+    onError: (error) => {
+      toast.error(`Failed to generate LOI: ${error.message}`);
+    },
+  });
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -109,10 +144,11 @@ export default function LegalDocumentGenerator() {
         </div>
 
         <Tabs defaultValue="demand" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="demand">Demand Letter</TabsTrigger>
             <TabsTrigger value="eviction">Eviction Notice</TabsTrigger>
             <TabsTrigger value="noc">NOC</TabsTrigger>
+            <TabsTrigger value="loi">LOI</TabsTrigger>
           </TabsList>
 
           {/* Demand Letter Tab */}
@@ -646,6 +682,265 @@ export default function LegalDocumentGenerator() {
                     <FileText className="h-4 w-4 mr-2" />
                   )}
                   Generate NOC
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* LOI Tab */}
+          <TabsContent value="loi">
+            <Card>
+              <CardHeader>
+                <CardTitle>Letter of Intent (LOI) - Property Purchase</CardTitle>
+                <CardDescription>
+                  Generate a formal Letter of Intent for purchasing property
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Buyer Information */}
+                <div className="border-b pb-4">
+                  <h3 className="font-semibold mb-3">Buyer Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Buyer Name (English)</Label>
+                      <Input
+                        value={loi.buyerName}
+                        onChange={(e) => setLOI({ ...loi, buyerName: e.target.value })}
+                        placeholder="John Smith"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Buyer Name (Arabic)</Label>
+                      <Input
+                        value={loi.buyerNameAr}
+                        onChange={(e) => setLOI({ ...loi, buyerNameAr: e.target.value })}
+                        placeholder="جون سميث"
+                        dir="rtl"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <Label>Buyer Address (English)</Label>
+                      <Textarea
+                        value={loi.buyerAddress}
+                        onChange={(e) => setLOI({ ...loi, buyerAddress: e.target.value })}
+                        placeholder="123 Main Street, Dubai, UAE"
+                        rows={2}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Buyer Address (Arabic)</Label>
+                      <Textarea
+                        value={loi.buyerAddressAr}
+                        onChange={(e) => setLOI({ ...loi, buyerAddressAr: e.target.value })}
+                        placeholder="123 الشارع الرئيسي، دبي، الإمارات"
+                        dir="rtl"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mt-4">
+                    <Label>Buyer Contact</Label>
+                    <Input
+                      value={loi.buyerContact}
+                      onChange={(e) => setLOI({ ...loi, buyerContact: e.target.value })}
+                      placeholder="+971 50 123 4567 / buyer@email.com"
+                    />
+                  </div>
+                </div>
+
+                {/* Seller Information */}
+                <div className="border-b pb-4">
+                  <h3 className="font-semibold mb-3">Seller Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Seller Name (English)</Label>
+                      <Input
+                        value={loi.sellerName}
+                        onChange={(e) => setLOI({ ...loi, sellerName: e.target.value })}
+                        placeholder="Jane Doe"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Seller Name (Arabic)</Label>
+                      <Input
+                        value={loi.sellerNameAr}
+                        onChange={(e) => setLOI({ ...loi, sellerNameAr: e.target.value })}
+                        placeholder="جين دو"
+                        dir="rtl"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <Label>Seller Address (English)</Label>
+                      <Textarea
+                        value={loi.sellerAddress}
+                        onChange={(e) => setLOI({ ...loi, sellerAddress: e.target.value })}
+                        placeholder="456 Oak Avenue, Dubai, UAE"
+                        rows={2}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Seller Address (Arabic)</Label>
+                      <Textarea
+                        value={loi.sellerAddressAr}
+                        onChange={(e) => setLOI({ ...loi, sellerAddressAr: e.target.value })}
+                        placeholder="456 شارع البلوط، دبي، الإمارات"
+                        dir="rtl"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mt-4">
+                    <Label>Seller Contact</Label>
+                    <Input
+                      value={loi.sellerContact}
+                      onChange={(e) => setLOI({ ...loi, sellerContact: e.target.value })}
+                      placeholder="+971 50 987 6543 / seller@email.com"
+                    />
+                  </div>
+                </div>
+
+                {/* Property Details */}
+                <div className="border-b pb-4">
+                  <h3 className="font-semibold mb-3">Property Details</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Property Address (English)</Label>
+                      <Textarea
+                        value={loi.propertyAddress}
+                        onChange={(e) => setLOI({ ...loi, propertyAddress: e.target.value })}
+                        placeholder="Villa 123, Palm Jumeirah, Dubai"
+                        rows={2}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Property Address (Arabic)</Label>
+                      <Textarea
+                        value={loi.propertyAddressAr}
+                        onChange={(e) => setLOI({ ...loi, propertyAddressAr: e.target.value })}
+                        placeholder="فيلا 123، نخلة جميرا، دبي"
+                        dir="rtl"
+                        rows={2}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <div className="space-y-2">
+                      <Label>Property Type (English)</Label>
+                      <Input
+                        value={loi.propertyType}
+                        onChange={(e) => setLOI({ ...loi, propertyType: e.target.value })}
+                        placeholder="Villa / Apartment / Land"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Property Type (Arabic)</Label>
+                      <Input
+                        value={loi.propertyTypeAr}
+                        onChange={(e) => setLOI({ ...loi, propertyTypeAr: e.target.value })}
+                        placeholder="فيلا / شقة / أرض"
+                        dir="rtl"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Financial Terms */}
+                <div className="border-b pb-4">
+                  <h3 className="font-semibold mb-3">Financial Terms</h3>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Currency</Label>
+                      <Input
+                        value={loi.currency}
+                        onChange={(e) => setLOI({ ...loi, currency: e.target.value })}
+                        placeholder="AED"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Purchase Price</Label>
+                      <Input
+                        type="number"
+                        value={loi.purchasePrice}
+                        onChange={(e) => setLOI({ ...loi, purchasePrice: parseFloat(e.target.value) })}
+                        placeholder="5000000"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Initial Deposit</Label>
+                      <Input
+                        type="number"
+                        value={loi.depositAmount}
+                        onChange={(e) => setLOI({ ...loi, depositAmount: parseFloat(e.target.value) })}
+                        placeholder="500000"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Validity and Conditions */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Validity Period (Days)</Label>
+                    <Input
+                      type="number"
+                      value={loi.validityDays}
+                      onChange={(e) => setLOI({ ...loi, validityDays: parseInt(e.target.value) })}
+                      placeholder="30"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Special Conditions (English)</Label>
+                      <Textarea
+                        value={loi.specialConditions}
+                        onChange={(e) => setLOI({ ...loi, specialConditions: e.target.value })}
+                        placeholder="Subject to mortgage approval, property inspection..."
+                        rows={3}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Special Conditions (Arabic)</Label>
+                      <Textarea
+                        value={loi.specialConditionsAr}
+                        onChange={(e) => setLOI({ ...loi, specialConditionsAr: e.target.value })}
+                        placeholder="رهناً بالموافقة على الرهن العقاري، فحص العقار..."
+                        dir="rtl"
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Issue Date</Label>
+                    <Input
+                      type="date"
+                      value={loi.issueDate}
+                      onChange={(e) => setLOI({ ...loi, issueDate: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => loiMutation.mutate(loi)}
+                  disabled={loiMutation.isPending}
+                  className="w-full"
+                >
+                  {loiMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <FileText className="h-4 w-4 mr-2" />
+                  )}
+                  Generate Letter of Intent
                 </Button>
               </CardContent>
             </Card>

@@ -472,3 +472,204 @@ export async function generateNOCPDF(data: NOCData): Promise<Buffer> {
     doc.end();
   });
 }
+
+export interface LOIData {
+  buyerName: string;
+  buyerNameAr: string;
+  buyerAddress: string;
+  buyerAddressAr: string;
+  buyerContact: string;
+  sellerName: string;
+  sellerNameAr: string;
+  sellerAddress: string;
+  sellerAddressAr: string;
+  sellerContact: string;
+  propertyAddress: string;
+  propertyAddressAr: string;
+  propertyType: string;
+  propertyTypeAr: string;
+  purchasePrice: number;
+  currency: string;
+  depositAmount: number;
+  validityDays: number;
+  specialConditions: string;
+  specialConditionsAr: string;
+  issueDate: string;
+}
+
+/**
+ * Generate Bilingual Letter of Intent (LOI) PDF for Property Purchase (English/Arabic)
+ */
+export async function generateLOIPDF(data: LOIData): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({
+      size: "A4",
+      margins: { top: 50, bottom: 50, left: 50, right: 50 },
+    });
+
+    const chunks: Buffer[] = [];
+    doc.on("data", (chunk) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    // Header - Bilingual
+    doc.fontSize(18).fillColor("#1e40af").text("LETTER OF INTENT", { align: "center" });
+    doc.fontSize(16).text("خطاب نوايا", { align: "center", features: ["rtla"] });
+    doc.fontSize(14).fillColor("#000").text("Property Purchase / شراء عقار", { align: "center" });
+    doc.moveDown(2);
+
+    // Date - Bilingual
+    const dateStr = new Date(data.issueDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    const dateStrAr = new Date(data.issueDate).toLocaleDateString("ar-AE", { year: "numeric", month: "long", day: "numeric" });
+    doc.fontSize(10).fillColor("#000");
+    doc.text(`Date / التاريخ: ${dateStr} / ${dateStrAr}`, { align: "right" });
+    doc.moveDown(2);
+
+    // Buyer Information - Bilingual
+    doc.fontSize(12).fillColor("#000").text("BUYER INFORMATION / معلومات المشتري", { underline: true });
+    doc.fontSize(10);
+    doc.text(`Name / الاسم: ${data.buyerName} / ${data.buyerNameAr}`);
+    doc.text(`Address / العنوان: ${data.buyerAddress}`);
+    doc.text(`${data.buyerAddressAr}`, { features: ["rtla"] });
+    doc.text(`Contact / الاتصال: ${data.buyerContact}`);
+    doc.moveDown();
+
+    // Seller Information - Bilingual
+    doc.fontSize(12).text("SELLER INFORMATION / معلومات البائع", { underline: true });
+    doc.fontSize(10);
+    doc.text(`Name / الاسم: ${data.sellerName} / ${data.sellerNameAr}`);
+    doc.text(`Address / العنوان: ${data.sellerAddress}`);
+    doc.text(`${data.sellerAddressAr}`, { features: ["rtla"] });
+    doc.text(`Contact / الاتصال: ${data.sellerContact}`);
+    doc.moveDown(2);
+
+    // Property Details - Bilingual
+    doc.fontSize(12).fillColor("#1e40af").text("PROPERTY DETAILS / تفاصيل العقار", { underline: true });
+    doc.fontSize(10).fillColor("#000");
+    doc.text(`Property Address / عنوان العقار:`);
+    doc.text(`${data.propertyAddress}`);
+    doc.text(`${data.propertyAddressAr}`, { features: ["rtla"] });
+    doc.moveDown(0.5);
+    doc.text(`Property Type / نوع العقار: ${data.propertyType} / ${data.propertyTypeAr}`);
+    doc.moveDown(2);
+
+    // Financial Terms - Bilingual
+    doc.fontSize(12).fillColor("#1e40af").text("FINANCIAL TERMS / الشروط المالية", { underline: true });
+    doc.fontSize(10).fillColor("#000");
+    const formattedPrice = data.purchasePrice.toLocaleString("en-US");
+    doc.text(`Purchase Price / سعر الشراء: ${data.currency} ${formattedPrice}`);
+    const formattedDeposit = data.depositAmount.toLocaleString("en-US");
+    doc.text(`Initial Deposit / الدفعة الأولى: ${data.currency} ${formattedDeposit}`);
+    doc.moveDown(2);
+
+    // Intent Statement - English
+    doc.fontSize(11).fillColor("#000").text("STATEMENT OF INTENT / بيان النوايا", { underline: true });
+    doc.fontSize(10);
+    doc.text(
+      `This Letter of Intent (LOI) is issued by the Buyer to express their genuine interest and intent to purchase the above-mentioned property from the Seller, subject to the terms and conditions outlined herein.`,
+      { align: "justify" }
+    );
+    doc.moveDown(0.5);
+
+    // Intent Statement - Arabic
+    doc.text(
+      `يصدر خطاب النوايا هذا من قبل المشتري للتعبير عن اهتمامه الحقيقي ونيته في شراء العقار المذكور أعلاه من البائع، وفقاً للشروط والأحكام المبينة في هذا الخطاب.`,
+      { align: "right", features: ["rtla"] }
+    );
+    doc.moveDown(2);
+
+    // Terms and Conditions - English
+    doc.fontSize(11).text("TERMS AND CONDITIONS / الشروط والأحكام", { underline: true });
+    doc.fontSize(10);
+    
+    const terms = [
+      {
+        en: `1. This LOI is non-binding and serves as an expression of intent only. It does not constitute a legally binding agreement to purchase the property.`,
+        ar: `١. خطاب النوايا هذا غير ملزم ويعتبر تعبيراً عن النية فقط. لا يشكل اتفاقية ملزمة قانونياً لشراء العقار.`
+      },
+      {
+        en: `2. The Buyer agrees to conduct due diligence on the property, including but not limited to title verification, property inspection, and legal review.`,
+        ar: `٢. يوافق المشتري على إجراء العناية الواجبة للعقار، بما في ذلك على سبيل المثال لا الحصر التحقق من الملكية وفحص العقار والمراجعة القانونية.`
+      },
+      {
+        en: `3. Upon satisfactory completion of due diligence, the parties agree to negotiate in good faith towards a formal Sale and Purchase Agreement (SPA).`,
+        ar: `٣. عند الانتهاء المرضي من العناية الواجبة، يوافق الطرفان على التفاوض بحسن نية نحو اتفاقية بيع وشراء رسمية.`
+      },
+      {
+        en: `4. This LOI shall remain valid for ${data.validityDays} days from the date of issuance, unless extended by mutual written agreement.`,
+        ar: `٤. يظل خطاب النوايا هذا ساري المفعول لمدة ${data.validityDays} يوماً من تاريخ الإصدار، ما لم يتم تمديده باتفاق كتابي متبادل.`
+      },
+      {
+        en: `5. All costs and expenses related to due diligence, legal fees, and transaction costs shall be borne by the respective parties as agreed.`,
+        ar: `٥. تتحمل الأطراف المعنية جميع التكاليف والنفقات المتعلقة بالعناية الواجبة والرسوم القانونية وتكاليف المعاملة حسب الاتفاق.`
+      }
+    ];
+
+    terms.forEach(term => {
+      doc.text(term.en, { align: "justify" });
+      doc.moveDown(0.3);
+      doc.text(term.ar, { align: "right", features: ["rtla"] });
+      doc.moveDown(0.5);
+    });
+
+    doc.moveDown();
+
+    // Special Conditions - Bilingual (if provided)
+    if (data.specialConditions) {
+      doc.fontSize(11).text("SPECIAL CONDITIONS / شروط خاصة:", { underline: true });
+      doc.fontSize(10);
+      doc.text(data.specialConditions, { align: "justify" });
+      doc.moveDown(0.5);
+      doc.text(data.specialConditionsAr, { align: "right", features: ["rtla"] });
+      doc.moveDown(2);
+    }
+
+    // Governing Law - Bilingual
+    doc.fontSize(10).fillColor("#000");
+    doc.text(
+      "This Letter of Intent shall be governed by and construed in accordance with the laws of the Emirate of Dubai and the United Arab Emirates. Any disputes arising from this LOI shall be subject to the exclusive jurisdiction of the courts of Dubai.",
+      { align: "justify" }
+    );
+    doc.moveDown(0.5);
+    doc.text(
+      "يخضع خطاب النوايا هذا ويفسر وفقاً لقوانين إمارة دبي ودولة الإمارات العربية المتحدة. تخضع أي نزاعات ناشئة عن هذا الخطاب للاختصاص القضائي الحصري لمحاكم دبي.",
+      { align: "right", features: ["rtla"] }
+    );
+    doc.moveDown(3);
+
+    // Signature Sections - Bilingual
+    doc.fontSize(11).text("SIGNATURES / التوقيعات", { underline: true });
+    doc.moveDown(2);
+
+    // Buyer Signature
+    doc.fontSize(10);
+    doc.text("Buyer / المشتري:");
+    doc.moveDown();
+    doc.text("_______________________");
+    doc.text(`Name / الاسم: ${data.buyerName}`);
+    doc.text(`Date / التاريخ: ______________`);
+    doc.moveDown(2);
+
+    // Seller Signature
+    doc.text("Seller / البائع:");
+    doc.moveDown();
+    doc.text("_______________________");
+    doc.text(`Name / الاسم: ${data.sellerName}`);
+    doc.text(`Date / التاريخ: ______________`);
+
+    // Footer Disclaimer - Bilingual
+    doc.moveDown(3);
+    doc.fontSize(8).fillColor("#666");
+    doc.text(
+      "This document is generated by SANZEN Legal Consultant AI. This is not a substitute for professional legal advice. Please consult with a qualified legal professional before entering into any binding agreement.",
+      { align: "center" }
+    );
+    doc.moveDown(0.5);
+    doc.text(
+      "هذا المستند تم إنشاؤه بواسطة الذكاء الاصطناعي لمستشار سانزن القانوني. لا يعتبر بديلاً عن الاستشارة القانونية المهنية. يرجى استشارة محامٍ مؤهل قبل الدخول في أي اتفاقية ملزمة.",
+      { align: "center", features: ["rtla"] }
+    );
+
+    doc.end();
+  });
+}

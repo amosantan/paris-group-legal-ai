@@ -17,7 +17,7 @@ import { lawyerReviewRouter, auditLogRouter } from "./routers_lawyerReview";
 import { localAuthRouter } from "./auth_local";
 import { logAIInteraction } from "./db_lawyerReviews";
 import { generateConsultationPDF, generateContractReviewPDF } from "./pdfGenerator";
-import { generateDemandLetterPDF, generateEvictionNoticePDF, generateNOCPDF, DemandLetterData, EvictionNoticeData, NOCData } from "./legalDocumentTemplates";
+import { generateDemandLetterPDF, generateEvictionNoticePDF, generateNOCPDF, generateLOIPDF, DemandLetterData, EvictionNoticeData, NOCData, LOIData } from "./legalDocumentTemplates";
 import { nanoid } from "nanoid";
 import { ingestPDF } from "./pdfIngestionService";
 import { clearAllCache } from "./searchCache";
@@ -681,6 +681,47 @@ Provide detailed analysis in JSON format with the following fields:
         return { url, filename };
       }),
 
+    generateLOI: protectedProcedure
+      .input(z.object({
+        buyerName: z.string(),
+        buyerNameAr: z.string(),
+        buyerAddress: z.string(),
+        buyerAddressAr: z.string(),
+        buyerContact: z.string(),
+        sellerName: z.string(),
+        sellerNameAr: z.string(),
+        sellerAddress: z.string(),
+        sellerAddressAr: z.string(),
+        sellerContact: z.string(),
+        propertyAddress: z.string(),
+        propertyAddressAr: z.string(),
+        propertyType: z.string(),
+        propertyTypeAr: z.string(),
+        purchasePrice: z.number(),
+        currency: z.string(),
+        depositAmount: z.number(),
+        validityDays: z.number(),
+        specialConditions: z.string(),
+        specialConditionsAr: z.string(),
+        issueDate: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const pdfBuffer = await generateLOIPDF(input as LOIData);
+        const filename = `loi-${Date.now()}.pdf`;
+        const { url } = await storagePut(filename, pdfBuffer, "application/pdf");
+
+        await logAIInteraction(
+          ctx.user.id,
+          ctx.user.name,
+          "loi_generated",
+          "document",
+          0,
+          { filename }
+        );
+
+        return { url, filename };
+      }),
+
     generate: protectedProcedure
       .input(z.object({
         consultationId: z.number(),
@@ -1094,9 +1135,77 @@ Use formal legal language and cite relevant articles and laws.`;
       }))
       .mutation(async ({ ctx, input }) => {
         await db.updateSavedSearchName(input.id, ctx.user.id, input.name);
-        return { success: true };
+         return { success: true };
       }),
    }),
 
+  translator: router({
+    translate: protectedProcedure
+      .input(z.object({
+        text: z.string().min(1),
+        sourceLanguage: z.enum(["en", "ar"]),
+        targetLanguage: z.enum(["en", "ar"]),
+        documentType: z.enum(["contract", "agreement", "legal_notice", "general"]).default("contract"),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Validate that source and target languages are different
+        if (input.sourceLanguage === input.targetLanguage) {
+          throw new Error("Source and target languages must be different");
+        }
+
+        // Build specialized legal translation prompt
+        const direction = input.sourceLanguage === "ar" ? "Arabic to English" : "English to Arabic";
+        const systemPrompt = `You are a professional legal translator specializing in ${direction} translation of legal documents, contracts, and agreements.
+
+Your expertise includes:
+- UAE and Dubai legal terminology
+- Contract law terminology in both English and Arabic
+- Accurate translation of legal clauses, terms, and conditions
+- Maintaining the legal intent and meaning of the original text
+- Using formal legal language appropriate for official documents
+
+Guidelines:
+1. Translate the text accurately while preserving legal meaning
+2. Use appropriate legal terminology in the target language
+3. Maintain the formal tone and structure of legal documents
+4. For Arabic translations, use Modern Standard Arabic (MSA) suitable for legal documents
+5. For English translations, use formal legal English
+6. Preserve any specific legal terms, article numbers, or references
+7. Do not add explanations or commentary - provide only the translation
+
+Document Type: ${input.documentType.replace("_", " ").toUpperCase()}`;
+
+        const userPrompt = `Translate the following legal text from ${input.sourceLanguage === "ar" ? "Arabic" : "English"} to ${input.targetLanguage === "ar" ? "Arabic" : "English"}:
+
+${input.text}`;
+
+        // Use the unified LLM to perform translation
+        const response = await invokeUnifiedLLM([
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ]);
+
+        // Log the translation activity
+        await logAIInteraction(
+          ctx.user.id,
+          ctx.user.name,
+          "legal_translation",
+          "translation",
+          0,
+          {
+            sourceLanguage: input.sourceLanguage,
+            targetLanguage: input.targetLanguage,
+            documentType: input.documentType,
+            textLength: input.text.length,
+          }
+        );
+
+        return {
+          translatedText: response,
+          sourceLanguage: input.sourceLanguage,
+          targetLanguage: input.targetLanguage,
+        };
+      }),
+  }),
 });
 export type AppRouter = typeof appRouter;

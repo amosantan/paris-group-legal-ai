@@ -14,6 +14,7 @@ import Reports from "./pages/Reports";
 import LLMSettings from "./pages/LLMSettings";
 import LawyerReviewDashboard from "./pages/LawyerReviewDashboard";
 import LegalDocumentGenerator from "./pages/LegalDocumentGenerator";
+import LegalTranslator from "./pages/LegalTranslator";
 import AuditLogViewer from "./pages/AuditLogViewer";
 import PDFUploadAdmin from "./pages/PDFUploadAdmin";
 import CitationTest from "./pages/CitationTest";
@@ -32,6 +33,7 @@ function Router() {
       <Route path={"/llm-settings"} component={LLMSettings} />
       <Route path="/lawyer-review" component={LawyerReviewDashboard} />
       <Route path="/document-generator" component={LegalDocumentGenerator} />
+      <Route path="/legal-translator" component={LegalTranslator} />
       <Route path="/audit-logs" component={AuditLogViewer} />
       <Route path="/pdf-upload" component={PDFUploadAdmin} />
       <Route path="/citation-test" component={CitationTest} />
