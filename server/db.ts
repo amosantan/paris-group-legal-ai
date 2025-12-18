@@ -152,11 +152,28 @@ export async function getUserById(id: string) {
 
 // Consultation queries
 export async function createConsultation(data: InsertConsultation) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!process.env.DATABASE_URL) {
+    throw new Error("Database not available");
+  }
   
-  const result = await db.insert(consultations).values(data);
-  return result[0].insertId;
+  try {
+    const sql = postgres(process.env.DATABASE_URL);
+    const result = await sql`
+      INSERT INTO consultations (user_id, title, category, status, created_at, updated_at)
+      VALUES (${data.userId}, ${data.title}, ${data.category}, ${data.status || 'active'}, NOW(), NOW())
+      RETURNING id
+    `;
+    await sql.end();
+    
+    if (!result || result.length === 0) {
+      throw new Error("Failed to create consultation");
+    }
+    
+    return result[0].id;
+  } catch (error) {
+    console.error("[Database] Error creating consultation:", error);
+    throw error;
+  }
 }
 
 export async function getConsultationById(id: number) {
@@ -167,11 +184,24 @@ export async function getConsultationById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getUserConsultations(userId: number) {
-  const db = await getDb();
-  if (!db) return [];
+export async function getUserConsultations(userId: string) {
+  if (!process.env.DATABASE_URL) {
+    return [];
+  }
   
-  return db.select().from(consultations).where(eq(consultations.userId, userId)).orderBy(desc(consultations.updatedAt));
+  try {
+    const sql = postgres(process.env.DATABASE_URL);
+    const result = await sql`
+      SELECT * FROM consultations 
+      WHERE user_id = ${userId}
+      ORDER BY updated_at DESC
+    `;
+    await sql.end();
+    return result;
+  } catch (error) {
+    console.error("[Database] Error getting user consultations:", error);
+    return [];
+  }
 }
 
 export async function updateConsultationStatus(id: number, status: "active" | "completed" | "archived") {
@@ -183,11 +213,28 @@ export async function updateConsultationStatus(id: number, status: "active" | "c
 
 // Message queries
 export async function createMessage(data: InsertMessage) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  if (!process.env.DATABASE_URL) {
+    throw new Error("Database not available");
+  }
   
-  const result = await db.insert(messages).values(data);
-  return result[0].insertId;
+  try {
+    const sql = postgres(process.env.DATABASE_URL);
+    const result = await sql`
+      INSERT INTO messages (consultation_id, role, content, created_at)
+      VALUES (${data.consultationId}, ${data.role}, ${data.content}, NOW())
+      RETURNING id
+    `;
+    await sql.end();
+    
+    if (!result || result.length === 0) {
+      throw new Error("Failed to create message");
+    }
+    
+    return result[0].id;
+  } catch (error) {
+    console.error("[Database] Error creating message:", error);
+    throw error;
+  }
 }
 
 export async function getConsultationMessages(consultationId: number) {
